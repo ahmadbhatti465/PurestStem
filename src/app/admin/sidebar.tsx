@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Leaf } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Leaf, Mail, LogOut } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -12,6 +13,7 @@ const navItems = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/blog", label: "Blog Posts", icon: FileText },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/messages", label: "Messages", icon: Mail },
 ];
 
 export default function AdminSidebar() {
@@ -53,7 +55,14 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-green-800">
+      <div className="p-4 border-t border-green-800 space-y-1">
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-green-200 hover:bg-green-800 hover:text-white transition-colors cursor-pointer"
+        >
+          <LogOut className="w-5 h-5" />
+          Log Out
+        </button>
         <Link
           href="/"
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-green-200 hover:bg-green-800 hover:text-white transition-colors"
