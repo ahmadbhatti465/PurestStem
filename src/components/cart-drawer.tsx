@@ -8,6 +8,8 @@ import { formatPrice } from "@/lib/utils";
 
 export default function CartDrawer() {
   const { items, removeItem, updateQuantity, total, isOpen, setIsOpen } = useCart();
+  // eslint-disable-next-line no-console
+  console.log("[CartDrawer] render, items:", items.length, "isOpen:", isOpen);
 
   return (
     <AnimatePresence>

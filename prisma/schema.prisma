@@ -7,15 +7,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String     @id @default(cuid())
+  email     String     @unique
   name      String?
   password  String
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      String     @default("user")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   orders    Order[]
   reviews   Review[]
+  cartItems CartItem[]
 }
 
 model Category {
@@ -50,6 +51,7 @@ model Product {
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
   reviews     Review[]
+  cartItems   CartItem[]
 }
 
 model Order {
@@ -95,6 +97,19 @@ model BlogPost {
   updatedAt DateTime @updatedAt
 }
 
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+
 model Review {
   id        String   @id @default(cuid())
   productId String
@@ -105,5 +120,15 @@ model Review {
   rating    Int
   comment   String
   verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }

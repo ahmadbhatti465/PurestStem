@@ -1,17 +1,18 @@
 import { prisma } from "@/lib/db";
-import { Package, Users, ShoppingBag, DollarSign } from "lucide-react";
+import { Package, Users, ShoppingBag, DollarSign, Mail } from "lucide-react";
 import Link from "next/link";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 
 async function getStats() {
-  const [totalOrders, totalProducts, totalUsers, totalRevenue] = await Promise.all([
+  const [totalOrders, totalProducts, totalUsers, totalRevenue, unreadMessages] = await Promise.all([
     prisma.order.count(),
     prisma.product.count(),
     prisma.user.count(),
     prisma.order.aggregate({
       _sum: { total: true },
     }),
+    prisma.contactMessage.count({ where: { read: false } }),
   ]);
 
   return {
@@ -19,6 +20,7 @@ async function getStats() {
     totalProducts,
     totalUsers,
     totalRevenue: totalRevenue._sum.total || 0,
+    unreadMessages,
   };
 }
 
@@ -34,9 +36,17 @@ async function getRecentOrders() {
   });
 }
 
+async function getRecentMessages() {
+  return await prisma.contactMessage.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+}
+
 export default async function AdminPage() {
   const stats = await getStats();
   const recentOrders = await getRecentOrders();
+  const recentMessages = await getRecentMessages();
 
   return (
     <div>
@@ -49,7 +59,7 @@ export default async function AdminPage() {
 
       <StaggerContainer
         staggerDelay={0.1}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"
       >
         <StaggerItem>
           <Link href="/admin/orders" className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow duration-300 block">
@@ -105,6 +115,25 @@ export default async function AdminPage() {
               </div>
             </div>
           </div>
+        </StaggerItem>
+
+        <StaggerItem>
+          <Link href="/admin/messages" className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow duration-300 block relative">
+            {stats.unreadMessages > 0 && (
+              <span className="absolute top-4 right-4 min-w-[1.25rem] h-[1.25rem] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {stats.unreadMessages}
+              </span>
+            )}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <Mail className="w-6 h-6 text-green-700" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Messages</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.unreadMessages}</p>
+              </div>
+            </div>
+          </Link>
         </StaggerItem>
       </StaggerContainer>
 
@@ -163,6 +192,56 @@ export default async function AdminPage() {
           </div>
         </div>
       </FadeIn>
+
+      {recentMessages.length > 0 && (
+        <FadeIn delay={0.4}>
+          <div className="bg-white rounded-xl border overflow-hidden mt-8">
+            <div className="p-6 border-b flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Recent Messages</h2>
+              <Link
+                href="/admin/messages"
+                className="text-sm text-green-700 hover:underline font-medium"
+              >
+                View All
+              </Link>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-green-50">
+                  <tr>
+                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Subject</th>
+                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {recentMessages.map((msg) => (
+                    <tr key={msg.id} className="hover:bg-green-50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{msg.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">{msg.email}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{msg.subject || "—"}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          msg.read
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-green-100 text-green-800"
+                        }`}>
+                          {msg.read ? "Read" : "New"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {new Date(msg.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </FadeIn>
+      )}
     </div>
   );
 }
