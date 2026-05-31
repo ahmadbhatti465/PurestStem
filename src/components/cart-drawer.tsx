@@ -41,7 +41,7 @@ export default function CartDrawer() {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-green-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -54,7 +54,7 @@ export default function CartDrawer() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center justify-center h-full text-center"
                 >
-                  <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
                     <ShoppingBag className="w-10 h-10 text-gray-300" />
                   </div>
                   <p className="text-gray-900 font-medium mb-1">Your cart is empty</p>
@@ -76,7 +76,7 @@ export default function CartDrawer() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20, scale: 0.9 }}
                       transition={{ duration: 0.25 }}
-                      className="flex gap-4 bg-gray-50 p-4 rounded-xl mb-3"
+                      className="flex gap-4 bg-green-50 p-4 rounded-xl mb-3"
                     >
                       <div className="w-20 h-20 bg-white rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-100">
                         {item.image ? (
@@ -97,7 +97,7 @@ export default function CartDrawer() {
                         <div className="flex items-center gap-2 mt-2">
                           <button
                             onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            className="w-7 h-7 flex items-center justify-center bg-white border rounded-md hover:bg-gray-100 transition-colors"
+                            className="w-7 h-7 flex items-center justify-center bg-white border rounded-md hover:bg-green-100 transition-colors"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -106,7 +106,7 @@ export default function CartDrawer() {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            className="w-7 h-7 flex items-center justify-center bg-white border rounded-md hover:bg-gray-100 transition-colors"
+                            className="w-7 h-7 flex items-center justify-center bg-white border rounded-md hover:bg-green-100 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -128,7 +128,7 @@ export default function CartDrawer() {
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="border-t bg-gray-50 p-5 space-y-4"
+                className="border-t bg-green-50 p-5 space-y-4"
               >
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">

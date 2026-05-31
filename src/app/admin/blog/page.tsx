@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import DeleteButton from "@/components/admin/delete-button";
+import { Plus, Pencil, ImageIcon } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 
 async function getPosts() {
@@ -32,8 +33,9 @@ export default async function AdminBlogPage() {
         <div className="bg-white rounded-xl border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-green-50">
                 <tr>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Image</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Title</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Slug</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Author</th>
@@ -44,7 +46,16 @@ export default async function AdminBlogPage() {
               </thead>
               <tbody className="divide-y">
                 {posts.map((post) => (
-                  <tr key={post.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={post.id} className="hover:bg-green-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                        {post.image ? (
+                          <img src={post.image} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon className="w-5 h-5 text-gray-300" />
+                        )}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 font-medium text-sm text-gray-900">{post.title}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">{post.slug}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{post.author}</td>
@@ -66,21 +77,10 @@ export default async function AdminBlogPage() {
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>
-                        <form
-                          action={`/api/admin/blog/${post.id}/delete`}
-                          method="POST"
-                          className="inline"
-                        >
-                          <button
-                            type="submit"
-                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                            onClick={(e) => {
-                              if (!confirm("Are you sure?")) e.preventDefault();
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
+                        <DeleteButton
+                          apiUrl={`/api/admin/blog/${post.id}`}
+                          redirectPath="/admin/blog"
+                        />
                       </div>
                     </td>
                   </tr>

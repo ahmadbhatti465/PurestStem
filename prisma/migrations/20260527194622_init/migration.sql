@@ -81,7 +81,7 @@ CREATE TABLE "BlogPost" (
     "excerpt" TEXT,
     "content" TEXT NOT NULL,
     "image" TEXT,
-    "author" TEXT NOT NULL DEFAULT 'Khan Herbals',
+    "author" TEXT NOT NULL DEFAULT 'PurestStem',
     "published" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL

@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
-import PromoBar from "@/components/layout/promo-bar";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import CartDrawer from "@/components/cart-drawer";
+import SiteChrome from "@/components/layout/site-chrome";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Khan Herbals - Premium Herbal Products",
+  title: "PurestStem - Premium Herbal Products",
   description: "60 Years of Mountain Herbalism. Premium herbal shampoos, oils, teas and skincare products delivered across Pakistan.",
 };
 
@@ -21,13 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.className} antialiased`}>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
-          <PromoBar />
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <CartDrawer />
+          <SiteChrome>{children}</SiteChrome>
         </Providers>
       </body>
     </html>

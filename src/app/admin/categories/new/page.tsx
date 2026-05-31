@@ -23,6 +23,7 @@ export default function NewCategoryPage() {
 
       if (res.ok) {
         router.push("/admin/categories");
+        router.refresh();
       } else {
         alert("Failed to create category");
       }

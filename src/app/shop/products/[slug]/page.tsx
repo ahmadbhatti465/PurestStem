@@ -165,7 +165,7 @@ export default async function ProductPage({
             <StaggerContainer staggerDelay={0.1}>
               {product.reviews.map((review) => (
                 <StaggerItem key={review.id}>
-                  <div className="bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
+                  <div className="bg-green-50 p-4 rounded-xl hover:bg-green-100 transition-colors">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="flex">
                         {Array.from({ length: 5 }).map((_, i) => (

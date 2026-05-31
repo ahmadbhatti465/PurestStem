@@ -250,7 +250,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/shop/products"
-              className="inline-flex items-center gap-2 bg-white text-green-800 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 bg-white text-green-800 px-8 py-3 rounded-md font-medium hover:bg-green-100 transition-colors shadow-lg"
             >
               Shop Now
               <ArrowRight className="w-4 h-4" />

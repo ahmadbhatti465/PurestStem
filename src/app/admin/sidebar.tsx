@@ -27,7 +27,7 @@ export default function AdminSidebar() {
       <div className="p-6 border-b border-green-800">
         <div className="flex items-center gap-2 mb-1">
           <Leaf className="w-6 h-6 text-green-400" />
-          <span className="text-lg font-bold">Khan Herbals</span>
+          <span className="text-lg font-bold">PurestStem</span>
         </div>
         <p className="text-xs text-green-300">Admin Panel</p>
       </div>

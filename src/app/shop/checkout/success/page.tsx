@@ -21,7 +21,7 @@ export default function CheckoutSuccessPage() {
         </Link>
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-md font-medium hover:bg-gray-50 transition-colors"
+          className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-md font-medium hover:bg-green-50 transition-colors"
         >
           Back to Home
         </Link>

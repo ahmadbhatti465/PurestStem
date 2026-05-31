@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import DeleteButton from "@/components/admin/delete-button";
+import { Plus, Pencil } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 
 async function getProducts() {
@@ -35,7 +36,7 @@ export default async function AdminProductsPage() {
         <div className="bg-white rounded-xl border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-green-50">
                 <tr>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Product</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Category</th>
@@ -47,7 +48,7 @@ export default async function AdminProductsPage() {
               </thead>
               <tbody className="divide-y">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={product.id} className="hover:bg-green-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400 font-medium">
@@ -87,21 +88,10 @@ export default async function AdminProductsPage() {
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>
-                        <form
-                          action={`/api/admin/products/${product.id}/delete`}
-                          method="POST"
-                          className="inline"
-                        >
-                          <button
-                            type="submit"
-                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                            onClick={(e) => {
-                              if (!confirm("Are you sure?")) e.preventDefault();
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
+                        <DeleteButton
+                          apiUrl={`/api/admin/products/${product.id}`}
+                          redirectPath="/admin/products"
+                        />
                       </div>
                     </td>
                   </tr>

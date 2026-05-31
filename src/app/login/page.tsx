@@ -49,7 +49,7 @@ export default function LoginPage() {
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <Leaf className="w-7 h-7 text-green-700" />
             </div>
-            <span className="text-xl font-bold text-green-800">Khan Herbals</span>
+            <span className="text-xl font-bold text-green-800">PurestStem</span>
           </motion.div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your account</p>

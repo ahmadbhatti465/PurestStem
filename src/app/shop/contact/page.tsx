@@ -34,8 +34,8 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">Email</h3>
-                <p className="text-gray-600">info@khanherbals.com</p>
-                <p className="text-gray-600">support@khanherbals.com</p>
+                <p className="text-gray-600">info@pureststem.com</p>
+                <p className="text-gray-600">support@pureststem.com</p>
               </div>
             </div>
           </StaggerItem>
@@ -68,7 +68,7 @@ export default function ContactPage() {
         </StaggerContainer>
 
         <FadeIn direction="right" delay={0.2}>
-          <div className="bg-gray-50 p-6 md:p-8 rounded-xl border">
+          <div className="bg-green-50 p-6 md:p-8 rounded-xl border">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">Send us a Message</h2>
             <form className="space-y-4">
               <div>

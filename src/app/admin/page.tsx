@@ -122,7 +122,7 @@ export default async function AdminPage() {
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-green-50">
                 <tr>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Order ID</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Customer</th>
@@ -134,7 +134,7 @@ export default async function AdminPage() {
               </thead>
               <tbody className="divide-y">
                 {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={order.id} className="hover:bg-green-50 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">#{order.id.slice(-6)}</td>
                     <td className="px-6 py-4 text-sm">
                       <div className="text-gray-900">{order.name}</div>

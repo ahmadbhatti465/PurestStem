@@ -6,7 +6,7 @@ export default function AboutPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <FadeIn className="text-center mb-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">About Khan Herbals</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">About PurestStem</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Six decades of bringing the healing power of mountain herbs to your doorstep
         </p>
@@ -22,7 +22,7 @@ export default function AboutPage() {
           <div>
             <h2 className="text-2xl font-bold mb-4 text-gray-900">Our Story</h2>
             <p className="text-gray-700 mb-4 leading-relaxed">
-              Khan Herbals began its journey over 60 years ago in the mountainous regions of Pakistan,
+              PurestStem began its journey over 60 years ago in the mountainous regions of Pakistan,
               where our founder, Hakeem Khan, discovered the remarkable healing properties of indigenous
               herbs growing at high altitudes.
             </p>
@@ -32,7 +32,7 @@ export default function AboutPage() {
               commitment to traditional formulations while embracing modern quality standards.
             </p>
             <p className="text-gray-700 leading-relaxed">
-              Today, Khan Herbals delivers premium herbal products across Pakistan, bringing the
+              Today, PurestStem delivers premium herbal products across Pakistan, bringing the
               wisdom of mountain herbalism to urban homes.
             </p>
           </div>

@@ -37,7 +37,7 @@ async function main() {
   // Create products
   const products = [
     {
-      name: "Khanherbals Organic Shampoo - Repair Ultra",
+      name: "PurestStem Organic Shampoo - Repair Ultra",
       slug: "organic-shampoo-repair-ultra",
       description: "A powerful herbal shampoo crafted with rare mountain herbs to repair damaged hair and restore natural shine. Free from sulfates and parabens.",
       price: 1450,
@@ -107,7 +107,7 @@ async function main() {
       categoryId: categories[4].id,
     },
     {
-      name: "Khan Herbals Skin Polish Ubtan Powder",
+      name: "PurestStem Skin Polish Ubtan Powder",
       slug: "skin-polish-ubtan-powder",
       description: "Traditional ubtan recipe for radiant skin. Exfoliates dead skin cells and reveals a natural glow.",
       price: 1200,
@@ -182,7 +182,7 @@ Unlike conventional shampoos loaded with sulfates and parabens, herbal alternati
 ## Making the Switch
 
 Transitioning to herbal shampoo may take time. Your hair might need 2-4 weeks to adjust as it detoxifies from chemical buildup. Be patient - the results are worth it.`,
-      author: "Khan Herbals",
+      author: "PurestStem",
       published: true,
     },
     {
@@ -203,12 +203,12 @@ Plants growing at high altitudes develop potent compounds to survive harsh condi
 
 ## Sustainability in Sourcing
 
-At Khan Herbals, we work directly with mountain communities to ethically source our ingredients. This ensures both potency and supports local economies.
+At PurestStem, we work directly with mountain communities to ethically source our ingredients. This ensures both potency and supports local economies.
 
 ## Incorporating into Daily Life
 
 Mountain herbs can be consumed as teas, applied topically in oils, or used in powdered form. Start with one herb and observe how your body responds.`,
-      author: "Khan Herbals",
+      author: "PurestStem",
       published: true,
     },
     {
@@ -246,7 +246,7 @@ Beyond curl pattern, porosity determines how your hair absorbs moisture. High po
 ## Herbal Solutions by Type
 
 Our product line is formulated to address the specific needs of each hair type while leveraging the power of mountain herbs.`,
-      author: "Khan Herbals",
+      author: "PurestStem",
       published: true,
     },
   ];
@@ -259,7 +259,7 @@ Our product line is formulated to address the specific needs of each hair type w
   const hashedPassword = await bcrypt.hash("admin123", 10);
   await prisma.user.create({
     data: {
-      email: "admin@khanherbals.com",
+      email: "admin@pureststem.com",
       name: "Admin User",
       password: hashedPassword,
       role: "admin",

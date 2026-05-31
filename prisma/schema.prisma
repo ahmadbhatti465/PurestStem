@@ -89,7 +89,7 @@ model BlogPost {
   excerpt   String?
   content   String
   image     String?
-  author    String   @default("Khan Herbals")
+  author    String   @default("PurestStem")
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

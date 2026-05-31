@@ -17,7 +17,7 @@ export default function Footer() {
                 <div className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center">
                   <Leaf className="w-5 h-5 text-green-400" />
                 </div>
-                <span className="text-xl font-bold">Khan Herbals</span>
+                <span className="text-xl font-bold">PurestStem</span>
               </div>
               <p className="text-green-200 text-sm leading-relaxed">
                 60 Years of Mountain Herbalism — Delivered Across Pakistan.
@@ -60,7 +60,7 @@ export default function Footer() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-green-400" />
-                  <span>info@khanherbals.com</span>
+                  <span>info@pureststem.com</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-green-400 mt-0.5" />
@@ -73,7 +73,7 @@ export default function Footer() {
 
         <FadeIn delay={0.3}>
           <div className="border-t border-green-800 mt-10 pt-6 text-center text-sm text-green-300">
-            <p>© 2026 Khan Herbals. All rights reserved.</p>
+            <p>© 2026 PurestStem. All rights reserved.</p>
           </div>
         </FadeIn>
       </div>

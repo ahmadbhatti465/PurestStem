@@ -1,11 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ImageIcon, X } from "lucide-react";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch(() => setCategories([]));
+  }, []);
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setImageUrl(data.url);
+      } else {
+        alert(data.error || "Image upload failed");
+      }
+    } catch {
+      alert("Image upload failed");
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -13,6 +55,7 @@ export default function NewProductPage() {
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    if (imageUrl) data.image = imageUrl;
 
     try {
       const res = await fetch("/api/admin/products", {
@@ -23,6 +66,7 @@ export default function NewProductPage() {
 
       if (res.ok) {
         router.push("/admin/products");
+        router.refresh();
       } else {
         alert("Failed to create product");
       }
@@ -58,13 +102,19 @@ export default function NewProductPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Category ID *</label>
-          <input
+          <label className="block text-sm font-medium mb-1">Category *</label>
+          <select
             name="categoryId"
             required
-            placeholder="Enter category ID"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+          >
+            <option value="">Select a category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -124,6 +174,40 @@ export default function NewProductPage() {
             <label className="flex items-center gap-2">
               <input type="checkbox" name="isActive" value="true" defaultChecked className="rounded" />
               <span className="text-sm">Active</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Product Image</label>
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden relative">
+              {imageUrl ? (
+                <>
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </>
+              ) : (
+                <ImageIcon className="w-8 h-8 text-gray-300" />
+              )}
+            </div>
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={uploadingImage}
+                className="hidden"
+              />
+              <span className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors border">
+                {uploadingImage ? "Uploading..." : "Choose Image"}
+              </span>
             </label>
           </div>
         </div>

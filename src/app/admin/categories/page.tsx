@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import DeleteButton from "@/components/admin/delete-button";
+import { Plus, Pencil } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 
 async function getCategories() {
@@ -35,7 +36,7 @@ export default async function AdminCategoriesPage() {
         <div className="bg-white rounded-xl border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-green-50">
                 <tr>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Slug</th>
@@ -46,7 +47,7 @@ export default async function AdminCategoriesPage() {
               </thead>
               <tbody className="divide-y">
                 {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={category.id} className="hover:bg-green-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-sm text-gray-900">{category.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">{category.slug}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{category._count.products}</td>
@@ -59,21 +60,10 @@ export default async function AdminCategoriesPage() {
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>
-                        <form
-                          action={`/api/admin/categories/${category.id}/delete`}
-                          method="POST"
-                          className="inline"
-                        >
-                          <button
-                            type="submit"
-                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                            onClick={(e) => {
-                              if (!confirm("Are you sure?")) e.preventDefault();
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
+                        <DeleteButton
+                          apiUrl={`/api/admin/categories/${category.id}`}
+                          redirectPath="/admin/categories"
+                        />
                       </div>
                     </td>
                   </tr>

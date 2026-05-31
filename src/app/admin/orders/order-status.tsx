@@ -12,11 +12,15 @@ export default function OrderStatusUpdate({ orderId, currentStatus }: { orderId:
     setLoading(true);
 
     try {
-      await fetch(`/api/admin/orders/${orderId}`, {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
+
+      if (!res.ok) {
+        throw new Error("Update failed");
+      }
     } catch {
       setStatus(currentStatus);
       alert("Failed to update status");
@@ -30,7 +34,7 @@ export default function OrderStatusUpdate({ orderId, currentStatus }: { orderId:
       value={status}
       onChange={handleChange}
       disabled={loading}
-      className="text-xs font-medium rounded-full px-3 py-1 border focus:outline-none focus:ring-2 focus:ring-green-500"
+      className="text-xs font-medium rounded-full px-3 py-1 border focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
     >
       <option value="pending">pending</option>
       <option value="processing">processing</option>

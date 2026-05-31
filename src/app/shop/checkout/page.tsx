@@ -61,7 +61,7 @@ export default function CheckoutPage() {
         transition={{ duration: 0.4 }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center"
       >
-        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <ShoppingBag className="w-10 h-10 text-gray-300" />
         </div>
         <h2 className="text-2xl font-bold mb-4 text-gray-900">Your cart is empty</h2>
@@ -186,7 +186,7 @@ export default function CheckoutPage() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="bg-gray-50 p-6 rounded-xl border h-fit"
+          className="bg-green-50 p-6 rounded-xl border h-fit"
         >
           <h2 className="text-lg font-semibold mb-4 text-gray-900">Order Summary</h2>
           <div className="space-y-3 mb-4">
