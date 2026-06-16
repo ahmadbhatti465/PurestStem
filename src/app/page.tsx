@@ -43,7 +43,6 @@ export default async function HomePage() {
             <FadeIn direction="left" duration={0.6}>
               <div>
                 <div className="flex items-center gap-2 text-green-700 mb-4">
-                  <Leaf className="w-5 h-5" />
                   <span className="text-sm font-medium">100% Natural & Organic</span>
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-900 mb-6 leading-tight">
@@ -74,8 +73,12 @@ export default async function HomePage() {
 
             <FadeIn direction="right" duration={0.6} delay={0.2}>
               <div className="hidden md:flex justify-center">
-                <div className="relative w-80 h-80 bg-green-100 rounded-full flex items-center justify-center shadow-xl shadow-green-100">
-                  <Leaf className="w-40 h-40 text-green-700 opacity-80" />
+                <div className="relative w-[32rem] h-[32rem] rounded-2xl overflow-hidden">
+                  <img
+                    src="/hero-section.png"
+                    alt="PurestStem Products"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </FadeIn>

@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
-import { LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Mail, LogOut } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Mail, LogOut, BarChart3 } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
@@ -28,11 +29,13 @@ export default function AdminSidebar() {
     <div className="w-64 bg-green-900 text-white fixed h-full flex flex-col z-40">
       <div className="p-6 border-b border-green-800">
         <div className="flex items-center gap-2 mb-1">
-          <img
-            src="/pureststem_logo.png"
-            alt="PurestStem"
-            className="h-11 w-auto"
-          />
+          <div className="bg-white rounded-lg px-2 py-1.5 shadow-md shadow-black/20">
+            <img
+              src="/pureststem_logo.png"
+              alt="PurestStem"
+              className="h-8 w-auto"
+            />
+          </div>
           <span className="text-xs text-green-300">Admin Panel</span>
         </div>
       </div>
