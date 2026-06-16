@@ -9,6 +9,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "PurestStem - Premium Herbal Products",
   description: "60 Years of Mountain Herbalism. Premium herbal shampoos, oils, teas and skincare products delivered across Pakistan.",
+  icons: {
+    icon: "/pureststem_logo.png",
+    apple: "/pureststem_logo.png",
+  },
 };
 
 export default function RootLayout({

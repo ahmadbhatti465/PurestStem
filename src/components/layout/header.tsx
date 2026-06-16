@@ -8,7 +8,6 @@ import {
   User,
   Menu,
   X,
-  Leaf,
   Search,
   LogOut,
   ArrowRight,
@@ -84,22 +83,13 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 lg:h-[4.5rem]">
             {/* ── Logo ── */}
             <Link href="/" className="flex items-center gap-3 group z-10">
-              <motion.div
-                whileHover={{ scale: 1.08, rotate: -5 }}
+              <motion.img
+                whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#2d6a4f] to-[#1a4a2e] flex items-center justify-center shadow-lg shadow-green-900/25"
-              >
-                <Leaf className="w-5 h-5 text-[#c8e8a8]" strokeWidth={2.5} />
-                <span className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </motion.div>
-              <div className="hidden sm:flex flex-col leading-none">
-                <span className="text-[1.35rem] font-black tracking-tight bg-gradient-to-r from-[#1a4a2e] to-[#2d6a4f] bg-clip-text text-transparent">
-                  PurestStem
-                </span>
-                <span className="text-[0.6rem] font-semibold tracking-[0.2em] text-[#4a9060] uppercase mt-0.5">
-                  Nature. Purity. You.
-                </span>
-              </div>
+                src="/pureststem_logo.png"
+                alt="PurestStem"
+                className="h-14 w-auto"
+              />
             </Link>
 
             {/* ── Desktop Nav ── */}
@@ -297,17 +287,11 @@ export default function Header() {
                   className="flex items-center gap-3"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2d6a4f] to-[#1a4a2e] flex items-center justify-center shadow-md shadow-green-900/20">
-                    <Leaf className="w-5 h-5 text-[#c8e8a8]" strokeWidth={2.5} />
-                  </div>
-                  <div className="leading-none">
-                    <span className="text-lg font-black tracking-tight bg-gradient-to-r from-[#1a4a2e] to-[#2d6a4f] bg-clip-text text-transparent block">
-                      PurestStem
-                    </span>
-                    <span className="text-[0.55rem] font-semibold tracking-[0.2em] text-[#4a9060] uppercase mt-0.5 block">
-                      Nature. Purity. You.
-                    </span>
-                  </div>
+                  <img
+                    src="/pureststem_logo.png"
+                    alt="PurestStem"
+                    className="h-14 w-auto"
+                  />
                 </Link>
                 <motion.button
                   whileTap={{ scale: 0.85 }}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Leaf, Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 
@@ -14,10 +14,11 @@ export default function Footer() {
           <StaggerItem>
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center">
-                  <Leaf className="w-5 h-5 text-green-400" />
-                </div>
-                <span className="text-xl font-bold">PurestStem</span>
+                <img
+                  src="/pureststem_logo.png"
+                  alt="PurestStem"
+                  className="h-14 w-auto"
+                />
               </div>
               <p className="text-green-200 text-sm leading-relaxed">
                 60 Years of Mountain Herbalism — Delivered Across Pakistan.

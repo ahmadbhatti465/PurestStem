@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { Leaf } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
@@ -87,10 +86,11 @@ export default function LoginPage() {
             transition={{ delay: 0.1, duration: 0.4 }}
             className="flex items-center justify-center gap-2 mb-4"
           >
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <Leaf className="w-7 h-7 text-green-700" />
-            </div>
-            <span className="text-xl font-bold text-green-800">PurestStem</span>
+            <img
+              src="/pureststem_logo.png"
+              alt="PurestStem"
+              className="h-16 w-auto"
+            />
           </motion.div>
           <h1 className="text-2xl font-bold text-gray-900">
             {mode === "signin" ? "Welcome Back" : "Create Account"}

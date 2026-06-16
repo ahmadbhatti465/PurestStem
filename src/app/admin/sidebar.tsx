@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
-import { LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Leaf, Mail, LogOut } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Mail, LogOut } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -28,10 +28,13 @@ export default function AdminSidebar() {
     <div className="w-64 bg-green-900 text-white fixed h-full flex flex-col z-40">
       <div className="p-6 border-b border-green-800">
         <div className="flex items-center gap-2 mb-1">
-          <Leaf className="w-6 h-6 text-green-400" />
-          <span className="text-lg font-bold">PurestStem</span>
+          <img
+            src="/pureststem_logo.png"
+            alt="PurestStem"
+            className="h-11 w-auto"
+          />
+          <span className="text-xs text-green-300">Admin Panel</span>
         </div>
-        <p className="text-xs text-green-300">Admin Panel</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
