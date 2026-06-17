@@ -56,8 +56,8 @@ export default function RevenueTrendChart({
         <XAxis dataKey="date" tick={{ fontSize: 12 }} />
         <YAxis tick={{ fontSize: 12 }} />
         <Tooltip
-          formatter={(value: number) => [
-            `Rs ${Number(value).toLocaleString()}`,
+          formatter={(value) => [
+            `Rs ${Number(value || 0).toLocaleString()}`,
             "",
           ]}
           contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}

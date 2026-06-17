@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Send, CheckCircle } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,8 +63,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">Phone</h3>
-                <p className="text-gray-600">+92 300 1234567</p>
-                <p className="text-gray-600">+92 51 1234567</p>
+                <p className="text-gray-600">03334117668</p>
               </div>
             </div>
           </StaggerItem>
@@ -76,8 +75,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">Email</h3>
-                <p className="text-gray-600">info@pureststem.com</p>
-                <p className="text-gray-600">support@pureststem.com</p>
+                <p className="text-gray-600">pureststemofficial@gmail.com</p>
               </div>
             </div>
           </StaggerItem>
@@ -89,24 +87,12 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">Address</h3>
-                <p className="text-gray-600">Mountain View Road</p>
-                <p className="text-gray-600">Abbottabad, KPK, Pakistan</p>
+                <p className="text-gray-600">Gluberg 3, Eden Tower</p>
+                <p className="text-gray-600">Lahore, Pakistan</p>
               </div>
             </div>
           </StaggerItem>
 
-          <StaggerItem>
-            <div className="flex items-start gap-4 p-4 bg-white rounded-xl border hover:shadow-sm transition-shadow">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Clock className="w-5 h-5 text-green-700" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Business Hours</h3>
-                <p className="text-gray-600">Mon - Sat: 9:00 AM - 6:00 PM</p>
-                <p className="text-gray-600">Sunday: Closed</p>
-              </div>
-            </div>
-          </StaggerItem>
         </StaggerContainer>
 
         <FadeIn direction="right" delay={0.2}>

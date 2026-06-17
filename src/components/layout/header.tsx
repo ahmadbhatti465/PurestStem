@@ -75,8 +75,8 @@ export default function Header() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`sticky top-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-white/50 backdrop-blur-3xl shadow-[0_8px_32px_rgba(26,74,46,0.15)] border-b border-white/30"
-            : "bg-transparent"
+            ? "bg-white shadow-lg border-b border-gray-100"
+            : "bg-white border-b border-gray-100"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,7 +99,7 @@ export default function Header() {
             >
               {/* Sliding pill background */}
               <motion.div
-                className="absolute top-0 h-full rounded-xl bg-green-50/80 border border-green-100/50 shadow-sm"
+                className="absolute top-0 h-full rounded-xl bg-green-100 border border-green-200 shadow-sm"
                 animate={{
                   left: pillStyle.left,
                   width: pillStyle.width,
@@ -118,8 +118,8 @@ export default function Header() {
                     data-nav-active={isActive}
                     className={`relative z-10 px-5 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 ${
                       isActive
-                        ? "text-[#1a4a2e]"
-                        : "text-gray-500 hover:text-[#1a4a2e]"
+                        ? "text-green-800"
+                        : "text-gray-600 hover:text-green-800"
                     }`}
                   >
                     {link.label}
@@ -146,7 +146,7 @@ export default function Header() {
                         name="search"
                         autoFocus
                         placeholder="Search products..."
-                        className="w-full h-10 px-4 text-sm bg-green-50/60 border border-green-100 rounded-xl outline-none focus:ring-2 focus:ring-[#4a9060]/30 text-[#1a4a2e] placeholder:text-green-700/40"
+                        className="w-full h-10 px-4 text-sm bg-gray-100 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-green-500/30 text-gray-900 placeholder:text-gray-400"
                       />
                     </motion.form>
                   )}
@@ -154,7 +154,7 @@ export default function Header() {
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setSearchOpen(!searchOpen)}
-                  className="p-2.5 text-gray-500 hover:text-[#2d6a4f] transition-colors rounded-xl hover:bg-green-50/60"
+                  className="p-2.5 text-gray-600 hover:text-green-700 transition-colors rounded-xl hover:bg-green-50"
                   aria-label="Search"
                 >
                   {searchOpen ? (
@@ -171,7 +171,7 @@ export default function Header() {
                   <motion.div whileTap={{ scale: 0.9 }}>
                     <Link
                       href="/admin"
-                      className="flex p-2.5 text-gray-500 hover:text-[#2d6a4f] transition-colors rounded-xl hover:bg-green-50/60"
+                      className="flex p-2.5 text-gray-600 hover:text-green-700 transition-colors rounded-xl hover:bg-green-50"
                       aria-label="Account"
                     >
                       <User className="w-5 h-5" strokeWidth={1.8} />
@@ -180,7 +180,7 @@ export default function Header() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="flex p-2.5 text-gray-500 hover:text-red-600 transition-colors rounded-xl hover:bg-red-50/60"
+                    className="flex p-2.5 text-gray-600 hover:text-red-600 transition-colors rounded-xl hover:bg-red-50"
                     aria-label="Sign Out"
                   >
                     <LogOut className="w-5 h-5" strokeWidth={1.8} />
@@ -190,7 +190,7 @@ export default function Header() {
                 <motion.div whileTap={{ scale: 0.9 }}>
                   <Link
                     href="/login"
-                    className="hidden sm:flex p-2.5 text-gray-500 hover:text-[#2d6a4f] transition-colors rounded-xl hover:bg-green-50/60"
+                    className="hidden sm:flex p-2.5 text-gray-600 hover:text-green-700 transition-colors rounded-xl hover:bg-green-50"
                     aria-label="Sign In"
                   >
                     <User className="w-5 h-5" strokeWidth={1.8} />
@@ -202,7 +202,7 @@ export default function Header() {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
-                className="relative p-2.5 text-gray-500 hover:text-[#2d6a4f] transition-colors rounded-xl hover:bg-green-50/60"
+                className="relative p-2.5 text-gray-600 hover:text-green-700 transition-colors rounded-xl hover:bg-green-50"
                 aria-label="Cart"
               >
                 <ShoppingCart className="w-5 h-5" strokeWidth={1.8} />
@@ -214,7 +214,7 @@ export default function Header() {
                       animate={{ scale: 1, y: 0 }}
                       exit={{ scale: 0, y: 5 }}
                       transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                      className="absolute -top-1 -right-1 min-w-[1.25rem] h-[1.25rem] px-1 bg-gradient-to-br from-[#2d6a4f] to-[#1a4a2e] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md shadow-green-900/20 border-2 border-white"
+                      className="absolute -top-1 -right-1 min-w-[1.25rem] h-[1.25rem] px-1 bg-gradient-to-br from-green-600 to-green-800 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md border-2 border-white"
                     >
                       {itemCount}
                     </motion.span>
@@ -225,7 +225,7 @@ export default function Header() {
               {/* Mobile hamburger */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                className="lg:hidden p-2.5 ml-0.5 rounded-xl text-gray-600 hover:text-[#1a4a2e] hover:bg-green-50/60 transition-colors"
+                className="lg:hidden p-2.5 ml-0.5 rounded-xl text-gray-600 hover:text-green-800 hover:bg-green-50 transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Toggle menu"
               >
@@ -268,7 +268,7 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 bg-[#1a4a2e]/40 backdrop-blur-md z-40 lg:hidden"
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
 
@@ -278,10 +278,10 @@ export default function Header() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0.8 }}
               transition={{ type: "spring", damping: 26, stiffness: 280 }}
-              className="fixed top-0 right-0 h-full w-full sm:w-[380px] bg-gradient-to-b from-white to-[#f9faf5] z-50 lg:hidden flex flex-col shadow-2xl shadow-green-900/20"
+              className="fixed top-0 right-0 h-full w-full sm:w-[380px] bg-white z-50 lg:hidden flex flex-col shadow-2xl"
             >
               {/* Drawer Header */}
-              <div className="flex items-center justify-between p-6 border-b border-green-100/60">
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <Link
                   href="/"
                   className="flex items-center gap-3"
@@ -296,7 +296,7 @@ export default function Header() {
                 <motion.button
                   whileTap={{ scale: 0.85 }}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2.5 rounded-xl text-gray-400 hover:text-[#1a4a2e] hover:bg-green-50 transition-colors"
+                  className="p-2.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                   <X className="w-5 h-5" strokeWidth={2} />
                 </motion.button>
@@ -320,15 +320,15 @@ export default function Header() {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`group flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                           isActive
-                            ? "text-white bg-gradient-to-r from-[#2d6a4f] to-[#1a4a2e] shadow-lg shadow-green-900/20"
-                            : "text-gray-600 hover:text-[#1a4a2e] hover:bg-green-50/80"
+                            ? "text-white bg-gradient-to-r from-green-700 to-green-900 shadow-lg shadow-green-900/20"
+                            : "text-gray-700 hover:text-green-800 hover:bg-green-50"
                         }`}
                       >
                         <span className="flex items-center gap-3">
                           {isActive && (
                             <motion.span
                               layoutId="mobile-active-dot"
-                              className="w-1.5 h-1.5 rounded-full bg-[#c8e8a8]"
+                              className="w-1.5 h-1.5 rounded-full bg-green-200"
                             />
                           )}
                           {link.label}
@@ -336,8 +336,8 @@ export default function Header() {
                         <ArrowRight
                           className={`w-4 h-4 transition-transform duration-200 ${
                             isActive
-                              ? "text-[#c8e8a8]"
-                              : "text-gray-300 group-hover:translate-x-1 group-hover:text-[#4a9060]"
+                              ? "text-green-200"
+                              : "text-gray-300 group-hover:translate-x-1 group-hover:text-green-600"
                           }`}
                         />
                       </Link>
@@ -347,7 +347,7 @@ export default function Header() {
               </nav>
 
               {/* Footer Actions */}
-              <div className="p-6 border-t border-green-100/60 space-y-2">
+              <div className="p-6 border-t border-gray-100 space-y-2">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -355,13 +355,13 @@ export default function Header() {
                 >
                   <form
                     action="/shop/products"
-                    className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-green-50/60 border border-green-100/50"
+                    className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gray-100 border border-gray-200"
                   >
-                    <Search className="w-4 h-4 text-[#4a9060]" />
+                    <Search className="w-4 h-4 text-green-600" />
                     <input
                       name="search"
                       placeholder="Search products..."
-                      className="flex-1 bg-transparent text-sm text-[#1a4a2e] placeholder:text-green-700/30 outline-none"
+                      className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
                     />
                   </form>
                 </motion.div>
@@ -389,7 +389,7 @@ export default function Header() {
                     <Link
                       href="/login"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-semibold text-gray-600 hover:text-[#1a4a2e] hover:bg-green-50/80 transition-colors"
+                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-semibold text-gray-700 hover:text-green-800 hover:bg-green-50 transition-colors"
                     >
                       <User className="w-4 h-4" />
                       Sign In

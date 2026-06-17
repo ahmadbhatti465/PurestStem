@@ -59,15 +59,15 @@ export default function Footer() {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-green-400" />
-                  <span>+92 300 1234567</span>
+                  <span>03334117668</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-green-400" />
-                  <span>info@pureststem.com</span>
+                  <span>pureststemofficial@gmail.com</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-green-400 mt-0.5" />
-                  <span>Mountain View Road, Abbottabad, Pakistan</span>
+                  <span>Gluberg 3, Eden Tower Lahore Pakistan</span>
                 </li>
               </ul>
             </div>

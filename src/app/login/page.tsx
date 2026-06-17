@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -40,7 +41,6 @@ export default function LoginPage() {
         setPassword("");
         setName("");
         setLoading(false);
-        // Show success message by temporarily setting error to success text
         setError("Account created successfully! Please sign in.");
         return;
       } catch {
@@ -60,7 +60,6 @@ export default function LoginPage() {
       setError("Invalid email or password");
       setLoading(false);
     } else {
-      // Redirect based on role: admin -> /admin, user -> /
       const sessionRes = await fetch("/api/auth/session");
       const session = await sessionRes.json();
       if (session?.user?.role === "admin") {
@@ -72,12 +71,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0f2e1c]">
+      <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-green-700/20 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-emerald-600/10 rounded-full blur-[100px]" />
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10 px-4"
       >
         <div className="text-center mb-8">
           <motion.div
@@ -92,10 +94,10 @@ export default function LoginPage() {
               className="h-16 w-auto"
             />
           </motion.div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-white mb-2">
             {mode === "signin" ? "Welcome Back" : "Create Account"}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-green-100/70">
             {mode === "signin"
               ? "Sign in to your account"
               : "Sign up to get started"}
@@ -107,7 +109,7 @@ export default function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
           onSubmit={handleSubmit}
-          className="space-y-4 bg-white p-6 md:p-8 rounded-xl border shadow-sm"
+          className="space-y-4 bg-white/10 backdrop-blur-md border border-white/10 p-6 md:p-8 rounded-2xl shadow-2xl"
         >
           <AnimatePresence>
             {error && (
@@ -115,7 +117,11 @@ export default function LoginPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-red-50 text-red-700 p-3 rounded-lg text-sm"
+                className={`p-3 rounded-xl text-sm ${
+                  error.includes("successfully")
+                    ? "bg-green-500/20 text-green-200 border border-green-500/30"
+                    : "bg-red-500/20 text-red-200 border border-red-500/30"
+                }`}
               >
                 {error}
               </motion.div>
@@ -129,54 +135,63 @@ export default function LoginPage() {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
               >
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="block text-sm font-medium mb-1.5 text-white/90">Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400/50 transition-all"
+                  placeholder="Your name"
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1.5 text-white/90">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400/50 transition-all"
+              placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-medium mb-1.5 text-white/90">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400/50 transition-all"
+              placeholder="Min 6 characters"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 text-white py-2.5 rounded-md font-medium hover:bg-green-800 transition-colors disabled:opacity-50 shadow-lg shadow-green-700/20"
+            className="w-full bg-white text-green-900 py-3 rounded-full font-semibold hover:bg-green-50 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading
-              ? mode === "signin"
-                ? "Signing in..."
-                : "Creating account..."
-              : mode === "signin"
-                ? "Sign In"
-                : "Sign Up"}
+            {loading ? (
+              mode === "signin" ? "Signing in..." : "Creating account..."
+            ) : mode === "signin" ? (
+              <>
+                Sign In
+                <ArrowRight className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                Sign Up
+                <Sparkles className="w-4 h-4" />
+              </>
+            )}
           </button>
 
-          <div className="pt-2 text-center text-sm text-gray-600">
+          <div className="pt-2 text-center text-sm text-white/60">
             {mode === "signin" ? (
               <>
                 Don&apos;t have an account?{" "}
@@ -186,7 +201,7 @@ export default function LoginPage() {
                     setMode("signup");
                     setError("");
                   }}
-                  className="text-green-700 font-medium hover:underline"
+                  className="text-green-300 font-medium hover:text-white transition-colors"
                 >
                   Sign up
                 </button>
@@ -200,7 +215,7 @@ export default function LoginPage() {
                     setMode("signin");
                     setError("");
                   }}
-                  className="text-green-700 font-medium hover:underline"
+                  className="text-green-300 font-medium hover:text-white transition-colors"
                 >
                   Sign in
                 </button>
@@ -210,7 +225,10 @@ export default function LoginPage() {
         </motion.form>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-green-700 hover:underline">
+          <Link
+            href="/"
+            className="text-sm text-green-300/70 hover:text-green-200 transition-colors"
+          >
             Back to Homepage
           </Link>
         </div>

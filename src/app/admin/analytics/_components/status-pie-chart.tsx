@@ -49,8 +49,8 @@ export default function StatusPieChart({
           innerRadius={50}
           paddingAngle={4}
           dataKey="value"
-          label={({ name, value }: { name: string; value: number }) =>
-            `${name}: ${value}`
+          label={(props) =>
+            `${props.name || ""}: ${props.value || 0}`
           }
         >
           {data.map((_, index) => (

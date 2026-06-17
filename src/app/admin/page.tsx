@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
-import { Package, Users, ShoppingBag, DollarSign, Mail } from "lucide-react";
+import {
+  Package, Users, ShoppingBag, DollarSign, Mail, ArrowRight, TrendingUp, TrendingDown,
+} from "lucide-react";
 import Link from "next/link";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
@@ -48,142 +50,150 @@ export default async function AdminPage() {
   const recentOrders = await getRecentOrders();
   const recentMessages = await getRecentMessages();
 
+  const statCards = [
+    {
+      label: "Total Orders",
+      value: stats.totalOrders,
+      icon: ShoppingBag,
+      href: "/admin/orders",
+      color: "bg-blue-500/10 text-blue-600",
+      trend: "up",
+    },
+    {
+      label: "Products",
+      value: stats.totalProducts,
+      icon: Package,
+      href: "/admin/products",
+      color: "bg-green-500/10 text-green-600",
+      trend: "up",
+    },
+    {
+      label: "Users",
+      value: stats.totalUsers,
+      icon: Users,
+      href: "/admin/users",
+      color: "bg-purple-500/10 text-purple-600",
+      trend: "up",
+    },
+    {
+      label: "Revenue",
+      value: `Rs ${stats.totalRevenue.toLocaleString()}`,
+      icon: DollarSign,
+      href: "/admin/analytics",
+      color: "bg-emerald-500/10 text-emerald-600",
+      trend: "up",
+    },
+    {
+      label: "Messages",
+      value: stats.unreadMessages,
+      icon: Mail,
+      href: "/admin/messages",
+      color: "bg-orange-500/10 text-orange-600",
+      trend: "down",
+    },
+  ];
+
   return (
     <div>
       <FadeIn>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Overview of your store</p>
+          <p className="text-gray-500 mt-1">Overview of your store performance</p>
         </div>
       </FadeIn>
 
       <StaggerContainer
         staggerDelay={0.1}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8"
       >
-        <StaggerItem>
-          <Link href="/admin/orders" className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow duration-300 block">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-green-700" />
+        {statCards.map((stat) => (
+          <StaggerItem key={stat.label}>
+            <Link
+              href={stat.href}
+              className="group bg-white p-5 rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 block"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${stat.color}`}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
+                <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-green-600 group-hover:translate-x-1 transition-all" />
               </div>
-              <div>
-                <p className="text-sm text-gray-500">Total Orders</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
-              </div>
-            </div>
-          </Link>
-        </StaggerItem>
-
-        <StaggerItem>
-          <Link href="/admin/products" className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow duration-300 block">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Package className="w-6 h-6 text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Products</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
-              </div>
-            </div>
-          </Link>
-        </StaggerItem>
-
-        <StaggerItem>
-          <Link href="/admin/users" className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow duration-300 block">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
-              </div>
-            </div>
-          </Link>
-        </StaggerItem>
-
-        <StaggerItem>
-          <div className="bg-white p-6 rounded-xl border">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-900">Rs {stats.totalRevenue.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-        </StaggerItem>
-
-        <StaggerItem>
-          <Link href="/admin/messages" className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow duration-300 block relative">
-            {stats.unreadMessages > 0 && (
-              <span className="absolute top-4 right-4 min-w-[1.25rem] h-[1.25rem] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {stats.unreadMessages}
-              </span>
-            )}
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Mail className="w-6 h-6 text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Messages</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.unreadMessages}</p>
-              </div>
-            </div>
-          </Link>
-        </StaggerItem>
+              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-sm text-gray-500">{stat.label}</p>
+            </Link>
+          </StaggerItem>
+        ))}
       </StaggerContainer>
 
       <FadeIn delay={0.3}>
-        <div className="bg-white rounded-xl border overflow-hidden">
-          <div className="p-6 border-b flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <ShoppingBag className="w-4 h-4 text-blue-600" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
+            </div>
             <Link
               href="/admin/orders"
-              className="text-sm text-green-700 hover:underline font-medium"
+              className="text-sm text-green-700 font-medium hover:text-green-800 inline-flex items-center gap-1"
             >
               View All
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-green-50">
-                <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Customer</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Items</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Total</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+              <thead>
+                <tr className="bg-gray-50/80">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Order</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Customer</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Items</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-50">
                 {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-green-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">#{order.id.slice(-6)}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="text-gray-900">{order.name}</div>
-                      <div className="text-gray-500 text-xs">{order.email}</div>
+                  <tr
+                    key={order.id}
+                    className="hover:bg-green-50/50 transition-colors"
+                  >
+                    <td className="px-5 py-4 text-sm font-medium text-gray-900">
+                      #{order.id.slice(-6)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{order.items.length} items</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">Rs {order.total.toLocaleString()}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                        order.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : order.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}>
+                    <td className="px-5 py-4">
+                      <div className="text-sm text-gray-900">{order.name}</div>
+                      <div className="text-xs text-gray-400">{order.email}</div>
+                    </td>
+                    <td className="px-5 py-4 text-sm text-gray-700">
+                      {order.items.length} items
+                    </td>
+                    <td className="px-5 py-4 text-sm font-semibold text-gray-900">
+                      Rs {order.total.toLocaleString()}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span
+                        className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
+                          order.status === "pending"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : order.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : order.status === "cancelled"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-blue-100 text-blue-700"
+                        }`}
+                      >
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                    <td className="px-5 py-4 text-sm text-gray-500">
+                      {new Date(order.createdAt).toLocaleDateString("en-PK", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </td>
                   </tr>
                 ))}
@@ -195,44 +205,58 @@ export default async function AdminPage() {
 
       {recentMessages.length > 0 && (
         <FadeIn delay={0.4}>
-          <div className="bg-white rounded-xl border overflow-hidden mt-8">
-            <div className="p-6 border-b flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Recent Messages</h2>
+          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm mt-6">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Mail className="w-4 h-4 text-orange-600" />
+                </div>
+                <h2 className="text-lg font-semibold text-gray-900">Recent Messages</h2>
+              </div>
               <Link
                 href="/admin/messages"
-                className="text-sm text-green-700 hover:underline font-medium"
+                className="text-sm text-green-700 font-medium hover:text-green-800 inline-flex items-center gap-1"
               >
                 View All
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-green-50">
-                  <tr>
-                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Subject</th>
-                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                <thead>
+                  <tr className="bg-gray-50/80">
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Name</th>
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Email</th>
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Subject</th>
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-gray-50">
                   {recentMessages.map((msg) => (
-                    <tr key={msg.id} className="hover:bg-green-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{msg.name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{msg.email}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{msg.subject || "—"}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          msg.read
-                            ? "bg-gray-100 text-gray-800"
-                            : "bg-green-100 text-green-800"
-                        }`}>
+                    <tr
+                      key={msg.id}
+                      className="hover:bg-green-50/50 transition-colors"
+                    >
+                      <td className="px-5 py-4 text-sm font-medium text-gray-900">{msg.name}</td>
+                      <td className="px-5 py-4 text-sm text-gray-500">{msg.email}</td>
+                      <td className="px-5 py-4 text-sm text-gray-700">{msg.subject || "—"}</td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
+                            msg.read
+                              ? "bg-gray-100 text-gray-600"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                        >
                           {msg.read ? "Read" : "New"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {new Date(msg.createdAt).toLocaleDateString()}
+                      <td className="px-5 py-4 text-sm text-gray-500">
+                        {new Date(msg.createdAt).toLocaleDateString("en-PK", {
+                          day: "numeric",
+                          month: "short",
+                        })}
                       </td>
                     </tr>
                   ))}

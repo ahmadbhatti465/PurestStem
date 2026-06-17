@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import DeleteButton from "@/components/admin/delete-button";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, FolderTree, ArrowRight } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 
 async function getCategories() {
@@ -20,11 +20,11 @@ export default async function AdminCategoriesPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
-            <p className="text-gray-600">Manage product categories</p>
+            <p className="text-gray-500 mt-1">Manage product categories</p>
           </div>
           <Link
             href="/admin/categories/new"
-            className="inline-flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 transition-colors shadow-lg shadow-green-700/20"
+            className="inline-flex items-center gap-2 bg-green-700 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
           >
             <Plus className="w-4 h-4" />
             Add Category
@@ -33,30 +33,46 @@ export default async function AdminCategoriesPage() {
       </FadeIn>
 
       <FadeIn delay={0.15}>
-        <div className="bg-white rounded-xl border overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-green-50">
-                <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Slug</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Products</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Description</th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <thead>
+                <tr className="bg-gray-50/80">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Category</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Slug</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Products</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Description</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-50">
                 {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-green-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-sm text-gray-900">{category.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{category.slug}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{category._count.products}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{category.description || "-"}</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                  <tr
+                    key={category.id}
+                    className="hover:bg-green-50/50 transition-colors"
+                  >
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
+                          <FolderTree className="w-4 h-4 text-green-700" />
+                        </div>
+                        <span className="font-medium text-sm text-gray-900">{category.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-sm text-gray-400">{category.slug}</td>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">
+                        {category._count.products}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {category.description || "—"}
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Link
                           href={`/admin/categories/${category.id}/edit`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>

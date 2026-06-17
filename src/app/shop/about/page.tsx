@@ -1,4 +1,3 @@
-import { Leaf, Heart, Mountain, Award } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 
@@ -14,8 +13,12 @@ export default function AboutPage() {
 
       <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
         <FadeIn direction="left">
-          <div className="aspect-video bg-green-100 rounded-xl flex items-center justify-center shadow-sm">
-            <Mountain className="w-32 h-32 text-green-700" />
+          <div className="aspect-video rounded-xl overflow-hidden shadow-sm">
+            <img
+              src="/about_page.png"
+              alt="PurestStem Products"
+              className="w-full h-full object-cover"
+            />
           </div>
         </FadeIn>
         <FadeIn direction="right" delay={0.15}>
@@ -45,9 +48,11 @@ export default function AboutPage() {
       >
         <StaggerItem>
           <div className="text-center p-6 bg-green-50 rounded-xl hover:shadow-md transition-shadow duration-300 h-full">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Leaf className="w-7 h-7 text-green-700" />
-            </div>
+            <img
+              src="/natural_herbs.jpg"
+              alt="100% Natural"
+              className="w-full h-40 object-cover rounded-lg mb-4"
+            />
             <h3 className="font-semibold text-lg mb-2 text-gray-900">100% Natural</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
               All our products are made with pure, natural ingredients sourced from pristine mountain regions.
@@ -56,9 +61,11 @@ export default function AboutPage() {
         </StaggerItem>
         <StaggerItem>
           <div className="text-center p-6 bg-green-50 rounded-xl hover:shadow-md transition-shadow duration-300 h-full">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-7 h-7 text-green-700" />
-            </div>
+            <img
+              src="/mortar_pestle.jpg"
+              alt="Made with Care"
+              className="w-full h-40 object-cover rounded-lg mb-4"
+            />
             <h3 className="font-semibold text-lg mb-2 text-gray-900">Made with Care</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
               Each product is crafted following traditional recipes passed down through generations.
@@ -67,9 +74,11 @@ export default function AboutPage() {
         </StaggerItem>
         <StaggerItem>
           <div className="text-center p-6 bg-green-50 rounded-xl hover:shadow-md transition-shadow duration-300 h-full">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Award className="w-7 h-7 text-green-700" />
-            </div>
+            <img
+              src="/lab_testing.jpg"
+              alt="Quality Assured"
+              className="w-full h-40 object-cover rounded-lg mb-4"
+            />
             <h3 className="font-semibold text-lg mb-2 text-gray-900">Quality Assured</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
               Rigorous testing ensures every product meets our high standards of purity and effectiveness.

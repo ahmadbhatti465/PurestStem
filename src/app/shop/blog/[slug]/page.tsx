@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { ArrowLeft, Calendar, User, ChevronRight, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, User } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { FadeIn } from "@/components/animations/fade-in";
 
 async function getBlogPost(slug: string) {
   return await prisma.blogPost.findUnique({
@@ -22,79 +23,115 @@ export default async function BlogPostPage({
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link
-        href="/shop/blog"
-        className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-green-700 mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Blog
-      </Link>
-
-      <article>
-        <div className="aspect-video bg-gray-100 rounded-lg mb-8 flex items-center justify-center">
-          {post.image ? (
-            <img src={post.image} alt={post.title} className="w-full h-full object-cover rounded-lg" />
-          ) : (
-            <div className="text-gray-400">No Image</div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+    <div>
+      {/* Hero with overlay */}
+      <section className="relative h-[40vh] min-h-[300px] overflow-hidden">
+        {post.image ? (
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-green-800" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+            <FadeIn direction="up">
+              <Link
+                href="/shop/blog"
+                className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white mb-4 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Blog
+              </Link>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                {post.title}
+              </h1>
+            </FadeIn>
           </div>
-          <div className="flex items-center gap-1">
-            <User className="w-4 h-4" />
-            <span>{post.author}</span>
+        </div>
+      </section>
+
+      {/* Content */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <FadeIn>
+          <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-green-700" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">{post.author}</p>
+                <p className="text-xs">Author</p>
+              </div>
+            </div>
+            <div className="h-8 w-px bg-gray-200" />
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Calendar className="w-4 h-4" />
+              <span>{new Date(post.createdAt).toLocaleDateString("en-PK", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}</span>
+            </div>
           </div>
-        </div>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">{post.title}</h1>
+          <article className="prose prose-lg prose-green max-w-none">
+            {post.content.split("\n\n").map((paragraph, i) => {
+              if (paragraph.startsWith("## ")) {
+                return (
+                  <h2 key={i} className="text-2xl font-bold mt-10 mb-4 text-gray-900">
+                    {paragraph.replace("## ", "")}
+                  </h2>
+                );
+              }
+              if (paragraph.startsWith("### ")) {
+                return (
+                  <h3 key={i} className="text-xl font-semibold mt-8 mb-3 text-gray-900">
+                    {paragraph.replace("### ", "")}
+                  </h3>
+                );
+              }
+              if (paragraph.startsWith("- ")) {
+                return (
+                  <ul key={i} className="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                    {paragraph.split("\n").map((item, j) => (
+                      <li key={j}>{item.replace("- ", "")}</li>
+                    ))}
+                  </ul>
+                );
+              }
+              if (/^\d+\.\s/.test(paragraph)) {
+                return (
+                  <ol key={i} className="list-decimal list-inside space-y-2 mb-6 text-gray-700">
+                    {paragraph.split("\n").map((item, j) => (
+                      <li key={j}>{item.replace(/^\d+\.\s/, "")}</li>
+                    ))}
+                  </ol>
+                );
+              }
+              return (
+                <p key={i} className="text-gray-700 mb-6 leading-relaxed text-lg">
+                  {paragraph}
+                </p>
+              );
+            })}
+          </article>
 
-        <div className="prose prose-green max-w-none">
-          {post.content.split("\n\n").map((paragraph, i) => {
-            if (paragraph.startsWith("## ")) {
-              return (
-                <h2 key={i} className="text-2xl font-bold mt-8 mb-4">
-                  {paragraph.replace("## ", "")}
-                </h2>
-              );
-            }
-            if (paragraph.startsWith("### ")) {
-              return (
-                <h3 key={i} className="text-xl font-semibold mt-6 mb-3">
-                  {paragraph.replace("### ", "")}
-                </h3>
-              );
-            }
-            if (paragraph.startsWith("- ")) {
-              return (
-                <ul key={i} className="list-disc list-inside space-y-1 mb-4">
-                  {paragraph.split("\n").map((item, j) => (
-                    <li key={j} className="text-gray-700">{item.replace("- ", "")}</li>
-                  ))}
-                </ul>
-              );
-            }
-            if (/^\d+\.\s/.test(paragraph)) {
-              return (
-                <ol key={i} className="list-decimal list-inside space-y-1 mb-4">
-                  {paragraph.split("\n").map((item, j) => (
-                    <li key={j} className="text-gray-700">{item.replace(/^\d+\.\s/, "")}</li>
-                  ))}
-                </ol>
-              );
-            }
-            return (
-              <p key={i} className="text-gray-700 mb-4 leading-relaxed">
-                {paragraph}
-              </p>
-            );
-          })}
-        </div>
-      </article>
+          <div className="mt-12 pt-8 border-t border-gray-100">
+            <Link
+              href="/shop/blog"
+              className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+            >
+              <Sparkles className="w-4 h-4" />
+              Explore More Articles
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </FadeIn>
+      </section>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import DeleteButton from "@/components/admin/delete-button";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ImageIcon, ArrowRight } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 
 async function getProducts() {
@@ -20,11 +20,11 @@ export default async function AdminProductsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-            <p className="text-gray-600">Manage your product catalog</p>
+            <p className="text-gray-500 mt-1">Manage your product catalog</p>
           </div>
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 transition-colors shadow-lg shadow-green-700/20"
+            className="inline-flex items-center gap-2 bg-green-700 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
           >
             <Plus className="w-4 h-4" />
             Add Product
@@ -33,58 +33,77 @@ export default async function AdminProductsPage() {
       </FadeIn>
 
       <FadeIn delay={0.15}>
-        <div className="bg-white rounded-xl border overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-green-50">
-                <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Product</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Category</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Price</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Stock</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <thead>
+                <tr className="bg-gray-50/80">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Product</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Category</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Price</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Stock</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-50">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-green-50 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr
+                    key={product.id}
+                    className="hover:bg-green-50/50 transition-colors"
+                  >
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400 font-medium">
-                          {product.image ? "IMG" : "No img"}
+                        <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400 overflow-hidden">
+                          {product.image ? (
+                            <img src={product.image} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <ImageIcon className="w-5 h-5" />
+                          )}
                         </div>
                         <div>
                           <div className="font-medium text-sm text-gray-900">{product.name}</div>
-                          <div className="text-xs text-gray-500">{product.sku}</div>
+                          <div className="text-xs text-gray-400">{product.sku || "No SKU"}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{product.category.name}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="font-medium text-gray-900">Rs {product.salePrice || product.price}</span>
-                      {product.salePrice && (
-                        <span className="text-gray-400 line-through ml-2">Rs {product.price}</span>
-                      )}
+                    <td className="px-5 py-4 text-sm text-gray-700">
+                      {product.category.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{product.stock}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                        product.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                      }`}>
-                        {product.isActive ? "Active" : "Inactive"}
+                    <td className="px-5 py-4 text-sm">
+                      <span className="font-medium text-gray-900">
+                        Rs {product.salePrice || product.price}
                       </span>
-                      {product.featured && (
-                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 ml-2">
-                          Featured
+                      {product.salePrice && (
+                        <span className="text-gray-400 line-through ml-2 text-xs">
+                          Rs {product.price}
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-5 py-4 text-sm text-gray-700">{product.stock}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex gap-2">
+                        <span
+                          className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
+                            product.isActive
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {product.isActive ? "Active" : "Inactive"}
+                        </span>
+                        {product.featured && (
+                          <span className="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Link
                           href={`/admin/products/${product.id}/edit`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>

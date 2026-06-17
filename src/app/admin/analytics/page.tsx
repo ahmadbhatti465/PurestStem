@@ -5,6 +5,8 @@ import StatusPieChart from "./_components/status-pie-chart";
 import MonthlyRevenueChart from "./_components/monthly-revenue-chart";
 import TopProductsList from "./_components/top-products-list";
 import SummaryFooter from "./_components/summary-footer";
+import { FadeIn } from "@/components/animations/fade-in";
+import { BarChart3, DollarSign, ShoppingBag, TrendingUp, TrendingDown } from "lucide-react";
 
 async function getAnalytics() {
   const orders = await prisma.order.findMany({
@@ -111,91 +113,109 @@ export default async function AnalyticsPage() {
       label: "Total Revenue",
       value: `Rs ${Math.round(data.totalRevenue).toLocaleString()}`,
       sub: undefined,
-      colorClass: "bg-green-100 text-green-700",
-      iconName: "DollarSign",
+      colorClass: "bg-emerald-500/10 text-emerald-600",
+      icon: DollarSign,
     },
     {
       label: "Total Orders",
       value: data.totalOrders.toLocaleString(),
       sub: undefined,
-      colorClass: "bg-blue-100 text-blue-700",
-      iconName: "ShoppingBag",
+      colorClass: "bg-blue-500/10 text-blue-600",
+      icon: ShoppingBag,
     },
     {
       label: "Avg Order Value",
       value: `Rs ${Math.round(data.avgOrderValue).toLocaleString()}`,
       sub: undefined,
-      colorClass: "bg-purple-100 text-purple-700",
-      iconName: "BarChart3",
+      colorClass: "bg-purple-500/10 text-purple-600",
+      icon: BarChart3,
     },
     {
       label: "Est. Net Profit",
       value: `Rs ${Math.round(data.netProfit).toLocaleString()}`,
       sub: `Margin: ~${data.totalRevenue > 0 ? Math.round((data.netProfit / data.totalRevenue) * 100) : 0}%`,
-      colorClass: "bg-emerald-100 text-emerald-700",
-      iconName: "TrendingUp",
+      colorClass: "bg-green-500/10 text-green-600",
+      icon: TrendingUp,
     },
     {
       label: "Est. Overheads",
       value: `Rs ${Math.round(data.estimatedLoss).toLocaleString()}`,
       sub: undefined,
-      colorClass: "bg-red-100 text-red-700",
-      iconName: "TrendingDown",
+      colorClass: "bg-red-500/10 text-red-600",
+      icon: TrendingDown,
     },
   ];
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Sales & Revenue Analytics</h1>
-        <p className="text-gray-600 mt-1">Financial overview of your store performance</p>
-      </div>
+      <FadeIn>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Sales &amp; Revenue Analytics
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Financial overview of your store performance
+          </p>
+        </div>
+      </FadeIn>
 
-      <StatCards cards={statCards} />
+      <FadeIn delay={0.1}>
+        <StatCards cards={statCards} />
+      </FadeIn>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-xl border">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Revenue & Profit Trend (Last 30 Days)
-          </h2>
-          <div className="h-72">
-            <RevenueTrendChart data={data.areaData} />
+        <FadeIn delay={0.2}>
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Revenue &amp; Profit Trend (Last 30 Days)
+            </h2>
+            <div className="h-72">
+              <RevenueTrendChart data={data.areaData} />
+            </div>
           </div>
-        </div>
+        </FadeIn>
 
-        <div className="bg-white p-6 rounded-xl border">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Order Status Distribution
-          </h2>
-          <div className="h-72">
-            <StatusPieChart data={data.statusPieData} />
+        <FadeIn delay={0.25}>
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Order Status Distribution
+            </h2>
+            <div className="h-72">
+              <StatusPieChart data={data.statusPieData} />
+            </div>
           </div>
-        </div>
+        </FadeIn>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-xl border">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Monthly Revenue & Profit
-          </h2>
-          <div className="h-72">
-            <MonthlyRevenueChart data={data.barData} />
+        <FadeIn delay={0.3}>
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Monthly Revenue &amp; Profit
+            </h2>
+            <div className="h-72">
+              <MonthlyRevenueChart data={data.barData} />
+            </div>
           </div>
-        </div>
+        </FadeIn>
 
-        <div className="bg-white p-6 rounded-xl border">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Top Selling Products
-          </h2>
-          <TopProductsList data={data.topProducts} />
-        </div>
+        <FadeIn delay={0.35}>
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Top Selling Products
+            </h2>
+            <TopProductsList data={data.topProducts} />
+          </div>
+        </FadeIn>
       </div>
 
-      <SummaryFooter
-        totalProducts={data.totalProducts}
-        totalOrders={data.totalOrders}
-        netProfit={data.netProfit}
-      />
+      <FadeIn delay={0.4}>
+        <SummaryFooter
+          totalProducts={data.totalProducts}
+          totalOrders={data.totalOrders}
+          netProfit={data.netProfit}
+        />
+      </FadeIn>
     </div>
   );
 }
