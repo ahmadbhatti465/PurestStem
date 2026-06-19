@@ -1,0 +1,383 @@
+{
+  "categories": [
+    {
+      "id": "cmqgynsd10000movax779spy8",
+      "name": "Shampoo",
+      "slug": "shampoo",
+      "description": "Herbal shampoos for hair care",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.454Z"
+    },
+    {
+      "id": "cmqgynsd10001movai15ucjcp",
+      "name": "Hair Oils",
+      "slug": "hair-oils",
+      "description": "Natural oils for hair growth and nourishment",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.455Z"
+    },
+    {
+      "id": "cmqgynsd20002mova5f26wb7c",
+      "name": "Herbal Tea",
+      "slug": "herbal-tea",
+      "description": "Organic teas for wellness",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.455Z"
+    },
+    {
+      "id": "cmqgynsd20003mova9ngnec0e",
+      "name": "Hand Wash",
+      "slug": "hand-wash",
+      "description": "Natural hand wash products",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.455Z"
+    },
+    {
+      "id": "cmqgynsd20004movasa6ltbwe",
+      "name": "Soap",
+      "slug": "soap",
+      "description": "Handmade herbal soaps",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.455Z"
+    },
+    {
+      "id": "cmqgynsd20005movab0m5rtfd",
+      "name": "Skin Care",
+      "slug": "skin-care",
+      "description": "Natural skin care products",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.455Z"
+    },
+    {
+      "id": "cmqgynsd20006movadi1pr4xn",
+      "name": "Bundles",
+      "slug": "bundles",
+      "description": "Special combo offers",
+      "image": null,
+      "createdAt": "2026-06-16T18:13:46.455Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "cmqgynsf50007movar233p16e",
+      "name": "PurestStem Organic Shampoo - Repair Ultra",
+      "slug": "organic-shampoo-repair-ultra",
+      "description": "A powerful herbal shampoo crafted with rare mountain herbs to repair damaged hair and restore natural shine. Free from sulfates and parabens.",
+      "price": 1450,
+      "salePrice": 1200,
+      "image": null,
+      "images": null,
+      "stock": 50,
+      "sku": "KH-SH-001",
+      "weight": "250ml",
+      "ingredients": "Amla, Reetha, Shikakai, Aloe Vera, Bhringraj",
+      "howToUse": "Apply to wet hair, massage gently into scalp, rinse thoroughly. Use 2-3 times per week.",
+      "featured": true,
+      "isActive": true,
+      "categoryId": "cmqgynsd10000movax779spy8",
+      "createdAt": "2026-06-16T18:13:46.529Z",
+      "updatedAt": "2026-06-16T18:13:46.529Z"
+    },
+    {
+      "id": "cmqgynsfd0008movapqoi9lv1",
+      "name": "Golden Oil for Hair Growth",
+      "slug": "golden-oil-hair-growth",
+      "description": "Premium hair growth oil infused with 24K gold flakes and potent herbs. Stimulates follicles and promotes thicker, healthier hair.",
+      "price": 2200,
+      "salePrice": 1850,
+      "image": null,
+      "images": null,
+      "stock": 34,
+      "sku": "KH-OI-001",
+      "weight": "100ml",
+      "ingredients": "Almond Oil, Coconut Oil, Gold Flakes, Brahmi, Ashwagandha",
+      "howToUse": "Warm slightly and massage into scalp for 10-15 minutes. Leave overnight for best results.",
+      "featured": true,
+      "isActive": true,
+      "categoryId": "cmqgynsd10001movai15ucjcp",
+      "createdAt": "2026-06-16T18:13:46.537Z",
+      "updatedAt": "2026-06-16T18:19:31.802Z"
+    },
+    {
+      "id": "cmqgynsfp0009movak5k2vusd",
+      "name": "Bloating Relief Herbal Tea",
+      "slug": "bloating-relief-herbal-tea",
+      "description": "Soothing herbal blend designed to ease digestive discomfort and reduce bloating. Caffeine-free and perfect for daily wellness.",
+      "price": 850,
+      "salePrice": 720,
+      "image": null,
+      "images": null,
+      "stock": 60,
+      "sku": "KH-TE-001",
+      "weight": "100g",
+      "ingredients": "Peppermint, Fennel, Ginger, Chamomile, Dandelion Root",
+      "howToUse": "Steep 1 teaspoon in hot water for 5-7 minutes. Drink after meals.",
+      "featured": true,
+      "isActive": true,
+      "categoryId": "cmqgynsd20002mova5f26wb7c",
+      "createdAt": "2026-06-16T18:13:46.549Z",
+      "updatedAt": "2026-06-16T18:13:46.549Z"
+    },
+    {
+      "id": "cmqgynsfx000amovapmp7ld9n",
+      "name": "Neem Detox Soap",
+      "slug": "neem-detox-soap",
+      "description": "Purifying neem soap that deeply cleanses skin while maintaining natural moisture balance. Ideal for acne-prone skin.",
+      "price": 450,
+      "salePrice": 380,
+      "image": null,
+      "images": null,
+      "stock": 80,
+      "sku": "KH-SO-001",
+      "weight": "100g",
+      "ingredients": "Neem Extract, Tea Tree Oil, Coconut Oil, Olive Oil, Vitamin E",
+      "howToUse": "Lather and apply to body and face. Rinse thoroughly.",
+      "featured": true,
+      "isActive": true,
+      "categoryId": "cmqgynsd20004movasa6ltbwe",
+      "createdAt": "2026-06-16T18:13:46.557Z",
+      "updatedAt": "2026-06-16T18:13:46.557Z"
+    },
+    {
+      "id": "cmqgynsg5000bmovaasnostqh",
+      "name": "Rose Glow Soap",
+      "slug": "rose-glow-soap",
+      "description": "Luxurious rose-infused soap that brightens and softens skin. Contains real rose petals and essential oils.",
+      "price": 550,
+      "salePrice": 470,
+      "image": null,
+      "images": null,
+      "stock": 45,
+      "sku": "KH-SO-002",
+      "weight": "100g",
+      "ingredients": "Rose Petals, Rose Essential Oil, Shea Butter, Glycerin, Vitamin E",
+      "howToUse": "Lather and apply to body and face. Rinse thoroughly.",
+      "featured": false,
+      "isActive": true,
+      "categoryId": "cmqgynsd20004movasa6ltbwe",
+      "createdAt": "2026-06-16T18:13:46.565Z",
+      "updatedAt": "2026-06-16T18:13:46.565Z"
+    },
+    {
+      "id": "cmqgynsgc000cmovat244hifj",
+      "name": "PurestStem Skin Polish Ubtan Powder",
+      "slug": "skin-polish-ubtan-powder",
+      "description": "Traditional ubtan recipe for radiant skin. Exfoliates dead skin cells and reveals a natural glow.",
+      "price": 1200,
+      "salePrice": 990,
+      "image": null,
+      "images": null,
+      "stock": 40,
+      "sku": "KH-SK-001",
+      "weight": "200g",
+      "ingredients": "Gram Flour, Turmeric, Sandalwood, Rose Petals, Saffron",
+      "howToUse": "Mix with rose water or milk to form a paste. Apply and let dry, then scrub gently.",
+      "featured": true,
+      "isActive": true,
+      "categoryId": "cmqgynsd20005movab0m5rtfd",
+      "createdAt": "2026-06-16T18:13:46.572Z",
+      "updatedAt": "2026-06-16T18:13:46.572Z"
+    },
+    {
+      "id": "cmqgynsgl000dmovaye41krpk",
+      "name": "Hair Fall Rescue Kit",
+      "slug": "hair-fall-rescue-kit",
+      "description": "Complete hair care bundle including herbal shampoo, hair oil, and hair mask. The ultimate solution for hair fall control.",
+      "price": 4500,
+      "salePrice": 3800,
+      "image": null,
+      "images": null,
+      "stock": 24,
+      "sku": "KH-BU-001",
+      "weight": "Combo",
+      "ingredients": "Amla, Reetha, Shikakai, Bhringraj, Brahmi, Coconut Oil",
+      "howToUse": "Follow the included regimen guide for optimal results.",
+      "featured": true,
+      "isActive": true,
+      "categoryId": "cmqgynsd20006movadi1pr4xn",
+      "createdAt": "2026-06-16T18:13:46.581Z",
+      "updatedAt": "2026-06-16T18:23:32.324Z"
+    },
+    {
+      "id": "cmqgynsgt000emovapxf2qsk3",
+      "name": "Herbal Hand Wash - Lemon Fresh",
+      "slug": "herbal-hand-wash-lemon",
+      "description": "Gentle yet effective hand wash with natural lemon extracts. Kills germs while keeping hands soft.",
+      "price": 650,
+      "salePrice": 550,
+      "image": null,
+      "images": null,
+      "stock": 69,
+      "sku": "KH-HW-001",
+      "weight": "300ml",
+      "ingredients": "Lemon Extract, Aloe Vera, Tea Tree Oil, Glycerin",
+      "howToUse": "Pump onto wet hands, lather for 20 seconds, rinse.",
+      "featured": false,
+      "isActive": true,
+      "categoryId": "cmqgynsd20003mova9ngnec0e",
+      "createdAt": "2026-06-16T18:13:46.589Z",
+      "updatedAt": "2026-06-16T18:23:32.316Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "cmqgynskz000imovaw70z5gvo",
+      "email": "admin@pureststem.com",
+      "name": "Admin User",
+      "password": "$2b$10$9yVDjyWVOzSDwtFK/GWD8er0VK087FYwvo/ZuZKqCr3E3.jZdpPZ6",
+      "role": "admin",
+      "createdAt": "2026-06-16T18:13:46.739Z",
+      "updatedAt": "2026-06-16T18:13:46.739Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "cmqgyv6to00019ova1s0bgsci",
+      "userId": null,
+      "status": "pending",
+      "total": 2040,
+      "shippingCost": 190,
+      "name": "Muhammad Ahmad",
+      "email": "ahmad765rajput@gmail.com",
+      "phone": "0448845454",
+      "address": "Model Town",
+      "city": "lahore",
+      "postalCode": "54000",
+      "notes": "dsds",
+      "paymentMethod": "cod",
+      "createdAt": "2026-06-16T18:19:31.788Z",
+      "updatedAt": "2026-06-16T18:19:31.788Z"
+    },
+    {
+      "id": "cmqgz0cep00059ovahdqrmk2v",
+      "userId": null,
+      "status": "completed",
+      "total": 4540,
+      "shippingCost": 190,
+      "name": "ali",
+      "email": "ali@gmail.com",
+      "phone": "437489237482378",
+      "address": "Model Town",
+      "city": "lahore",
+      "postalCode": "54000",
+      "notes": "dsds",
+      "paymentMethod": "cod",
+      "createdAt": "2026-06-16T18:23:32.305Z",
+      "updatedAt": "2026-06-16T18:24:03.094Z"
+    }
+  ],
+  "orderItems": [
+    {
+      "id": "cmqgyv6tq00029ova915dntbq",
+      "orderId": "cmqgyv6to00019ova1s0bgsci",
+      "productId": "cmqgynsfd0008movapqoi9lv1",
+      "quantity": 1,
+      "price": 1850
+    },
+    {
+      "id": "cmqgz0ces00069ova58aag7pd",
+      "orderId": "cmqgz0cep00059ovahdqrmk2v",
+      "productId": "cmqgynsgt000emovapxf2qsk3",
+      "quantity": 1,
+      "price": 550
+    },
+    {
+      "id": "cmqgz0ces00079ovagjicvboo",
+      "orderId": "cmqgz0cep00059ovahdqrmk2v",
+      "productId": "cmqgynsgl000dmovaye41krpk",
+      "quantity": 1,
+      "price": 3800
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": "cmqgynsh5000fmovamqjzslnq",
+      "title": "Is Herbal Shampoo Good for Hair Loss?",
+      "slug": "is-herbal-shampoo-good-for-hair-loss",
+      "excerpt": "Discover why herbal shampoos are becoming the go-to solution for hair loss and how natural ingredients can transform your hair health.",
+      "content": "Hair loss is a common concern affecting millions worldwide. While chemical-based products promise quick fixes, they often cause more harm than good in the long run. Herbal shampoos, crafted from nature's finest ingredients, offer a gentler, more sustainable approach to hair care.\n\n## Why Choose Herbal Shampoo?\n\nUnlike conventional shampoos loaded with sulfates and parabens, herbal alternatives harness the power of botanical extracts that have been used for centuries in traditional medicine.\n\n### Key Benefits:\n- **Gentle Cleansing**: Natural surfactants clean without stripping essential oils\n- **Nourishment**: Herbs like amla and bhringraj strengthen hair follicles\n- **Scalp Health**: Anti-inflammatory properties soothe irritated scalps\n- **Long-term Results**: Addresses root causes rather than masking symptoms\n\n## Best Herbs for Hair Loss\n\n1. **Amla (Indian Gooseberry)**: Rich in Vitamin C and antioxidants\n2. **Bhringraj**: Known as the king of herbs for hair growth\n3. **Shikakai**: Natural cleanser that promotes shine\n4. **Reetha**: Gentle foaming agent that maintains pH balance\n\n## Making the Switch\n\nTransitioning to herbal shampoo may take time. Your hair might need 2-4 weeks to adjust as it detoxifies from chemical buildup. Be patient - the results are worth it.",
+      "image": null,
+      "author": "PurestStem",
+      "published": true,
+      "createdAt": "2026-06-16T18:13:46.601Z",
+      "updatedAt": "2026-06-16T18:13:46.601Z"
+    },
+    {
+      "id": "cmqgynshc000gmovauteixldz",
+      "title": "The Power of Mountain Herbs in Modern Wellness",
+      "slug": "power-of-mountain-herbs",
+      "excerpt": "Explore how ancient mountain herbal remedies are being validated by modern science for today's wellness needs.",
+      "content": "For centuries, communities living in mountainous regions have relied on the unique flora of high altitudes for their medicinal needs. Today, science is catching up to what these traditional healers have always known.\n\n## Unique Properties of Mountain Herbs\n\nPlants growing at high altitudes develop potent compounds to survive harsh conditions. These stress-response chemicals often translate to powerful benefits for human health.\n\n### Notable Mountain Herbs:\n- **Rhodiola Rosea**: Adaptogen for stress relief\n- **Sea Buckthorn**: Rich in Omega fatty acids\n- **Yarrow**: Natural wound healer\n- **Gentian**: Digestive aid\n\n## Sustainability in Sourcing\n\nAt PurestStem, we work directly with mountain communities to ethically source our ingredients. This ensures both potency and supports local economies.\n\n## Incorporating into Daily Life\n\nMountain herbs can be consumed as teas, applied topically in oils, or used in powdered form. Start with one herb and observe how your body responds.",
+      "image": null,
+      "author": "PurestStem",
+      "published": true,
+      "createdAt": "2026-06-16T18:13:46.608Z",
+      "updatedAt": "2026-06-16T18:13:46.608Z"
+    },
+    {
+      "id": "cmqgynshj000hmovaw8t9cdo9",
+      "title": "Understanding Your Hair Type: A Complete Guide",
+      "slug": "understanding-your-hair-type",
+      "excerpt": "Learn how to identify your hair type and choose the right herbal products for your specific needs.",
+      "content": "Not all hair is created equal. Understanding your unique hair type is the first step toward choosing products that actually work for you.\n\n## The Four Main Hair Types\n\n### Type 1: Straight Hair\n- Tends to get oily quickly\n- Benefits from lightweight, balancing formulas\n- Avoid heavy oils that weigh hair down\n\n### Type 2: Wavy Hair\n- Prone to frizz\n- Needs moisture without heaviness\n- Look for products with aloe vera and light oils\n\n### Type 3: Curly Hair\n- Naturally dry due to oil travel challenges\n- Requires rich, hydrating ingredients\n- Deep conditioning treatments are essential\n\n### Type 4: Coily Hair\n- Most fragile hair type\n- Needs maximum moisture and protection\n- Heavy butters and oils work best\n\n## Porosity Matters\n\nBeyond curl pattern, porosity determines how your hair absorbs moisture. High porosity hair needs more protein, while low porosity needs heat to open cuticles.\n\n## Herbal Solutions by Type\n\nOur product line is formulated to address the specific needs of each hair type while leveraging the power of mountain herbs.",
+      "image": null,
+      "author": "PurestStem",
+      "published": true,
+      "createdAt": "2026-06-16T18:13:46.615Z",
+      "updatedAt": "2026-06-16T18:13:46.615Z"
+    }
+  ],
+  "cartItems": [
+    {
+      "id": "cmqinxnuy000034vae8bcjww3",
+      "userId": "cmqgynskz000imovaw70z5gvo",
+      "productId": "cmqgynsgt000emovapxf2qsk3",
+      "quantity": 1,
+      "createdAt": "2026-06-17T22:49:03.755Z",
+      "updatedAt": "2026-06-19T11:27:51.957Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "cmqgynsln000jmovahsipr9ef",
+      "productId": "cmqgynsf50007movar233p16e",
+      "userId": null,
+      "name": "Ayesha K.",
+      "rating": 5,
+      "comment": "Amazing shampoo! My hair feels so much healthier after just two weeks.",
+      "verified": true,
+      "createdAt": "2026-06-16T18:13:46.763Z"
+    },
+    {
+      "id": "cmqgynslu000kmovaqihjev2c",
+      "productId": "cmqgynsfd0008movapqoi9lv1",
+      "userId": null,
+      "name": "Mohammad R.",
+      "rating": 5,
+      "comment": "The golden oil is a game changer. My hair fall has reduced significantly.",
+      "verified": true,
+      "createdAt": "2026-06-16T18:13:46.770Z"
+    },
+    {
+      "id": "cmqgynsm2000lmovagmng7yq9",
+      "productId": "cmqgynsfp0009movak5k2vusd",
+      "userId": null,
+      "name": "Fatima S.",
+      "rating": 4,
+      "comment": "Love the herbal tea. Great taste and really helps with digestion.",
+      "verified": true,
+      "createdAt": "2026-06-16T18:13:46.778Z"
+    },
+    {
+      "id": "cmqgynsm9000mmovac0p2x2hv",
+      "productId": "cmqgynsfx000amovapmp7ld9n",
+      "userId": null,
+      "name": "Ali H.",
+      "rating": 5,
+      "comment": "Best herbal products in Pakistan. Authentic and effective.",
+      "verified": true,
+      "createdAt": "2026-06-16T18:13:46.785Z"
+    }
+  ],
+  "contactMessages": []
+}

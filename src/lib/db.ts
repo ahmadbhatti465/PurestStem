@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaSqlite } from "prisma-adapter-sqlite";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-const adapter = new PrismaSqlite({
-  url: process.env.DATABASE_URL || "file:./dev.db",
+const adapter = new PrismaLibSql({
+  url: process.env.DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
 export const prisma =
