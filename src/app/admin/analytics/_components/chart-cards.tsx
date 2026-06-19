@@ -1,20 +1,28 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
+import { DollarSign, ShoppingBag, BarChart3, TrendingUp, TrendingDown, type LucideIcon } from "lucide-react";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  DollarSign,
+  ShoppingBag,
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+};
 
 interface StatCard {
   label: string;
   value: string;
   sub?: string;
   colorClass: string;
-  icon: LucideIcon;
+  iconName: string;
 }
 
 export default function StatCards({ cards }: { cards: StatCard[] }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
       {cards.map((card) => {
-        const Icon = card.icon;
+        const Icon = ICON_MAP[card.iconName];
         return (
           <div
             key={card.label}
@@ -22,7 +30,7 @@ export default function StatCards({ cards }: { cards: StatCard[] }) {
           >
             <div className="flex items-center gap-4">
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${card.colorClass}`}>
-                <Icon className="w-5 h-5" />
+                {Icon && <Icon className="w-5 h-5" />}
               </div>
               <div>
                 <p className="text-sm text-gray-500">{card.label}</p>

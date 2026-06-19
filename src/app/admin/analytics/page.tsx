@@ -6,7 +6,6 @@ import MonthlyRevenueChart from "./_components/monthly-revenue-chart";
 import TopProductsList from "./_components/top-products-list";
 import SummaryFooter from "./_components/summary-footer";
 import { FadeIn } from "@/components/animations/fade-in";
-import { BarChart3, DollarSign, ShoppingBag, TrendingUp, TrendingDown } from "lucide-react";
 
 async function getAnalytics() {
   const orders = await prisma.order.findMany({
@@ -114,35 +113,35 @@ export default async function AnalyticsPage() {
       value: `Rs ${Math.round(data.totalRevenue).toLocaleString()}`,
       sub: undefined,
       colorClass: "bg-emerald-500/10 text-emerald-600",
-      icon: DollarSign,
+      iconName: "DollarSign",
     },
     {
       label: "Total Orders",
       value: data.totalOrders.toLocaleString(),
       sub: undefined,
       colorClass: "bg-blue-500/10 text-blue-600",
-      icon: ShoppingBag,
+      iconName: "ShoppingBag",
     },
     {
       label: "Avg Order Value",
       value: `Rs ${Math.round(data.avgOrderValue).toLocaleString()}`,
       sub: undefined,
       colorClass: "bg-purple-500/10 text-purple-600",
-      icon: BarChart3,
+      iconName: "BarChart3",
     },
     {
       label: "Est. Net Profit",
       value: `Rs ${Math.round(data.netProfit).toLocaleString()}`,
       sub: `Margin: ~${data.totalRevenue > 0 ? Math.round((data.netProfit / data.totalRevenue) * 100) : 0}%`,
       colorClass: "bg-green-500/10 text-green-600",
-      icon: TrendingUp,
+      iconName: "TrendingUp",
     },
     {
       label: "Est. Overheads",
       value: `Rs ${Math.round(data.estimatedLoss).toLocaleString()}`,
       sub: undefined,
       colorClass: "bg-red-500/10 text-red-600",
-      icon: TrendingDown,
+      iconName: "TrendingDown",
     },
   ];
 
