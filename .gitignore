@@ -38,3 +38,6 @@ Thumbs.db
 # Misc
 *.pem
 .vercel
+
+# Prisma generated client (generated at build time)
+src/generated/
