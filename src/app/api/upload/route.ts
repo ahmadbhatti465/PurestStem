@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import { join } from "path";
+import { put } from "@vercel/blob";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -11,19 +17,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     const originalName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-    const filename = `${Date.now()}-${originalName}`;
-    const uploadDir = join(process.cwd(), "public", "uploads", "products");
-    const filepath = join(uploadDir, filename);
+    const filename = `products/${Date.now()}-${originalName}`;
 
-    await writeFile(filepath, buffer);
+    const blob = await put(filename, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
 
-    const url = `/uploads/products/${filename}`;
-    return NextResponse.json({ url });
-  } catch {
+    return NextResponse.json({ url: blob.url });
+  } catch (e) {
+    console.error("Upload failed:", e);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }
