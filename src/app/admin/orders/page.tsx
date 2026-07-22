@@ -18,11 +18,13 @@ async function getOrders() {
     updatedAt: order.updatedAt.toISOString(),
     items: order.items.map((item) => ({
       ...item,
-      product: {
-        name: item.product.name,
-        sku: item.product.sku,
-        weight: item.product.weight,
-      },
+      product: item.product
+        ? {
+            name: item.product.name,
+            sku: item.product.sku,
+            weight: item.product.weight,
+          }
+        : { name: "Deleted product", sku: null, weight: null },
     })),
   }));
 }

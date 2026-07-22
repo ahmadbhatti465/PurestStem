@@ -41,11 +41,13 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    setMobileMenuOpen(false);
-    setSearchOpen(false);
+    const t = setTimeout(() => {
+      setMobileMenuOpen(false);
+      setSearchOpen(false);
+    }, 0);
+    return () => clearTimeout(t);
   }, [pathname]);
 
-  // Close search on outside click
   useEffect(() => {
     if (!searchOpen) return;
     const onClick = (e: MouseEvent) => {
@@ -56,7 +58,6 @@ export default function Header() {
     return () => document.removeEventListener("click", onClick);
   }, [searchOpen]);
 
-  // Active pill indicator position
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 });
   useEffect(() => {
     if (!navRef.current) return;
@@ -68,36 +69,27 @@ export default function Header() {
 
   return (
     <>
-      {/* ======= HEADER ======= */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`sticky top-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-white shadow-lg border-b border-gray-100"
-            : "bg-white border-b border-gray-100"
+          scrolled ? "bg-white shadow-lg border-b border-gray-100" : "bg-white border-b border-gray-100"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-[4.5rem]">
-            {/* ── Logo ── */}
             <Link href="/" className="flex items-center gap-3 group z-10">
               <motion.img
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 src="/pureststem_logo.png"
-                alt="PurestStem"
-                className="h-14 w-auto"
+                alt="PurestStem - Premium Herbal Products Pakistan"
+                className="h-12 w-auto"
               />
             </Link>
 
-            {/* ── Desktop Nav ── */}
-            <nav
-              ref={navRef}
-              className="hidden lg:flex items-center relative"
-            >
-              {/* Sliding pill background */}
+            <nav ref={navRef} className="hidden lg:flex items-center relative" aria-label="Main navigation">
               <motion.div
                 className="absolute top-0 h-full rounded-xl bg-green-100 border border-green-200 shadow-sm"
                 animate={{
@@ -128,9 +120,7 @@ export default function Header() {
               })}
             </nav>
 
-            {/* ── Actions ── */}
             <div className="flex items-center gap-1.5 z-10">
-              {/* Search */}
               <div className="search-bar hidden md:flex items-center">
                 <AnimatePresence>
                   {searchOpen && (
@@ -146,6 +136,7 @@ export default function Header() {
                         name="search"
                         autoFocus
                         placeholder="Search products..."
+                        aria-label="Search products"
                         className="w-full h-10 px-4 text-sm bg-gray-100 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-green-500/30 text-gray-900 placeholder:text-gray-400"
                       />
                     </motion.form>
@@ -155,7 +146,7 @@ export default function Header() {
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setSearchOpen(!searchOpen)}
                   className="p-2.5 text-gray-600 hover:text-green-700 transition-colors rounded-xl hover:bg-green-50"
-                  aria-label="Search"
+                  aria-label={searchOpen ? "Close search" : "Open search"}
                 >
                   {searchOpen ? (
                     <X className="w-5 h-5" />
@@ -165,7 +156,6 @@ export default function Header() {
                 </motion.button>
               </div>
 
-              {/* Account / Sign Out */}
               {session ? (
                 <div className="hidden sm:flex items-center gap-1">
                   <motion.div whileTap={{ scale: 0.9 }}>
@@ -198,12 +188,11 @@ export default function Header() {
                 </motion.div>
               )}
 
-              {/* Cart */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
                 className="relative p-2.5 text-gray-600 hover:text-green-700 transition-colors rounded-xl hover:bg-green-50"
-                aria-label="Cart"
+                aria-label={`Cart with ${itemCount} items`}
               >
                 <ShoppingCart className="w-5 h-5" strokeWidth={1.8} />
                 <AnimatePresence>
@@ -214,7 +203,7 @@ export default function Header() {
                       animate={{ scale: 1, y: 0 }}
                       exit={{ scale: 0, y: 5 }}
                       transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                      className="absolute -top-1 -right-1 min-w-[1.25rem] h-[1.25rem] px-1 bg-gradient-to-br from-green-600 to-green-800 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md border-2 border-white"
+                      className="absolute -top-1 -right-1 min-w-[1.25rem] h-[1.25rem] px-1 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md border-2 border-white"
                     >
                       {itemCount}
                     </motion.span>
@@ -222,7 +211,6 @@ export default function Header() {
                 </AnimatePresence>
               </motion.button>
 
-              {/* Mobile hamburger */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 className="lg:hidden p-2.5 ml-0.5 rounded-xl text-gray-600 hover:text-green-800 hover:bg-green-50 transition-colors"
@@ -258,11 +246,9 @@ export default function Header() {
         </div>
       </motion.header>
 
-      {/* ======= MOBILE DRAWER ======= */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -272,7 +258,6 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             />
 
-            {/* Drawer */}
             <motion.div
               initial={{ x: "100%", opacity: 0.8 }}
               animate={{ x: 0, opacity: 1 }}
@@ -280,7 +265,6 @@ export default function Header() {
               transition={{ type: "spring", damping: 26, stiffness: 280 }}
               className="fixed top-0 right-0 h-full w-full sm:w-[380px] bg-white z-50 lg:hidden flex flex-col shadow-2xl"
             >
-              {/* Drawer Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <Link
                   href="/"
@@ -290,20 +274,20 @@ export default function Header() {
                   <img
                     src="/pureststem_logo.png"
                     alt="PurestStem"
-                    className="h-14 w-auto"
+                    className="h-12 w-auto"
                   />
                 </Link>
                 <motion.button
                   whileTap={{ scale: 0.85 }}
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                  aria-label="Close menu"
                 >
                   <X className="w-5 h-5" strokeWidth={2} />
                 </motion.button>
               </div>
 
-              {/* Nav Links */}
-              <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
+              <nav className="flex-1 p-6 space-y-2 overflow-y-auto" aria-label="Mobile navigation">
                 {navLinks.map((link, i) => {
                   const isActive =
                     pathname === link.href ||
@@ -346,7 +330,6 @@ export default function Header() {
                 })}
               </nav>
 
-              {/* Footer Actions */}
               <div className="p-6 border-t border-gray-100 space-y-2">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -361,6 +344,7 @@ export default function Header() {
                     <input
                       name="search"
                       placeholder="Search products..."
+                      aria-label="Search products"
                       className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
                     />
                   </form>

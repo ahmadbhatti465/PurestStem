@@ -29,7 +29,8 @@ export default function MessagesPage() {
   }
 
   useEffect(() => {
-    fetchMessages();
+    const t = setTimeout(() => fetchMessages(), 0);
+    return () => clearTimeout(t);
   }, []);
 
   async function markRead(id: string, read: boolean) {
