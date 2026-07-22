@@ -1,14 +1,39 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import ProductCard from "@/components/product-card";
 import ProductFilters from "./product-filters";
-import { FadeIn } from "@/components/animations/fade-in";
-import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+export const metadata: Metadata = {
+  title: "Shop Herbal Products Online in Pakistan | PurestStem",
+  description:
+    "Buy 100% natural herbal shampoos, hair oils, herbal teas, soaps and skin care products online in Pakistan. Cash on delivery, free shipping over ₨ 5,000. Filter by category.",
+  keywords: [
+    "herbal products Pakistan",
+    "buy herbal shampoo online Pakistan",
+    "natural hair oil Pakistan",
+    "herbal tea online Pakistan",
+    "neem soap Pakistan",
+    "ubtan powder Pakistan",
+    "organic skincare Pakistan",
+  ],
+  openGraph: {
+    title: "Shop Herbal Products Online in Pakistan | PurestStem",
+    description:
+      "Browse our complete range of 100% natural herbal products with cash on delivery across Pakistan.",
+    type: "website",
+    url: "http://localhost:3000/shop/products",
+  },
+  alternates: {
+    canonical: "http://localhost:3000/shop/products",
+  },
+};
+
 async function getProducts(category?: string, search?: string) {
-  const where: any = { isActive: true };
+  const where: Prisma.ProductWhereInput = { isActive: true };
 
   if (category) {
     where.category = { slug: category };
@@ -16,8 +41,8 @@ async function getProducts(category?: string, search?: string) {
 
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { description: { contains: search, mode: "insensitive" } },
+      { name: { contains: search } },
+      { description: { contains: search } },
     ];
   }
 
@@ -48,69 +73,55 @@ export default async function ProductsPage({
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-[#0f2e1c]">
-        <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-green-700/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-emerald-600/10 rounded-full blur-[100px]" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24 relative z-10">
-          <FadeIn className="text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 mb-6">
-              <Sparkles className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-medium text-green-100">
-                Premium Herbal Collection
-              </span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-              Our{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
-                Collection
-              </span>
-            </h1>
-            <p className="text-green-100/70 max-w-xl mx-auto">
-              Browse our complete range of 100% natural herbal products crafted with mountain wisdom
-            </p>
-          </FadeIn>
+      <section className="relative bg-[#132e1f] overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-green-700/20 rounded-full blur-[120px] translate-x-1/4 -translate-y-1/4" />
+          <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-emerald-600/10 rounded-full blur-[100px] -translate-x-1/4 translate-y-1/4" />
         </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" className="w-full">
-            <path d="M0 80V40C240 0 480 0 720 20C960 40 1200 20 1440 40V80H0Z" fill="#f9fafb" />
-          </svg>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-22 relative">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 text-sm font-medium text-green-100 mb-5">
+              <Sparkles className="w-4 h-4 text-green-300" />
+              Premium Herbal Collection
+            </span>
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+              Shop <span className="text-green-300">Herbal Products</span>
+            </h1>
+            <p className="text-green-100/70 text-lg">
+              100% natural herbal shampoos, hair oils, teas, soaps and skincare delivered across Pakistan
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50/50">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 flex-shrink-0">
-            <Suspense fallback={<div className="h-40 bg-gray-100 animate-pulse rounded-xl"></div>}>
+            <Suspense
+              fallback={<div className="h-32 bg-gray-100 rounded-xl animate-pulse"></div>}
+            >
               <ProductFilters categories={categories} />
             </Suspense>
           </aside>
 
           <div className="flex-1">
             {products.length === 0 ? (
-              <FadeIn>
-                <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-                  <p className="text-gray-400 mb-4">No products found matching your criteria.</p>
-                  <Link
-                    href="/shop/products"
-                    className="inline-flex items-center gap-2 text-green-700 font-medium hover:underline"
-                  >
-                    Clear filters
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </FadeIn>
+              <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+                <p className="text-gray-400 mb-4">No products found matching your criteria.</p>
+                <Link
+                  href="/shop/products"
+                  className="inline-flex items-center gap-2 text-green-700 font-medium hover:underline"
+                >
+                  Clear filters <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             ) : (
-              <StaggerContainer
-                staggerDelay={0.08}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => (
-                  <StaggerItem key={product.id}>
-                    <ProductCard product={product} />
-                  </StaggerItem>
+                  <ProductCard key={product.id} product={product} />
                 ))}
-              </StaggerContainer>
+              </div>
             )}
           </div>
         </div>

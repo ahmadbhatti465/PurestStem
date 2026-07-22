@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Shield, Leaf } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -105,10 +106,10 @@ export default function AdminLogin() {
         </motion.form>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-green-700 hover:underline inline-flex items-center gap-1">
+          <Link href="/" className="text-sm text-green-700 hover:underline inline-flex items-center gap-1">
             <Leaf className="w-3 h-3" />
             Back to Store
-          </a>
+          </Link>
         </div>
       </motion.div>
     </div>

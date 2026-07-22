@@ -76,7 +76,7 @@ async function getAnalytics() {
   const productSales = orders
     .flatMap((o) => o.items)
     .reduce((acc, item) => {
-      const name = item.product.name;
+      const name = item.product?.name || "Deleted product";
       acc[name] = (acc[name] || 0) + item.quantity;
       return acc;
     }, {} as Record<string, number>);

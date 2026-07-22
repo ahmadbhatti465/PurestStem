@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { FadeIn } from "@/components/animations/fade-in";
 import CartItems from "./cart-items";
+
+export const metadata: Metadata = {
+  title: "Shopping Cart | PurestStem Pakistan",
+  description:
+    "Review your herbal products in the PurestStem shopping cart. Checkout with cash on delivery across Pakistan.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function CartPage() {
   return (

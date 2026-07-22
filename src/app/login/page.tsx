@@ -90,7 +90,7 @@ export default function LoginPage() {
           >
             <img
               src="/pureststem_logo.png"
-              alt="PurestStem"
+              alt="PurestStem - Premium Herbal Products Pakistan"
               className="h-16 w-auto"
             />
           </motion.div>
@@ -99,8 +99,8 @@ export default function LoginPage() {
           </h1>
           <p className="text-green-100/70">
             {mode === "signin"
-              ? "Sign in to your account"
-              : "Sign up to get started"}
+              ? "Sign in to your PurestStem account"
+              : "Join PurestStem for natural wellness"}
           </p>
         </div>
 

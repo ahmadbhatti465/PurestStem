@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(msg, { status: 201 });
-  } catch (err: any) {
-    console.error("Contact POST error:", err?.message || err);
+  } catch (err: unknown) {
+    console.error("Contact POST error:", err instanceof Error ? err.message : err);
     return NextResponse.json(
       { error: "Failed to send message" },
       { status: 500 }

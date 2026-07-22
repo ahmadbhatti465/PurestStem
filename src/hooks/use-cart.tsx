@@ -73,7 +73,17 @@ async function fetchDbCart(): Promise<CartItem[]> {
   if (!Array.isArray(data)) {
     throw new Error("Invalid cart response: expected array");
   }
-  return data.map((dbItem: any) => ({
+  interface DbCartItem {
+    productId: string;
+    quantity: number;
+    product?: {
+      name?: string;
+      salePrice?: number | null;
+      price?: number;
+      image?: string | null;
+    };
+  }
+  return (data as DbCartItem[]).map((dbItem) => ({
     productId: dbItem.productId,
     name: dbItem.product?.name ?? "Product",
     price: dbItem.product?.salePrice ?? dbItem.product?.price ?? 0,
