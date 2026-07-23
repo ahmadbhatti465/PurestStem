@@ -65,8 +65,8 @@ export const metadata: Metadata = {
     images: ["/hero-section.png"],
   },
   icons: {
-    icon: "/pureststem_logo.png",
-    apple: "/pureststem_logo.png",
+    icon: "/icon.jpeg",
+    apple: "/icon.jpeg",
   },
   alternates: {
     canonical: "http://localhost:3000",
