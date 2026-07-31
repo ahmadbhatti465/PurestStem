@@ -12,6 +12,8 @@ const client = createClient({
 const MIGRATIONS = [
   { id: "20260527194622_init", file: "prisma/migrations/20260527194622_init/migration.sql" },
   { id: "20260531173420_add_cart_item", file: "prisma/migrations/20260531173420_add_cart_item/migration.sql" },
+  { id: "20260731120000_fix_order_item_product_delete", file: "prisma/migrations/20260731120000_fix_order_item_product_delete/migration.sql" },
+  { id: "20260731123000_fix_category_product_delete", file: "prisma/migrations/20260731123000_fix_category_product_delete/migration.sql" },
 ];
 
 async function tableExists(name: string): Promise<boolean> {

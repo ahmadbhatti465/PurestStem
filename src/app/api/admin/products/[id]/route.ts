@@ -76,7 +76,13 @@ export async function DELETE(
     const { id } = await params;
     await prisma.product.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("Foreign key constraint")) {
+      return NextResponse.json(
+        { error: "Cannot delete product because it is linked to existing orders." },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
   }
 }

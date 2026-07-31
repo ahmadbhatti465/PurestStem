@@ -65,10 +65,17 @@ export async function DELETE(
     const { id } = await params;
     const productCount = await prisma.product.count({ where: { categoryId: id } });
     if (productCount > 0) {
-      return NextResponse.json(
-        { error: `Cannot delete category with ${productCount} product(s). Move or delete the products first.` },
-        { status: 400 }
-      );
+      const confirmed = _req.headers.get("x-confirm-cascade") === "true";
+      if (!confirmed) {
+        return NextResponse.json(
+          {
+            error: `This category has ${productCount} product(s). Delete it anyway? All associated products will also be removed.`,
+            requiresConfirmation: true,
+            productCount,
+          },
+          { status: 400 }
+        );
+      }
     }
     await prisma.category.delete({ where: { id } });
     return NextResponse.json({ success: true });
