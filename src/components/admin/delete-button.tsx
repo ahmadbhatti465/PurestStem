@@ -50,7 +50,7 @@ export default function DeleteButton({ apiUrl, redirectPath }: DeleteButtonProps
     <button
       type="button"
       disabled={deleting}
-      onClick={handleDelete}
+      onClick={() => handleDelete()}
       className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
       title="Delete"
     >
