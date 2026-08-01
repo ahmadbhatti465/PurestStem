@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
         ingredients: body.ingredients || null,
         howToUse: body.howToUse || null,
         image: body.image || null,
+        images: body.images || null,
         featured: body.featured === "true" || body.featured === true,
         isActive: body.isActive === "true" || body.isActive === true || body.isActive === undefined,
         categoryId: body.categoryId,

@@ -3,6 +3,7 @@ import Link from "next/link";
 import DeleteButton from "@/components/admin/delete-button";
 import { Plus, Pencil, ImageIcon, ArrowRight } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
+import { getPrimaryImage } from "@/lib/utils";
 
 async function getProducts() {
   return await prisma.product.findMany({
@@ -55,11 +56,14 @@ export default async function AdminProductsPage() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400 overflow-hidden">
-                          {product.image ? (
-                            <img src={product.image} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <ImageIcon className="w-5 h-5" />
-                          )}
+                          {(() => {
+                            const src = getPrimaryImage(product.image, product.images);
+                            return src ? (
+                              <img src={src} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageIcon className="w-5 h-5" />
+                            );
+                          })()}
                         </div>
                         <div>
                           <div className="font-medium text-sm text-gray-900">{product.name}</div>

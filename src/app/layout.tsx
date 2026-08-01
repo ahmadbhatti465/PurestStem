@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { Providers } from "@/components/providers";
 import SiteChrome from "@/components/layout/site-chrome";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+const display = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
@@ -79,7 +84,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} antialiased`}>
+    <html lang="en" className={`${inter.variable} ${display.variable} antialiased`}>
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
           <SiteChrome>{children}</SiteChrome>

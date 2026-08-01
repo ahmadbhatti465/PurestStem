@@ -54,6 +54,7 @@ export async function PUT(
         ingredients: body.ingredients || null,
         howToUse: body.howToUse || null,
         image: body.image || null,
+        images: body.images || null,
         featured: body.featured === "true" || body.featured === true,
         isActive: body.isActive === "true" || body.isActive === true,
         categoryId: body.categoryId,

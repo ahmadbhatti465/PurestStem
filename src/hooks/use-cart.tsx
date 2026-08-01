@@ -81,6 +81,7 @@ async function fetchDbCart(): Promise<CartItem[]> {
       salePrice?: number | null;
       price?: number;
       image?: string | null;
+      images?: string | null;
     };
   }
   return (data as DbCartItem[]).map((dbItem) => ({
@@ -88,7 +89,20 @@ async function fetchDbCart(): Promise<CartItem[]> {
     name: dbItem.product?.name ?? "Product",
     price: dbItem.product?.salePrice ?? dbItem.product?.price ?? 0,
     quantity: dbItem.quantity ?? 1,
-    image: dbItem.product?.image ?? undefined,
+    image:
+      dbItem.product?.image ||
+      (() => {
+        if (!dbItem.product?.images) return undefined;
+        try {
+          const parsed = JSON.parse(dbItem.product.images) as unknown;
+          if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "string") {
+            return parsed[0];
+          }
+        } catch {
+          // ignore
+        }
+        return undefined;
+      })(),
   }));
 }
 

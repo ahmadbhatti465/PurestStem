@@ -24,3 +24,17 @@ export function calculateDiscount(price: number, salePrice?: number | null): num
   if (!salePrice || salePrice >= price) return 0;
   return Math.round(((price - salePrice) / price) * 100);
 }
+
+export function getPrimaryImage(image: string | null | undefined, images: string | null | undefined): string | null {
+  if (image) return image;
+  if (!images) return null;
+  try {
+    const parsed = JSON.parse(images) as unknown;
+    if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "string") {
+      return parsed[0];
+    }
+  } catch {
+    // ignore invalid JSON
+  }
+  return null;
+}

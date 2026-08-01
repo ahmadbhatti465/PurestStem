@@ -5,6 +5,7 @@ import PromoBar from "./promo-bar";
 import Header from "./header";
 import Footer from "./footer";
 import CartDrawer from "../cart-drawer";
+import WhatsAppButton from "./whatsapp-button";
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       <main className="flex-1">{children}</main>
       <Footer />
       <CartDrawer />
+      <WhatsAppButton />
     </>
   );
 }

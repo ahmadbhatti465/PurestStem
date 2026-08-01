@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ImageIcon, X } from "lucide-react";
+import { X } from "lucide-react";
+import { slugify } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -13,7 +14,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
@@ -23,30 +24,44 @@ export default function NewProductPage() {
       .catch(() => setCategories([]));
   }, []);
 
-  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
+  async function uploadFile(file: File) {
     const formData = new FormData();
     formData.append("file", file);
 
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok || !data.url) {
+      throw new Error(data.error || "Image upload failed");
+    }
+    return data.url as string;
+  }
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImage(true);
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setImageUrl(data.url);
-      } else {
-        alert(data.error || "Image upload failed");
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        if (imageUrls.length + urls.length >= 2) break;
+        const url = await uploadFile(file);
+        urls.push(url);
       }
-    } catch {
-      alert("Image upload failed");
+      setImageUrls((prev) => [...prev, ...urls]);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Image upload failed");
     } finally {
       setUploadingImage(false);
+      e.target.value = "";
     }
+  }
+
+  function removeImage(index: number) {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -54,8 +69,12 @@ export default function NewProductPage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    if (imageUrl) data.image = imageUrl;
+    const data = Object.fromEntries(formData.entries()) as Record<string, string | null>;
+    data.slug = slugify(data.slug || data.name || "");
+    if (imageUrls.length > 0) {
+      data.image = imageUrls[0];
+      data.images = JSON.stringify(imageUrls);
+    }
 
     try {
       const res = await fetch("/api/admin/products", {
@@ -179,36 +198,38 @@ export default function NewProductPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Product Image</label>
-          <div className="flex items-center gap-4">
-            <div className="w-24 h-24 bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden relative">
-              {imageUrl ? (
-                <>
-                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setImageUrl("")}
-                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </>
-              ) : (
-                <ImageIcon className="w-8 h-8 text-gray-300" />
-              )}
-            </div>
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                disabled={uploadingImage}
-                className="hidden"
-              />
-              <span className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors border">
-                {uploadingImage ? "Uploading..." : "Choose Image"}
-              </span>
-            </label>
+          <label className="block text-sm font-medium mb-1">Product Images (up to 2)</label>
+          <div className="flex flex-wrap items-center gap-4">
+            {imageUrls.map((url, index) => (
+              <div
+                key={`${url}-${index}`}
+                className="w-24 h-24 bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden relative"
+              >
+                <img src={url} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            {imageUrls.length < 2 && (
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+                <span className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors border">
+                  {uploadingImage ? "Uploading..." : "Add Image"}
+                </span>
+              </label>
+            )}
           </div>
         </div>
 
