@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, Eye } from "lucide-react";
+import { ShoppingCart, Eye, Package } from "lucide-react";
+import { motion } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice, calculateDiscount, getPrimaryImage, slugify } from "@/lib/utils";
 
@@ -20,6 +22,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  const [imgError, setImgError] = useState(false);
   const discount = calculateDiscount(product.price, product.salePrice);
   const primaryImage = getPrimaryImage(product.image, product.images);
   const productUrl = `/shop/products/${encodeURIComponent(slugify(product.slug || product.name))}`;
@@ -37,19 +40,20 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col">
+    <article className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col">
       <Link href={productUrl} className="block relative">
         <div className="aspect-square bg-gradient-to-br from-green-50/80 to-gray-50 flex items-center justify-center relative overflow-hidden">
-          {primaryImage ? (
+          {primaryImage && !imgError ? (
             <img
               src={primaryImage}
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               loading="lazy"
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="flex flex-col items-center text-gray-400">
-              <ShoppingCart className="w-8 h-8 mb-2 opacity-40" />
+              <Package className="w-10 h-10 mb-2 opacity-40" />
               <span className="text-xs">No Image</span>
             </div>
           )}
@@ -59,14 +63,15 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
 
-          {/* Quick Add - appears on hover (desktop), always visible on mobile */}
-          <button
+          {/*  Quick Add - appears on hover (desktop), always visible on mobile  */}
+          <motion.button
             onClick={handleAdd}
-            className="absolute bottom-3 right-3 z-10 w-10 h-10 bg-green-700 text-white rounded-full shadow-lg flex items-center justify-center opacity-100 translate-y-0 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 hover:bg-green-800 hover:scale-110"
+            whileTap={{ scale: 0.92 }}
+            className="absolute bottom-3 right-3 z-10 w-11 h-11 min-w-[44px] min-h-[44px] bg-green-700 text-white rounded-full shadow-lg flex items-center justify-center opacity-100 translate-y-0 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 hover:bg-green-800 hover:scale-110"
             aria-label={`Quick add ${product.name} to cart`}
           >
             <ShoppingCart className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
       </Link>
 
@@ -91,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <div className="mt-auto flex flex-col gap-2">
+        <div className="mt-auto">
           <Link
             href={productUrl}
             className="w-full flex items-center justify-center gap-2 bg-white text-green-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-green-50 transition-colors border border-green-100"

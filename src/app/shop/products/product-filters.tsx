@@ -38,28 +38,34 @@ export default function ProductFilters({ categories }: { categories: Category[] 
             <LayoutGrid className="w-3.5 h-3.5" />
             All
           </Link>
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/shop/products?category=${category.slug}${currentSearch ? `&search=${encodeURIComponent(currentSearch)}` : ""}`}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                currentCategory === category.slug
-                  ? "bg-green-700 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-700"
-              }`}
-            >
-              {category.name}
-              <span
-                className={`text-xs px-1.5 py-0.5 rounded-full ${
+          {categories.map((category) => {
+            const params = new URLSearchParams();
+            if (currentSearch) params.set("search", currentSearch);
+            const href = `/shop/products?category=${category.slug}${params.toString() ? `&${params.toString()}` : ""}`;
+
+            return (
+              <Link
+                key={category.id}
+                href={href}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                   currentCategory === category.slug
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200 text-gray-500"
+                    ? "bg-green-700 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-700"
                 }`}
               >
-                {category._count.products}
-              </span>
-            </Link>
-          ))}
+                {category.name}
+                <span
+                  className={`text-xs px-1.5 py-0.5 rounded-full ${
+                    currentCategory === category.slug
+                      ? "bg-white/20 text-white"
+                      : "bg-gray-200 text-gray-500"
+                  }`}
+                >
+                  {category._count.products}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
@@ -75,20 +81,19 @@ export default function ProductFilters({ categories }: { categories: Category[] 
             name="search"
             defaultValue={currentSearch || ""}
             placeholder="Search products..."
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-all"
           />
           {currentSearch ? (
             <Link
               href={currentCategory ? `/shop/products?category=${currentCategory}` : "/shop/products"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600"
+              aria-label="Clear search"
             >
               <X className="w-4 h-4" />
             </Link>
           ) : null}
         </div>
-        {currentCategory ? (
-          <input type="hidden" name="category" value={currentCategory} />
-        ) : null}
+        {currentCategory ? <input type="hidden" name="category" value={currentCategory} /> : null}
       </form>
     </div>
   );

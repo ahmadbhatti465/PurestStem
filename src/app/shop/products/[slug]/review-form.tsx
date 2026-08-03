@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import StarRating from "@/components/ui/star-rating";
+import { motion } from "framer-motion";
+import { CheckCircle, Loader2 } from "lucide-react";
 
 export default function ReviewForm({ productId }: { productId: string }) {
   const [rating, setRating] = useState(5);
@@ -31,31 +33,32 @@ export default function ReviewForm({ productId }: { productId: string }) {
 
   if (submitted) {
     return (
-      <div className="bg-green-50 border border-green-100 p-5 rounded-2xl">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-green-50 border border-green-100 p-6 rounded-2xl text-center"
+      >
+        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <CheckCircle className="w-7 h-7 text-green-700" />
+        </div>
         <p className="text-green-800 font-semibold text-lg">Thank you for your review!</p>
         <p className="text-green-600 text-sm mt-1">Your feedback helps others discover PurestStem.</p>
-      </div>
+      </motion.div>
     );
   }
+
+  const inputClasses =
+    "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-all";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Rating
-        </label>
-        <StarRating
-          rating={rating}
-          size="lg"
-          interactive
-          onChange={setRating}
-        />
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Rating</label>
+        <StarRating rating={rating} size="lg" interactive onChange={setRating} />
       </div>
 
       <div>
-        <label htmlFor="review-name" className="block text-sm font-semibold text-gray-700 mb-2">
-          Name
-        </label>
+        <label htmlFor="review-name" className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
         <input
           id="review-name"
           type="text"
@@ -63,14 +66,12 @@ export default function ReviewForm({ productId }: { productId: string }) {
           onChange={(e) => setName(e.target.value)}
           required
           placeholder="Your name"
-          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow"
+          className={inputClasses}
         />
       </div>
 
       <div>
-        <label htmlFor="review-comment" className="block text-sm font-semibold text-gray-700 mb-2">
-          Review
-        </label>
+        <label htmlFor="review-comment" className="block text-sm font-semibold text-gray-700 mb-2">Review</label>
         <textarea
           id="review-comment"
           value={comment}
@@ -78,16 +79,23 @@ export default function ReviewForm({ productId }: { productId: string }) {
           required
           rows={4}
           placeholder="Share your experience with this product..."
-          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow resize-none"
+          className={`${inputClasses} resize-none`}
         />
       </div>
 
       <Button
         type="submit"
         disabled={loading}
-        className="w-full sm:w-auto bg-green-700 hover:bg-green-800 text-white rounded-xl px-6 py-3 font-semibold transition-colors"
+        className="w-full sm:w-auto min-h-[44px] bg-green-700 hover:bg-green-800 text-white rounded-xl px-6 py-3 font-semibold transition-colors"
       >
-        {loading ? "Submitting..." : "Submit Review"}
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          "Submit Review"
+        )}
       </Button>
     </form>
   );

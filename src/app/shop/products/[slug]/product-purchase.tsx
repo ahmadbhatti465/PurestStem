@@ -5,6 +5,7 @@ import AddToCartButton, {
   useAddToCart,
 } from "./add-to-cart-button";
 import { formatPrice } from "@/lib/utils";
+import { Truck } from "lucide-react";
 
 interface Product {
   id: string;
@@ -25,7 +26,7 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
 
   return (
     <>
-      {/* Desktop inline purchase block */}
+      {/*  Desktop inline purchase block  */}
       <div className="hidden sm:block">
         <AddToCartButton
           product={product}
@@ -35,9 +36,13 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
           handleAdd={handleAdd}
           added={added}
         />
+        <p className="mt-3 text-sm text-gray-500 flex items-center gap-1.5">
+          <Truck className="w-4 h-4 text-green-600" />
+          Free shipping on orders over ₨ 5,000
+        </p>
       </div>
 
-      {/* Mobile sticky bottom CTA bar */}
+      {/*  Mobile sticky bottom CTA bar  */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           <div className="flex flex-col">

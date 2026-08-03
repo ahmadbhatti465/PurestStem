@@ -71,7 +71,7 @@ export function QuantityStepper({
         type="button"
         onClick={decrease}
         disabled={quantity <= 1 || stock <= 0}
-        className={`${size} text-gray-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
+        className={`${size} min-w-[44px] min-h-[44px] text-gray-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
         aria-label="Decrease quantity"
       >
         <Minus className="w-4 h-4" />
@@ -83,7 +83,7 @@ export function QuantityStepper({
         type="button"
         onClick={increase}
         disabled={quantity >= stock || stock <= 0}
-        className={`${size} text-gray-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
+        className={`${size} min-w-[44px] min-h-[44px] text-gray-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
         aria-label="Increase quantity"
       >
         <Plus className="w-4 h-4" />
@@ -114,7 +114,7 @@ export default function AddToCartButton({
         onClick={handleAdd}
         disabled={product.stock <= 0}
         whileTap={product.stock > 0 ? { scale: 0.96 } : undefined}
-        className={`flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all ${
+        className={`flex-1 min-h-[48px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all ${
           product.stock <= 0
             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
             : added
@@ -150,7 +150,7 @@ export default function AddToCartButton({
         onClick={handleAdd}
         disabled={product.stock <= 0}
         whileTap={product.stock > 0 ? { scale: 0.96 } : undefined}
-        className={`inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-base transition-all ${
+        className={`min-h-[48px] inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-base transition-all ${
           product.stock <= 0
             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
             : added

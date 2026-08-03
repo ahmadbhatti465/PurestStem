@@ -6,7 +6,11 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/utils";
-import { ArrowRight, ShoppingBag, Truck, Check, CreditCard, MapPin, User, Mail, Phone, FileText, ChevronRight } from "lucide-react";
+import { ArrowRight, ShoppingBag, Truck, Check, MapPin, User, Mail, Phone, FileText, ChevronRight } from "lucide-react";
+import { Container } from "@/components/layout/container";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CheckoutSteps } from "@/components/checkout-steps";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
@@ -55,43 +59,43 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center"
-      >
-        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <ShoppingBag className="w-10 h-10 text-gray-300" />
+      <Container className="py-8 pb-20">
+        <Breadcrumb items={[{ label: "Cart", href: "/shop/cart" }, { label: "Checkout" }]} />
+        <div className="mt-8">
+          <CheckoutSteps currentStep={2} className="mb-12" />
+          <EmptyState
+            icon={ShoppingBag}
+            title="Your cart is empty"
+            description="Add some herbal products before proceeding to checkout."
+            action={
+              <Link
+                href="/shop/products"
+                className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+              >
+                Continue Shopping
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            }
+          />
         </div>
-        <h2 className="text-2xl font-bold mb-4 text-gray-900">Your cart is empty</h2>
-        <Link
-          href="/shop/products"
-          className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
-        >
-          Continue Shopping
-          <ArrowRight className="w-4 h-4" />
-        </Link>
-      </motion.div>
+      </Container>
     );
   }
 
-  const inputClasses = "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all shadow-sm";
+  const inputClasses =
+    "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-all shadow-sm";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Container className="py-8 pb-20">
+      <Breadcrumb items={[{ label: "Cart", href: "/shop/cart" }, { label: "Checkout" }]} />
+
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
+        className="mt-6 mb-8"
       >
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-            <CreditCard className="w-4 h-4 text-green-700" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
-        </div>
-        <p className="text-gray-500 mb-8 ml-10">Complete your order in just a few steps</p>
+        <CheckoutSteps currentStep={2} />
       </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-10">
@@ -101,6 +105,7 @@ export default function CheckoutPage() {
           transition={{ duration: 0.4, delay: 0.1 }}
         >
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/*  Personal details  */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -122,7 +127,7 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-700">Email *</label>
                     <div className="relative">
@@ -155,6 +160,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/*  Shipping address  */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -176,7 +182,7 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-700">City *</label>
                     <input
@@ -219,7 +225,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-700 text-white py-4 rounded-full font-semibold hover:bg-green-800 transition-all shadow-lg shadow-green-700/20 hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full min-h-[48px] bg-green-700 text-white py-4 rounded-full font-semibold hover:bg-green-800 transition-all shadow-lg shadow-green-700/20 hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
                 "Placing Order..."
@@ -237,7 +243,7 @@ export default function CheckoutPage() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="h-fit sticky top-24"
+          className="h-fit lg:sticky lg:top-24"
         >
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-5">
@@ -307,6 +313,6 @@ export default function CheckoutPage() {
           </div>
         </motion.div>
       </div>
-    </div>
+    </Container>
   );
 }

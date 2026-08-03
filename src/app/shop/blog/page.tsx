@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Leaf, Calendar, Sparkles, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { PageSection } from "@/components/layout/page-section";
+import { SectionHeader } from "@/components/ui/section-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 import type { Metadata } from "next";
@@ -28,32 +32,45 @@ export default async function BlogPage() {
   const posts = await getBlogPosts();
 
   return (
-    <div>
-      <section className="relative bg-[#132e1f] overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-green-700/20 rounded-full blur-[120px] translate-x-1/4 -translate-y-1/4" />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-22 relative">
-          <FadeIn className="text-center max-w-2xl mx-auto">
-            <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 text-sm font-medium text-green-100 mb-5">
-              <Sparkles className="w-4 h-4 text-green-300" />
-              Latest Insights
-            </span>
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-              From Our <span className="text-green-300">Blog</span>
-            </h1>
-            <p className="text-green-100/70 text-lg">
-              Expert tips on herbal hair care, skincare, wellness teas and natural living for Pakistani homes
-            </p>
-          </FadeIn>
-        </div>
-      </section>
+    <div className="pb-16">
+      <PageSection background="dark" padding="lg">
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }}
+        />
+        <FadeIn className="relative text-center max-w-2xl mx-auto">
+          <Breadcrumb
+            items={[{ label: "Blog" }]}
+            className="justify-center flex mb-6"
+          />
+          <SectionHeader
+            light
+            eyebrow="Latest Insights"
+            eyebrowIcon={Sparkles}
+            title={<>
+              From Our{" "}
+              <span className="text-green-300">Blog</span>
+            </>}
+            subtitle="Expert tips on herbal hair care, skincare, wellness teas and natural living for Pakistani homes"
+          />
+        </FadeIn>
+      </PageSection>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-white">
+      <PageSection background="white">
         {posts.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500">No articles published yet. Check back soon!</p>
-          </div>
+          <EmptyState
+            icon={Leaf}
+            title="No articles yet"
+            description="We're working on helpful herbal wellness content. Check back soon!"
+            action={
+              <Link
+                href="/shop/products"
+                className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg"
+              >
+                Browse Products <ChevronRight className="w-4 h-4" />
+              </Link>
+            }
+          />
         ) : (
           <StaggerContainer staggerDelay={0.12} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post) => (
@@ -100,7 +117,7 @@ export default async function BlogPage() {
             ))}
           </StaggerContainer>
         )}
-      </section>
+      </PageSection>
     </div>
   );
 }

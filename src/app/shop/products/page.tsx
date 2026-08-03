@@ -4,8 +4,15 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import ProductCard from "@/components/product-card";
 import ProductFilters from "./product-filters";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ProductSort } from "./product-sort";
+import { ArrowRight, Sparkles, SearchX } from "lucide-react";
 import Link from "next/link";
+import { PageSection } from "@/components/layout/page-section";
+import { SectionHeader } from "@/components/ui/section-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
+import { FadeIn } from "@/components/animations/fade-in";
 
 export const metadata: Metadata = {
   title: "Shop Herbal Products Online in Pakistan | PurestStem",
@@ -32,7 +39,7 @@ export const metadata: Metadata = {
   },
 };
 
-async function getProducts(category?: string, search?: string) {
+async function getProducts(category?: string, search?: string, sort?: string) {
   const where: Prisma.ProductWhereInput = { isActive: true };
 
   if (category) {
@@ -46,10 +53,29 @@ async function getProducts(category?: string, search?: string) {
     ];
   }
 
+  let orderBy: Prisma.ProductOrderByWithRelationInput[] = [{ createdAt: "desc" }];
+  switch (sort) {
+    case "price-asc":
+      orderBy = [{ salePrice: { sort: "asc", nulls: "last" } }, { price: "asc" }];
+      break;
+    case "price-desc":
+      orderBy = [{ salePrice: { sort: "desc", nulls: "last" } }, { price: "desc" }];
+      break;
+    case "name-asc":
+      orderBy = [{ name: "asc" }];
+      break;
+    case "newest":
+      orderBy = [{ createdAt: "desc" }];
+      break;
+    default:
+      orderBy = [{ featured: "desc" }, { createdAt: "desc" }];
+      break;
+  }
+
   return await prisma.product.findMany({
     where,
     include: { category: true },
-    orderBy: { createdAt: "desc" },
+    orderBy,
   });
 }
 
@@ -63,39 +89,41 @@ async function getCategories() {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; search?: string }>;
+  searchParams: Promise<{ category?: string; search?: string; sort?: string }>;
 }) {
   const params = await searchParams;
   const [products, categories] = await Promise.all([
-    getProducts(params.category, params.search),
+    getProducts(params.category, params.search, params.sort),
     getCategories(),
   ]);
 
   return (
-    <div>
-      <section className="relative bg-[#132e1f] overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-green-700/20 rounded-full blur-[120px] translate-x-1/4 -translate-y-1/4" />
-          <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-emerald-600/10 rounded-full blur-[100px] -translate-x-1/4 translate-y-1/4" />
-        </div>
+    <div className="pb-16">
+      <PageSection background="dark" padding="lg">
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }}
+        />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-22 relative">
-          <div className="text-center max-w-2xl mx-auto">
-            <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 text-sm font-medium text-green-100 mb-5">
-              <Sparkles className="w-4 h-4 text-green-300" />
-              Premium Herbal Collection
-            </span>
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-              Shop <span className="text-green-300">Herbal Products</span>
-            </h1>
-            <p className="text-green-100/70 text-lg">
-              100% natural herbal shampoos, hair oils, teas, soaps and skincare delivered across Pakistan
-            </p>
-          </div>
-        </div>
-      </section>
+        <FadeIn className="relative text-center max-w-2xl mx-auto">
+          <Breadcrumb
+            items={[{ label: "Products" }]}
+            className="justify-center flex mb-6"
+          />
+          <SectionHeader
+            light
+            eyebrow="Premium Herbal Collection"
+            eyebrowIcon={Sparkles}
+            title={<>
+              Shop{" "}
+              <span className="text-green-300">Herbal Products</span>
+            </>}
+            subtitle="100% natural herbal shampoos, hair oils, teas, soaps and skincare delivered across Pakistan"
+          />
+        </FadeIn>
+      </PageSection>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <PageSection background="white" padding="md">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 flex-shrink-0">
             <Suspense
@@ -106,26 +134,41 @@ export default async function ProductsPage({
           </aside>
 
           <div className="flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <p className="text-sm text-gray-500">
+                Showing{" "}
+                <span className="font-semibold text-gray-900">{products.length}</span>{" "}
+                product{products.length !== 1 && "s"}
+              </p>
+              <ProductSort />
+            </div>
+
             {products.length === 0 ? (
-              <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-                <p className="text-gray-400 mb-4">No products found matching your criteria.</p>
-                <Link
-                  href="/shop/products"
-                  className="inline-flex items-center gap-2 text-green-700 font-medium hover:underline"
-                >
-                  Clear filters <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
+              <EmptyState
+                icon={SearchX}
+                title="No products found"
+                description="Try adjusting your search or category filter to find what you're looking for."
+                action={
+                  <Link
+                    href="/shop/products"
+                    className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg"
+                  >
+                    Clear filters <ArrowRight className="w-4 h-4" />
+                  </Link>
+                }
+              />
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <StaggerItem key={product.id}>
+                    <ProductCard product={product} />
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerContainer>
             )}
           </div>
         </div>
-      </section>
+      </PageSection>
     </div>
   );
 }

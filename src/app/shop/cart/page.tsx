@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { FadeIn } from "@/components/animations/fade-in";
+import { prisma } from "@/lib/db";
+import { Container } from "@/components/layout/container";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { SectionHeader } from "@/components/ui/section-header";
 import CartItems from "./cart-items";
 
 export const metadata: Metadata = {
@@ -12,15 +15,28 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CartPage() {
+async function getRecommendations() {
+  return await prisma.product.findMany({
+    where: { isActive: true },
+    include: { category: true },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+  });
+}
+
+export default async function CartPage() {
+  const recommendations = await getRecommendations();
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <FadeIn>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-          Shopping Cart
-        </h1>
-      </FadeIn>
-      <CartItems />
-    </div>
+    <Container className="py-8 pb-16">
+      <Breadcrumb items={[{ label: "Cart" }]} />
+      <SectionHeader
+        align="left"
+        className="mt-4 mb-8"
+        title="Shopping Cart"
+        subtitle="Review your items and proceed to checkout for cash on delivery across Pakistan."
+      />
+      <CartItems recommendations={recommendations} />
+    </Container>
   );
 }
