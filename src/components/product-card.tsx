@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, Eye, Package } from "lucide-react";
+import { ShoppingCart, Eye, Package, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice, calculateDiscount, getPrimaryImage, slugify } from "@/lib/utils";
@@ -23,6 +23,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const [imgError, setImgError] = useState(false);
+  const [added, setAdded] = useState(false);
   const discount = calculateDiscount(product.price, product.salePrice);
   const primaryImage = getPrimaryImage(product.image, product.images);
   const productUrl = `/shop/products/${encodeURIComponent(slugify(product.slug || product.name))}`;
@@ -37,6 +38,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       quantity: 1,
       image: primaryImage || undefined,
     });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1500);
   };
 
   return (
@@ -96,12 +99,34 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-2">
+          <button
+            type="button"
+            onClick={handleAdd}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              added
+                ? "bg-green-100 text-green-800 border border-green-300"
+                : "bg-green-700 text-white hover:bg-green-800 shadow-sm hover:shadow active:scale-[0.98]"
+            }`}
+            aria-label={`Add ${product.name} to cart`}
+          >
+            {added ? (
+              <>
+                <Check className="w-4 h-4" />
+                Added to Cart
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" />
+                Add to Cart
+              </>
+            )}
+          </button>
           <Link
             href={productUrl}
-            className="w-full flex items-center justify-center gap-2 bg-white text-green-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-green-50 transition-colors border border-green-100"
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium text-gray-500 hover:text-green-700 hover:bg-gray-50 transition-colors"
           >
-            <Eye className="w-4 h-4" />
+            <Eye className="w-3.5 h-3.5" />
             View Product
           </Link>
         </div>
