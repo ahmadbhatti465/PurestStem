@@ -9,6 +9,9 @@ import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 import type { Metadata } from "next";
 
+// Render per-request so newly published posts appear immediately (no build-time cache).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "PurestStem Blog | Herbal Hair Care & Skincare Tips for Pakistan",
   description:

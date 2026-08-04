@@ -24,6 +24,9 @@ import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 import { NewsletterSection } from "@/components/newsletter-form";
 
+// Render per-request so newly added products appear immediately (no build-time cache).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "PurestStem | Premium Herbal Products in Pakistan - 100% Natural",
   description:
