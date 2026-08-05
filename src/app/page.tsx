@@ -15,6 +15,7 @@ import {
   Phone,
 } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { SITE_URL } from "@/lib/site";
 import ProductCard from "@/components/product-card";
 import JsonLd from "@/components/json-ld";
 import { Container } from "@/components/layout/container";
@@ -32,13 +33,13 @@ export const metadata: Metadata = {
   description:
     "Buy 100% natural herbal shampoos, hair oils, herbal teas, soaps and skin care products in Pakistan. 60+ years of trusted mountain herbalism. Cash on delivery. Free shipping over ₨ 5,000.",
   alternates: {
-    canonical: "http://localhost:3000",
+    canonical: SITE_URL,
   },
   openGraph: {
     title: "PurestStem | Premium Herbal Products in Pakistan",
     description:
       "Pakistan's trusted herbal brand since 1964. Shop herbal shampoos, hair oils, teas, soaps and skincare.",
-    url: "http://localhost:3000",
+    url: SITE_URL,
     type: "website",
   },
 };
@@ -76,8 +77,8 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "PurestStem",
-    url: "http://localhost:3000",
-    logo: "http://localhost:3000/pureststem_logo.png",
+    url: SITE_URL,
+    logo: `${SITE_URL}/pureststem_logo.png`,
     description:
       "Pakistan's trusted herbal brand offering 100% natural shampoos, hair oils, herbal teas, soaps and skincare products.",
     foundingDate: "1964",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 import { ChevronRight, Home } from "lucide-react";
 import JsonLd from "@/components/json-ld";
 
@@ -26,7 +27,7 @@ export function Breadcrumb({ items, className, showHome = true }: BreadcrumbProp
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
-      item: item.href ? `http://localhost:3000${item.href}` : undefined,
+      item: item.href ? `${SITE_URL}${item.href}` : undefined,
     })),
   };
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Link2 } from "lucide-react";
+import { SITE_URL } from "@/lib/site";
 
 interface ShareButtonsProps {
   url: string;
@@ -37,7 +38,7 @@ function TwitterIcon({ className }: { className?: string }) {
 
 export function ShareButtons({ url, text = "Check this out", className, size = "md" }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
-  const fullUrl = url.startsWith("http") ? url : `http://localhost:3000${url}`;
+  const fullUrl = url.startsWith("http") ? url : `${SITE_URL}${url}`;
   const shareText = encodeURIComponent(`${text} — ${fullUrl}`);
 
   const sizeClasses = size === "sm" ? "w-8 h-8" : "w-10 h-10";

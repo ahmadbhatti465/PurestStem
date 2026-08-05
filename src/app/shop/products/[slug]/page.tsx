@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { prisma } from "@/lib/db";
+import { SITE_URL } from "@/lib/site";
 import { formatPrice, calculateDiscount, getPrimaryImage, slugify } from "@/lib/utils";
 import ProductPurchase from "./product-purchase";
 import ProductGallery from "./product-gallery";
@@ -106,7 +107,7 @@ export async function generateMetadata({
         : [],
     },
     alternates: {
-      canonical: `http://localhost:3000/shop/products/${product.slug}`,
+      canonical: `${SITE_URL}/shop/products/${product.slug}`,
     },
   };
 }
@@ -141,7 +142,7 @@ export default async function ProductPage({
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: allImages.map((url) => (url.startsWith("http") ? url : `http://localhost:3000${url}`)),
+    image: allImages.map((url) => (url.startsWith("http") ? url : `${SITE_URL}${url}`)),
     description: product.description || undefined,
     sku: product.sku,
     brand: {
@@ -151,7 +152,7 @@ export default async function ProductPage({
     category: product.category.name,
     offers: {
       "@type": "Offer",
-      url: `http://localhost:3000/shop/products/${product.slug}`,
+      url: `${SITE_URL}/shop/products/${product.slug}`,
       priceCurrency: "PKR",
       price: product.salePrice || product.price,
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",

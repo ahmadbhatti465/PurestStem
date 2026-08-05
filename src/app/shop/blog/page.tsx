@@ -16,6 +16,15 @@ export const metadata: Metadata = {
   title: "PurestStem Blog | Herbal Hair Care & Skincare Tips for Pakistan",
   description:
     "Read expert tips on herbal hair care, skincare, herbal teas and natural wellness. PurestStem's blog guides Pakistani families toward healthier, chemical-free living.",
+  keywords: [
+    "herbal hair care tips Pakistan",
+    "natural skincare routine Pakistan",
+    "hair fall solution Pakistan",
+    "herbal tea benefits Pakistan",
+    "ubtan benefits",
+    "desi remedies Pakistan",
+    "PurestStem blog",
+  ],
   openGraph: {
     title: "PurestStem Blog | Herbal Hair Care & Skincare Tips for Pakistan",
     description:

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
+import { SITE_URL } from "@/lib/site";
 import ProductCard from "@/components/product-card";
 import ProductFilters from "./product-filters";
 import { ProductSort } from "./product-sort";
@@ -32,10 +33,10 @@ export const metadata: Metadata = {
     description:
       "Browse our complete range of 100% natural herbal products with cash on delivery across Pakistan.",
     type: "website",
-    url: "http://localhost:3000/shop/products",
+    url: `${SITE_URL}/shop/products`,
   },
   alternates: {
-    canonical: "http://localhost:3000/shop/products",
+    canonical: `${SITE_URL}/shop/products`,
   },
 };
 
