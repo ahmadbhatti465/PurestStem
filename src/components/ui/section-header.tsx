@@ -46,7 +46,7 @@ export function SectionHeader({
           {eyebrow}
         </span>
       )}
-      <div className={cn("flex flex-col gap-3", align === "center" ? "items-center" : "items-start", action && "sm:flex-row sm:items-end sm:justify-between sm:w-full")}>
+      <div className={cn("flex flex-col gap-3", align === "center" ? "items-center" : "items-start", align === "left" && action && "sm:flex-row sm:items-end sm:justify-between sm:w-full")}>
         <div className={cn("flex flex-col gap-3", align === "center" ? "items-center" : "items-start")}>
           <TitleComponent
             className={cn(
