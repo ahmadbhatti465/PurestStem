@@ -167,32 +167,45 @@ export default async function HomePage() {
             </FadeIn>
 
             <FadeIn direction="right" delay={0.1} className="hidden md:block">
-              <div className="relative">
-                {/* soft glow behind card */}
-                <div className="absolute -inset-5 rounded-[2.5rem] bg-green-400/20 blur-3xl" />
-
-                {/* product spotlight card */}
-                <div className="relative rounded-[2rem] bg-gradient-to-b from-[#f7fbf2] via-[#eef6e2] to-[#d8eccb] shadow-[0_30px_80px_-24px_rgba(0,0,0,0.65)] overflow-hidden">
-                  <div className="absolute top-6 right-4 w-40 h-40 rounded-full bg-green-300/40 blur-3xl" />
-                  <div className="absolute bottom-2 -left-12 w-48 h-48 rounded-full bg-emerald-200/60 blur-3xl" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full bg-white/60 blur-2xl" />
-
-                  <div className="relative aspect-[10/11] w-full">
-                    <img
-                      src="/hero-section.png"
-                      alt="PurestStem premium herbal products collection in Pakistan"
-                      width={934}
-                      height={1024}
-                      className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_24px_28px_rgba(20,60,40,0.25)]"
-                      loading="eager"
-                    />
-                    {/* floor shadow */}
-                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-2/3 h-10 rounded-full bg-[#1c4a2c]/20 blur-2xl" />
-                  </div>
+              <div className="relative flex items-center justify-center py-6">
+                {/* aurora halo behind products */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div
+                    className="w-[92%] aspect-[10/11] rounded-full blur-2xl"
+                    style={{
+                      background:
+                        "radial-gradient(circle at center, rgba(198,232,168,0.45) 0%, rgba(74,144,96,0.28) 42%, rgba(26,74,46,0) 70%)",
+                    }}
+                  />
                 </div>
 
+                {/* decorative rings */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="absolute w-[88%] aspect-[10/11] rounded-full border border-white/10" />
+                  <div className="absolute w-[68%] aspect-[10/11] rounded-full border border-dashed border-white/15" />
+                </div>
+
+                {/* product cutout */}
+                <div className="relative w-[72%] max-w-[24rem]">
+                  <img
+                    src="/hero-section.png"
+                    alt="PurestStem premium herbal products collection in Pakistan"
+                    width={934}
+                    height={1024}
+                    className="w-full h-auto object-contain drop-shadow-[0_35px_45px_rgba(0,0,0,0.5)]"
+                    loading="eager"
+                  />
+                  {/* ground shadow */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-3/4 h-10 rounded-full bg-black/45 blur-2xl" />
+                </div>
+
+                {/* floating accents */}
+                <Sparkles className="absolute top-3 right-3 w-6 h-6 text-green-200/70 animate-float-slow" />
+                <Sparkles className="absolute bottom-20 left-0 w-4 h-4 text-green-300/50 animate-float" />
+                <Leaf className="absolute top-8 left-5 w-7 h-7 text-green-300/50 rotate-12 animate-float-slower" />
+
                 {/* floating rating chip */}
-                <div className="absolute -top-5 -left-5 animate-float-slow bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
+                <div className="absolute top-1 -left-2 animate-float-slow bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-full bg-yellow-50 flex items-center justify-center">
                     <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   </div>
@@ -203,7 +216,7 @@ export default async function HomePage() {
                 </div>
 
                 {/* floating certified chip */}
-                <div className="absolute -bottom-5 -right-5 animate-float-slower bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
+                <div className="absolute bottom-1 -right-2 animate-float-slower bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
                     <BadgeCheck className="w-5 h-5 text-green-700" />
                   </div>
