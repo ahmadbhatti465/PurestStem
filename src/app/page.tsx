@@ -100,24 +100,35 @@ export default async function HomePage() {
       <JsonLd data={structuredData} />
 
       {/*  Hero  */}
-      <section className="relative bg-[#132e1f] overflow-hidden">
+      <section className="relative bg-[#0e271a] overflow-hidden">
+        {/* Background gradient mesh + soft glows */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-green-700/20 rounded-full blur-[140px] translate-x-1/3 -translate-y-1/4" />
-          <div className="absolute bottom-0 left-0 w-[50vw] h-[50vw] bg-emerald-600/10 rounded-full blur-[120px] -translate-x-1/4 translate-y-1/4" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] bg-green-600/10 rounded-full blur-[160px]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0e271a] via-[#14301f] to-[#1c4a2c]" />
+          <div className="absolute -top-24 -right-24 w-[40rem] h-[40rem] rounded-full bg-emerald-500/15 blur-[150px]" />
+          <div className="absolute bottom-0 -left-32 w-[34rem] h-[34rem] rounded-full bg-green-700/25 blur-[140px]" />
+          <div className="absolute top-1/2 left-1/3 w-[30rem] h-[30rem] rounded-full bg-lime-400/10 blur-[130px]" />
+          <Leaf className="absolute -right-6 top-10 w-72 h-72 text-green-300/5 rotate-12" strokeWidth={1} />
+          <Leaf className="absolute right-44 -top-8 w-44 h-44 text-green-300/5 -rotate-45" strokeWidth={1} />
+          <Leaf className="absolute left-1/2 top-full -translate-y-1/2 w-56 h-56 text-green-200/5" strokeWidth={1} />
         </div>
 
         <Container className="relative py-16 md:py-24">
-          <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
             <FadeIn className="max-w-xl">
-              <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 text-sm font-medium text-green-100 mb-5">
-                <Sparkles className="w-4 h-4 text-green-300" />
+              <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 text-sm font-medium text-green-100 mb-6">
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full w-2 h-2 bg-green-300" />
+                </span>
                 100% Natural & Organic
               </span>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-[1.1]">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-5 leading-[1.12]">
                 Pakistan&apos;s Trusted{" "}
-                <span className="text-green-300">Herbal Products</span> Brand
+                <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-emerald-200 to-green-300">
+                  Herbal Products
+                </span>{" "}
+                Brand
               </h1>
 
               <p className="text-lg text-green-100/80 mb-8 leading-relaxed">
@@ -128,20 +139,20 @@ export default async function HomePage() {
               <div className="flex flex-wrap gap-3 mb-10">
                 <Link
                   href="/shop/products"
-                  className="inline-flex items-center gap-2 bg-white text-green-900 px-6 py-3.5 rounded-full font-semibold hover:bg-green-50 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                  className="inline-flex items-center gap-2 bg-white text-green-900 px-7 py-3.5 rounded-full font-semibold hover:bg-green-50 transition-all shadow-lg hover:shadow-xl hover:scale-[1.03] hover:-translate-y-0.5"
                 >
                   Shop Herbal Products
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/shop/about"
-                  className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3.5 rounded-full font-medium hover:bg-white/10 transition-colors"
+                  className="inline-flex items-center gap-2 border border-white/25 bg-white/5 backdrop-blur-sm text-white px-7 py-3.5 rounded-full font-medium hover:bg-white/10 transition-colors"
                 >
                   Our Story
                 </Link>
               </div>
 
-              <div className="flex gap-8 pt-6 border-t border-white/10">
+              <div className="flex flex-wrap gap-x-10 gap-y-4 pt-6 border-t border-white/10">
                 {[
                   { value: "60+", label: "Years Experience" },
                   { value: "50K+", label: "Happy Customers" },
@@ -149,28 +160,57 @@ export default async function HomePage() {
                 ].map((stat) => (
                   <div key={stat.label}>
                     <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
-                    <p className="text-sm text-green-200/70">{stat.label}</p>
+                    <p className="text-sm text-green-200/70 mt-0.5">{stat.label}</p>
                   </div>
                 ))}
               </div>
             </FadeIn>
 
-            <FadeIn direction="right" delay={0.1} className="hidden md:block relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-[4/5]">
-                <img
-                  src="/hero-section.png"
-                  alt="PurestStem premium herbal products collection in Pakistan"
-                  className="w-full h-full object-cover"
-                  loading="eager"
-                />
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <BadgeCheck className="w-5 h-5 text-green-700" />
+            <FadeIn direction="right" delay={0.1} className="hidden md:block">
+              <div className="relative">
+                {/* soft glow behind card */}
+                <div className="absolute -inset-5 rounded-[2.5rem] bg-green-400/20 blur-3xl" />
+
+                {/* product spotlight card */}
+                <div className="relative rounded-[2rem] bg-gradient-to-b from-[#f7fbf2] via-[#eef6e2] to-[#d8eccb] shadow-[0_30px_80px_-24px_rgba(0,0,0,0.65)] overflow-hidden">
+                  <div className="absolute top-6 right-4 w-40 h-40 rounded-full bg-green-300/40 blur-3xl" />
+                  <div className="absolute bottom-2 -left-12 w-48 h-48 rounded-full bg-emerald-200/60 blur-3xl" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full bg-white/60 blur-2xl" />
+
+                  <div className="relative aspect-[10/11] w-full">
+                    <img
+                      src="/hero-section.png"
+                      alt="PurestStem premium herbal products collection in Pakistan"
+                      width={934}
+                      height={1024}
+                      className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_24px_28px_rgba(20,60,40,0.25)]"
+                      loading="eager"
+                    />
+                    {/* floor shadow */}
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-2/3 h-10 rounded-full bg-[#1c4a2c]/20 blur-2xl" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500">Certified Organic</p>
-                  <p className="text-sm font-semibold text-gray-900">Pure & Trusted</p>
+
+                {/* floating rating chip */}
+                <div className="absolute -top-5 -left-5 animate-float-slow bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-yellow-50 flex items-center justify-center">
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900 leading-none">4.9/5</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">12,000+ reviews</p>
+                  </div>
+                </div>
+
+                {/* floating certified chip */}
+                <div className="absolute -bottom-5 -right-5 animate-float-slower bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+                    <BadgeCheck className="w-5 h-5 text-green-700" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 leading-tight">Certified Organic</p>
+                    <p className="text-sm font-semibold text-gray-900 leading-tight">100% Pure & Natural</p>
+                  </div>
                 </div>
               </div>
             </FadeIn>
