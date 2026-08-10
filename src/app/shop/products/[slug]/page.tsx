@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
-  Check,
   Shield,
   Truck,
   Leaf,
@@ -12,6 +11,12 @@ import {
   Package,
   Sparkles,
   Heart,
+  BadgeCheck,
+  Banknote,
+  ShieldCheck,
+  HelpCircle,
+  MessageCircle,
+  Star,
 } from "lucide-react";
 
 import { prisma } from "@/lib/db";
@@ -172,7 +177,7 @@ export default async function ProductPage({
   const shareUrl = `/shop/products/${product.slug}`;
 
   return (
-    <div className="min-h-screen bg-[#f9faf5] pb-16">
+    <div className="min-h-screen overflow-x-clip bg-[#f9faf5] pb-16">
       <Container className="py-6 sm:py-8 pb-24 sm:pb-8">
         <JsonLd data={structuredData} />
 
@@ -186,12 +191,28 @@ export default async function ProductPage({
         {/*  Main Product Section  */}
         <section className="grid lg:grid-cols-2 gap-8 lg:gap-16 mb-20 mt-6">
           <FadeIn className="lg:self-start">
-            <ProductGallery
-              images={allImages}
-              productName={product.name}
-              discount={discount}
-              stock={product.stock}
-            />
+            <div className="relative">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-10 -left-8 h-56 w-56 rounded-full bg-green-200/50 blur-3xl"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-10 -right-8 h-64 w-64 rounded-full bg-amber-200/40 blur-3xl"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute right-10 top-1/3 h-24 w-24 rounded-full bg-emerald-100 blur-2xl"
+              />
+              <div className="relative">
+                <ProductGallery
+                  images={allImages}
+                  productName={product.name}
+                  discount={discount}
+                  stock={product.stock}
+                />
+              </div>
+            </div>
           </FadeIn>
 
           <FadeIn delay={0.1} className="flex flex-col">
@@ -220,16 +241,20 @@ export default async function ProductPage({
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-6">
               <StarRating rating={avgRating} size="md" />
               <span className="text-sm text-gray-500">
-                {avgRating.toFixed(1)} ({product.reviews.length}{" "}
-                {product.reviews.length === 1 ? "review" : "reviews"})
+                {avgRating.toFixed(1)} · {product.reviews.length}{" "}
+                {product.reviews.length === 1 ? "review" : "reviews"}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-green-100 bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
+                <BadgeCheck className="h-3.5 w-3.5" />
+                Verified Natural
               </span>
             </div>
 
-            <div className="flex flex-wrap items-baseline gap-3 sm:gap-4 mb-6">
-              <span className="text-3xl sm:text-4xl font-extrabold text-green-700">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-6">
+              <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-green-700">
                 {formatPrice(product.salePrice || product.price)}
               </span>
               {product.salePrice && (
@@ -237,11 +262,12 @@ export default async function ProductPage({
                   <span className="text-lg sm:text-xl text-gray-400 line-through">
                     {formatPrice(product.price)}
                   </span>
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
-                    Save {formatPrice(product.price - product.salePrice)}
+                  <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600 ring-1 ring-red-100">
+                    You save {formatPrice(product.price - product.salePrice)}
                   </span>
                 </>
               )}
+              <span className="text-xs text-gray-400">Tax inclusive</span>
             </div>
 
             {product.description && (
@@ -256,28 +282,54 @@ export default async function ProductPage({
               </div>
             )}
 
-            <div className="flex flex-wrap gap-3 mb-8 text-sm text-gray-600">
-              <span className="inline-flex items-center gap-2 bg-white border border-gray-100 rounded-full px-3 py-1.5 shadow-sm">
-                <Check className="w-4 h-4 text-green-600" />
-                {product.stock > 0 ? `${product.stock} in stock` : "Out of Stock"}
-              </span>
-              {product.weight && (
-                <span className="inline-flex items-center gap-2 bg-white border border-gray-100 rounded-full px-3 py-1.5 shadow-sm">
-                  <Package className="w-4 h-4 text-green-600" />
-                  {product.weight}
-                </span>
-              )}
-              <span className="inline-flex items-center gap-2 bg-white border border-gray-100 rounded-full px-3 py-1.5 shadow-sm">
-                <Truck className="w-4 h-4 text-green-600" />
-                Free shipping over ₨ 5,000
-              </span>
-              <span className="inline-flex items-center gap-2 bg-white border border-gray-100 rounded-full px-3 py-1.5 shadow-sm">
-                <RotateCcw className="w-4 h-4 text-green-600" />
-                7-Day Returns
-              </span>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="rounded-2xl border border-gray-100 bg-white p-3.5">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  Availability
+                </p>
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${
+                      product.stock > 0 ? "bg-green-500" : "bg-red-400"
+                    }`}
+                  />
+                  {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 bg-white p-3.5">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  Net Weight
+                </p>
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
+                  <Package className="h-4 w-4 shrink-0 text-green-600" />
+                  {product.weight || "Standard"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 bg-white p-3.5">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  Delivery
+                </p>
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
+                  <Truck className="h-4 w-4 shrink-0 text-green-600" />
+                  Free over ₨ 5,000
+                </p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 bg-white p-3.5">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  Returns
+                </p>
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
+                  <RotateCcw className="h-4 w-4 shrink-0 text-green-600" />
+                  7-Day Guarantee
+                </p>
+              </div>
             </div>
 
-            <div className="mb-10">
+            <p className="mb-8 text-xs text-gray-400">
+              SKU: {product.sku || "N/A"} · Category: {product.category.name}
+            </p>
+
+            <div className="mb-10 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm shadow-green-900/5 sm:p-6">
               <ProductPurchase product={product} />
             </div>
 
@@ -324,6 +376,63 @@ export default async function ProductPage({
             </div>
           </FadeIn>
         </section>
+
+        {/*  PurestStem Promise band  */}
+        <FadeIn className="mb-20">
+          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-900 via-green-700 to-emerald-600 p-6 text-white shadow-lg sm:p-8">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                backgroundSize: "26px 26px",
+              }}
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl"
+            />
+            <div className="relative grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
+              {[
+                {
+                  icon: Truck,
+                  title: "Nationwide Delivery",
+                  text: "Fast, tracked shipping across Pakistan",
+                },
+                {
+                  icon: Banknote,
+                  title: "Cash on Delivery",
+                  text: "Pay when your order arrives at your door",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Secure Checkout",
+                  text: "Encrypted & protected payments",
+                },
+                {
+                  icon: Leaf,
+                  title: "100% Natural",
+                  text: "No sulfates, parabens or harsh chemicals",
+                },
+              ].map((item) => (
+                <div key={item.title} className="flex items-start gap-3.5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur-sm">
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold sm:text-base">
+                      {item.title}
+                    </h4>
+                    <p className="mt-0.5 text-xs text-green-100/80 sm:text-sm">
+                      {item.text}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </FadeIn>
 
         {/*  Product Details Section  */}
         <FadeIn className="mb-20">
@@ -401,6 +510,47 @@ export default async function ProductPage({
           </section>
         </FadeIn>
 
+        {/*  FAQ Section  */}
+        <FadeIn className="mb-20">
+          <section className="mx-auto max-w-3xl">
+            <SectionHeader
+              eyebrow="Good to Know"
+              eyebrowIcon={HelpCircle}
+              title="Frequently Asked Questions"
+              subtitle="Everything you need to know before you order"
+              className="mb-10"
+            />
+            <div className="space-y-3">
+              {[
+                {
+                  q: "How long does delivery take?",
+                  a: "We dispatch within 24 hours and deliver across Pakistan in 2 to 4 working days through our courier partners. Delivery is free on orders over ₨ 5,000.",
+                },
+                {
+                  q: "Can I pay cash on delivery?",
+                  a: "Yes. Cash on Delivery (COD) is available nationwide — you only pay when your order reaches your doorstep.",
+                },
+                {
+                  q: "Is this product 100% natural?",
+                  a: "Every PurestStem product is formulated with genuine herbal ingredients, free from sulfates, parabens and harsh chemicals.",
+                },
+                {
+                  q: "What is your return policy?",
+                  a: "We offer a 7-day hassle-free return policy. If you're not fully satisfied, contact our support team within 7 days of delivery.",
+                },
+              ].map((faq) => (
+                <Accordion
+                  key={faq.q}
+                  title={faq.q}
+                  icon={<MessageCircle className="h-5 w-5" />}
+                >
+                  <p className="text-sm leading-relaxed text-gray-600">{faq.a}</p>
+                </Accordion>
+              ))}
+            </div>
+          </section>
+        </FadeIn>
+
         {/*  Reviews Section  */}
         <FadeIn className="mb-20">
           <section className="max-w-5xl mx-auto">
@@ -413,6 +563,51 @@ export default async function ProductPage({
               }
               className="mb-10"
             />
+
+            {product.reviews.length > 0 && (
+              <div className="mb-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+                <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-12">
+                  <div className="shrink-0 text-center sm:text-left">
+                    <p className="text-5xl font-extrabold tracking-tight text-gray-900">
+                      {avgRating.toFixed(1)}
+                    </p>
+                    <div className="mt-2 flex justify-center sm:justify-start">
+                      <StarRating rating={avgRating} size="md" />
+                    </div>
+                    <p className="mt-1.5 text-xs text-gray-400">
+                      {product.reviews.length} verified review
+                      {product.reviews.length === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    {[5, 4, 3, 2, 1].map((star) => {
+                      const count = product.reviews.filter(
+                        (r) => r.rating === star
+                      ).length;
+                      const pct = Math.round(
+                        (count / product.reviews.length) * 100
+                      );
+                      return (
+                        <div
+                          key={star}
+                          className="flex items-center gap-3 text-xs text-gray-500"
+                        >
+                          <span className="w-3 font-semibold">{star}</span>
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
+                            <div
+                              className="h-full rounded-full bg-green-600"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <span className="w-8 text-right">{pct}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="grid lg:grid-cols-2 gap-8">
               <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm">
@@ -433,6 +628,16 @@ export default async function ProductPage({
                             <div>
                               <p className="text-sm font-bold text-gray-900">{review.name}</p>
                               <StarRating rating={review.rating} size="sm" />
+                              <p className="mt-0.5 text-[11px] text-gray-400">
+                                {new Date(review.createdAt).toLocaleDateString(
+                                  "en-GB",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )}
+                              </p>
                             </div>
                           </div>
                           {review.verified && (
