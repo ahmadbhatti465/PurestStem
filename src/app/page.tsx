@@ -62,7 +62,6 @@ async function getRecentBlogPosts() {
 
 async function getReviews() {
   return await prisma.review.findMany({
-    where: { verified: true },
     take: 4,
     orderBy: { createdAt: "desc" },
   });
@@ -356,7 +355,7 @@ export default async function HomePage() {
           eyebrow="Customer Love"
           eyebrowIcon={Star}
           title="What Our Customers Say"
-          subtitle="Real reviews from verified buyers across Pakistan"
+          subtitle="Real reviews from customers across Pakistan"
         />
 
         <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mt-12">

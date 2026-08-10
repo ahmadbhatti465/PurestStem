@@ -575,7 +575,7 @@ export default async function ProductPage({
                       <StarRating rating={avgRating} size="md" />
                     </div>
                     <p className="mt-1.5 text-xs text-gray-400">
-                      {product.reviews.length} verified review
+                      {product.reviews.length} review
                       {product.reviews.length === 1 ? "" : "s"}
                     </p>
                   </div>
