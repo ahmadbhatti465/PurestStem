@@ -20,6 +20,7 @@ import { formatPrice, calculateDiscount, getPrimaryImage, slugify } from "@/lib/
 import ProductPurchase from "./product-purchase";
 import ProductGallery from "./product-gallery";
 import ReviewForm from "./review-form";
+import { ProductIngredients, ProductHowToUse, ProductDescription } from "./product-detail-content";
 import ProductCard from "@/components/product-card";
 import JsonLd from "@/components/json-ld";
 import StarRating from "@/components/ui/star-rating";
@@ -243,9 +244,17 @@ export default async function ProductPage({
               )}
             </div>
 
-            <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-8">
-              {product.description}
-            </p>
+            {product.description && (
+              <div className="relative mb-8 rounded-2xl bg-gradient-to-br from-green-50 via-white to-white border border-green-100 p-5 sm:p-6">
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-5 bottom-5 w-1 rounded-full bg-green-600"
+                />
+                <div className="pl-4">
+                  <ProductDescription text={product.description} />
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-3 mb-8 text-sm text-gray-600">
               <span className="inline-flex items-center gap-2 bg-white border border-gray-100 rounded-full px-3 py-1.5 shadow-sm">
@@ -328,25 +337,31 @@ export default async function ProductPage({
             <div className="hidden md:grid md:grid-cols-2 gap-6">
               {product.ingredients && (
                 <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <Leaf className="w-5 h-5 text-green-600" />
-                    Ingredients
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {product.ingredients}
-                  </p>
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+                      <Leaf className="w-5 h-5 text-green-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 leading-tight">Ingredients</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">Key botanicals &amp; actives</p>
+                    </div>
+                  </div>
+                  <ProductIngredients text={product.ingredients} />
                 </div>
               )}
 
               {product.howToUse && (
                 <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-green-600" />
-                    How to Use
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {product.howToUse}
-                  </p>
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-5 h-5 text-amber-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 leading-tight">How to Use</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">Simple steps for best results</p>
+                    </div>
+                  </div>
+                  <ProductHowToUse text={product.howToUse} />
                 </div>
               )}
             </div>
@@ -355,16 +370,12 @@ export default async function ProductPage({
             <div className="md:hidden space-y-3">
               {product.ingredients && (
                 <Accordion title="Ingredients" icon={<Leaf className="w-5 h-5" />}>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {product.ingredients}
-                  </p>
+                  <ProductIngredients text={product.ingredients} />
                 </Accordion>
               )}
               {product.howToUse && (
                 <Accordion title="How to Use" icon={<Sparkles className="w-5 h-5" />}>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {product.howToUse}
-                  </p>
+                  <ProductHowToUse text={product.howToUse} />
                 </Accordion>
               )}
             </div>

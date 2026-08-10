@@ -235,9 +235,12 @@ export default function NewProductPage() {
 
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
+          <p className="text-xs text-gray-400 mb-2">
+            Press Enter after each point — every line will show as a bullet on the product page.
+          </p>
           <textarea
             name="description"
-            rows={3}
+            rows={4}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>

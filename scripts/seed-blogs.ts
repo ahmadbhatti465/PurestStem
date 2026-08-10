@@ -18,6 +18,7 @@ const blogPosts = [
   {
     title: "Best Hair Fall Treatment in Pakistan: 10 Natural Remedies That Actually Work",
     slug: "best-hair-fall-treatment-pakistan",
+    image: "/images/blog/hair-loss-comb.jpg",
     excerpt:
       "Hair fall is Pakistan's #1 hair concern. Discover 10 natural, science-backed treatments that stop hair loss at the root — including the best herbal remedies, oils and routines.",
     author: "PurestStem Herbal Experts",
@@ -98,6 +99,7 @@ The best hair fall treatment in Pakistan is not a single product — it is a rou
   {
     title: "Best Hair Oil for Hair Growth in Pakistan: The 2026 Complete Guide",
     slug: "best-hair-oil-for-hair-growth-pakistan",
+    image: "/images/blog/hair-growth-oil.jpg",
     excerpt:
       "Looking for the best hair oil for hair growth in Pakistan? We compare golden, coconut, almond, castor and amla oils with a full how-to routine for thicker, longer hair.",
     author: "PurestStem Herbal Experts",
@@ -170,6 +172,7 @@ The best hair oil for hair growth in Pakistan balances deep nourishment with her
   {
     title: "How to Stop Hair Fall Naturally at Home in Pakistan: 15 Proven Tips",
     slug: "how-to-stop-hair-fall-naturally-pakistan",
+    image: "/images/blog/hair-brushing.jpg",
     excerpt:
       "Stop hair fall at home without expensive treatments. 15 proven natural tips for Pakistani hair — remedies for hard water, stress, dandruff and diet that actually work.",
     author: "PurestStem Herbal Experts",
@@ -251,6 +254,7 @@ Stopping hair fall naturally in Pakistan does not require expensive products. St
   {
     title: "Best Herbal Shampoo for Dandruff in Pakistan: Top Ingredients and Products",
     slug: "best-herbal-shampoo-dandruff-pakistan",
+    image: "/images/blog/herbal-shampoo.jpg",
     excerpt:
       "Dandruff in Pakistan's humid climate needs a different approach. Discover the best herbal shampoos, key anti-flake ingredients and a complete scalp care routine.",
     author: "PurestStem Herbal Experts",
@@ -326,6 +330,7 @@ The best herbal shampoo for dandruff in Pakistan addresses the yeast, the oil an
   {
     title: "Amla for Hair: Benefits, How to Use and Real Results in Pakistan",
     slug: "amla-for-hair-benefits-pakistan",
+    image: "/images/blog/amla.jpg",
     excerpt:
       "Amla is Pakistan's most powerful hair superfood. Learn how amla powder, oil and rinses prevent greying, reduce hair fall and boost growth — with real usage tips.",
     author: "PurestStem Herbal Experts",
@@ -391,6 +396,7 @@ Amla is a complete hair treatment in one herb — it strengthens roots, prevents
   {
     title: "How to Make Hair Thicker and Stronger Naturally in Pakistan",
     slug: "how-to-make-hair-thicker-naturally-pakistan",
+    image: "/images/blog/long-hair.jpg",
     excerpt:
       "Thin, limp hair can be fixed naturally. Learn the best oils, masks, foods and routines to make hair thicker and stronger for Pakistani climate and lifestyle.",
     author: "PurestStem Herbal Experts",
@@ -459,6 +465,7 @@ Making hair thicker and stronger naturally in Pakistan is about fixing breakage 
   {
     title: "Coconut Oil vs Almond Oil for Hair: Which is Better in Pakistan?",
     slug: "coconut-oil-vs-almond-oil-for-hair-pakistan",
+    image: "/images/blog/coconut-oil.jpg",
     excerpt:
       "Coconut oil or almond oil for Pakistani hair? We compare penetration, shine, scalp effects and best use cases so you can pick the right oil — or blend both.",
     author: "PurestStem Herbal Experts",
@@ -525,6 +532,7 @@ Coconut oil wins for deep conditioning, almond oil wins for lightness and shine.
   {
     title: "Why Hair Falls More in Rainy Season in Pakistan and How to Stop It",
     slug: "hair-fall-in-rainy-season-pakistan",
+    image: "/images/blog/rain-umbrella.jpg",
     excerpt:
       "Monsoon season causes extra hair fall in Pakistan. Learn exactly why rain and humidity trigger shedding and the best natural routine to protect your hair.",
     author: "PurestStem Herbal Experts",
@@ -597,6 +605,7 @@ Monsoon hair fall in Pakistan is preventable with the right routine. Oil before 
   {
     title: "Herbal Shampoo vs Chemical Shampoo: The Complete Comparison for Pakistan",
     slug: "herbal-shampoo-vs-chemical-shampoo-pakistan",
+    image: "/images/blog/natural-shampoo.jpg",
     excerpt:
       "Herbal or chemical shampoo — which is better for Pakistani hair? We compare ingredients, scalp health, cost, results and side effects with a clear verdict.",
     author: "PurestStem Herbal Experts",
@@ -673,6 +682,7 @@ For Pakistani hair facing hard water, humidity and daily styling, herbal shampoo
   {
     title: "Ubtan for Glowing Skin: Traditional Pakistani Recipe and Complete Benefits",
     slug: "ubtan-for-glowing-skin-pakistan",
+    image: "/images/blog/ubtan-turmeric.jpg",
     excerpt:
       "Ubtan is Pakistan's centuries-old secret for glowing skin. Learn the classic bridal recipe, how to apply it correctly and the real benefits for your skin.",
     author: "PurestStem Herbal Experts",
@@ -752,6 +762,7 @@ Ubtan is Pakistan's oldest and most effective natural skincare secret. It remove
   {
     title: "Best Herbal Face Pack for Glowing Skin in Pakistan: 7 Desi Recipes",
     slug: "best-herbal-face-pack-glowing-skin-pakistan",
+    image: "/images/blog/face-mask.jpg",
     excerpt:
       "Achieve glowing skin with the best herbal face packs available in Pakistan. 7 desi recipes using multani mitti, sandalwood, turmeric and ubtan for every skin type.",
     author: "PurestStem Herbal Experts",
@@ -827,6 +838,7 @@ Herbal face packs are the fastest natural route to glowing skin in Pakistan. The
   {
     title: "How to Remove Sun Tan Naturally in Pakistan: Proven Home Remedies",
     slug: "how-to-remove-sun-tan-naturally-pakistan",
+    image: "/images/blog/sunscreen.jpg",
     excerpt:
       "Sun tan is a year-round battle in Pakistan. Remove tan naturally with ubtan, multani mitti, tomato and yogurt remedies that brighten skin without chemicals.",
     author: "PurestStem Herbal Experts",
@@ -897,6 +909,7 @@ Removing sun tan naturally in Pakistan is a simple routine: exfoliate with ubtan
   {
     title: "Neem Soap Benefits for Skin: The Complete Guide for Acne and Oily Skin in Pakistan",
     slug: "neem-soap-benefits-for-skin-pakistan",
+    image: "/images/blog/natural-soap.jpg",
     excerpt:
       "Neem soap is a natural remedy for acne, pimples and oily skin in Pakistan's climate. Learn the benefits, best usage and who should use it for clear skin.",
     author: "PurestStem Herbal Experts",
@@ -973,6 +986,7 @@ Neem soap is the most reliable natural answer to acne and oily skin in Pakistan.
   {
     title: "30-Day Bridal Skincare Routine for Pakistani Brides: Glow Before Your Big Day",
     slug: "30-day-bridal-skincare-routine-pakistan",
+    image: "/images/blog/bridal.jpg",
     excerpt:
       "Pakistani brides swear by this 30-day skincare routine. Week-by-week ubtan, face packs and natural rituals for a glowing, camera-ready bridal glow.",
     author: "PurestStem Herbal Experts",
@@ -1041,6 +1055,7 @@ The perfect bridal glow in Pakistan comes from a disciplined 30-day routine, not
   {
     title: "Multani Mitti Benefits for Face: Uses and Mask Recipes for Pakistan's Climate",
     slug: "multani-mitti-benefits-for-face-pakistan",
+    image: "/images/blog/clay-mask.jpg",
     excerpt:
       "Multani mitti is Pakistan's classic clay mask. Discover its benefits for oily, acne-prone and dull skin, plus the best mask recipes for every skin type.",
     author: "PurestStem Herbal Experts",
@@ -1115,6 +1130,7 @@ Multani mitti is the perfect clay mask for Pakistan's climate — oil-controllin
   {
     title: "Best Herbal Tea for Weight Loss in Pakistan: Science-Backed Guide",
     slug: "best-herbal-tea-for-weight-loss-pakistan",
+    image: "/images/blog/green-tea.jpg",
     excerpt:
       "Can herbal tea really help with weight loss in Pakistan? Compare green tea, detox blends and digestion teas — plus how to drink them for real results.",
     author: "PurestStem Herbal Experts",
@@ -1185,6 +1201,7 @@ The best herbal tea for weight loss in Pakistan supports metabolism and replaces
   {
     title: "How to Reduce Bloating and Gas Naturally in Pakistan: 12 Effective Remedies",
     slug: "how-to-reduce-bloating-and-gas-naturally-pakistan",
+    image: "/images/blog/ginger-tea.jpg",
     excerpt:
       "Bloating and gas after heavy desi meals are common in Pakistan. Learn 12 natural remedies including herbal tea, posture tips and foods that actually help.",
     author: "PurestStem Herbal Experts",
@@ -1264,6 +1281,7 @@ Bloating after Pakistani meals is preventable and treatable naturally. Keep a [b
   {
     title: "Detox Tea Benefits: How to Cleanse Your Body Naturally in Pakistan",
     slug: "detox-tea-benefits-pakistan",
+    image: "/images/blog/herbal-teapot.jpg",
     excerpt:
       "Detox tea is rising in popularity across Pakistan. Learn the real benefits of green detox tea, what it can and cannot do, and the best routine to follow.",
     author: "PurestStem Herbal Experts",
@@ -1334,6 +1352,7 @@ Detox tea is a genuine wellness tool when chosen carefully. The [detox green her
   {
     title: "Best Time to Drink Herbal Tea: Morning vs Night Guide for Pakistan",
     slug: "best-time-to-drink-herbal-tea-pakistan",
+    image: "/images/blog/tea-cup.jpg",
     excerpt:
       "Morning or night — when should you drink herbal tea? A complete guide on timing, from detox tea in the morning to bloating relief after dinner in Pakistan.",
     author: "PurestStem Herbal Experts",
@@ -1403,6 +1422,7 @@ Timing turns herbal tea from a drink into a remedy. Start your day with [detox g
   {
     title: "Complete Guide to Herbal Products in Pakistan: Benefits, Buying Tips and What to Avoid",
     slug: "complete-guide-herbal-products-pakistan",
+    image: "/images/blog/dried-herbs.jpg",
     excerpt:
       "Herbal products are booming in Pakistan. This complete guide covers the benefits of switching to natural, how to spot genuine products and what to avoid.",
     author: "PurestStem Herbal Experts",
@@ -1475,6 +1495,74 @@ Genuine herbs and cold-pressed oils cost more than synthetic chemicals. The high
 ## Conclusion
 
 Herbal products are a smart return to natural wellness for Pakistan, but the market needs careful choices. Choose brands that list real ingredients, avoid miracle claims, and give natural products the 4 to 8 weeks they need to work. PurestStem builds every product around traditional Pakistani herbs — explore the full [herbal product range](/shop/products) and start your natural journey today.`,
+  },
+  {
+    title: "The Power of Mountain Herbs in Modern Wellness",
+    slug: "power-of-mountain-herbs",
+    image: "/images/blog/mountain-herbs.jpg",
+    excerpt:
+      "Explore how ancient mountain herbal remedies are being validated by modern science for today's wellness needs.",
+    author: "PurestStem",
+    published: true,
+    content: `For centuries, communities living in mountainous regions have relied on the unique flora of high altitudes for their medicinal needs. Today, science is catching up to what these traditional healers have always known.
+
+## Unique Properties of Mountain Herbs
+
+Plants growing at high altitudes develop potent compounds to survive harsh conditions. These stress-response chemicals often translate to powerful benefits for human health.
+
+### Notable Mountain Herbs:
+- **Rhodiola Rosea**: Adaptogen for stress relief
+- **Sea Buckthorn**: Rich in Omega fatty acids
+- **Yarrow**: Natural wound healer
+- **Gentian**: Digestive aid
+
+## Sustainability in Sourcing
+
+At PurestStem, we work directly with mountain communities to ethically source our ingredients. This ensures both potency and supports local economies.
+
+## Incorporating into Daily Life
+
+Mountain herbs can be consumed as teas, applied topically in oils, or used in powdered form. Start with one herb and observe how your body responds.`,
+  },
+  {
+    title: "Understanding Your Hair Type: A Complete Guide",
+    slug: "understanding-your-hair-type",
+    image: "/images/blog/hair-types.jpg",
+    excerpt:
+      "Learn how to identify your hair type and choose the right herbal products for your specific needs.",
+    author: "PurestStem",
+    published: true,
+    content: `Not all hair is created equal. Understanding your unique hair type is the first step toward choosing products that actually work for you.
+
+## The Four Main Hair Types
+
+### Type 1: Straight Hair
+- Tends to get oily quickly
+- Benefits from lightweight, balancing formulas
+- Avoid heavy oils that weigh hair down
+
+### Type 2: Wavy Hair
+- Prone to frizz
+- Needs moisture without heaviness
+- Look for products with aloe vera and light oils
+
+### Type 3: Curly Hair
+- Naturally dry due to oil travel challenges
+- Requires rich, hydrating ingredients
+- Deep conditioning treatments are essential
+
+### Type 4: Coily Hair
+- Most fragile hair type
+- Needs maximum moisture and protection
+- Heavy butters and oils work best
+
+## Porosity Matters
+
+Beyond curl pattern, porosity determines how your hair absorbs moisture. High porosity hair needs more protein, while low porosity needs heat to open cuticles.
+
+## Herbal Solutions by Type
+
+Our product line is formulated to address the specific needs of each hair type while leveraging the power of mountain herbs.`,
   },
 ];
 
