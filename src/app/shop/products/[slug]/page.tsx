@@ -25,6 +25,7 @@ import { formatPrice, calculateDiscount, getPrimaryImage, slugify } from "@/lib/
 import ProductPurchase from "./product-purchase";
 import ProductGallery from "./product-gallery";
 import ReviewForm from "./review-form";
+import ViewContentTracker from "./view-content-tracker";
 import { ProductIngredients, ProductHowToUse, ProductDescription } from "./product-detail-content";
 import ProductCard from "@/components/product-card";
 import JsonLd from "@/components/json-ld";
@@ -179,6 +180,7 @@ export default async function ProductPage({
   return (
     <div className="min-h-screen overflow-x-clip bg-[#f9faf5] pb-16">
       <Container className="py-6 sm:py-8 pb-24 sm:pb-8">
+        <ViewContentTracker product={product} />
         <JsonLd data={structuredData} />
 
         <Breadcrumb

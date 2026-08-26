@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { extractClientIp, sendSingleCapiEvent, splitName } from "@/lib/meta/capi";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,6 +47,49 @@ export async function POST(request: NextRequest) {
           },
         },
       });
+    }
+
+    // Trigger Meta Conversions API (CAPI) server-side Purchase event
+    try {
+      const clientIp = extractClientIp(request.headers);
+      const userAgent = request.headers.get("user-agent") || undefined;
+      const fbpCookie = request.cookies.get("_fbp")?.value;
+      const fbcCookie = request.cookies.get("_fbc")?.value;
+      const { firstName, lastName } = splitName(name);
+
+      await sendSingleCapiEvent({
+        eventName: "Purchase",
+        eventId: `purchase_${order.id}`,
+        eventSourceUrl: request.headers.get("referer") || undefined,
+        userData: {
+          em: email,
+          ph: phone,
+          fn: firstName,
+          ln: lastName,
+          ct: city,
+          zp: postalCode || undefined,
+          country: "pk",
+          client_ip_address: clientIp,
+          client_user_agent: userAgent,
+          fbp: fbpCookie,
+          fbc: fbcCookie,
+        },
+        customData: {
+          value: finalTotal,
+          currency: "PKR",
+          order_id: order.id,
+          content_type: "product",
+          content_ids: items.map((i: { productId: string }) => i.productId),
+          contents: items.map((i: { productId: string; quantity: number; price: number }) => ({
+            id: i.productId,
+            quantity: i.quantity,
+            item_price: i.price,
+          })),
+        },
+      });
+    } catch (capiError) {
+      console.error("[Meta CAPI Purchase Error]", capiError);
+      // Do not fail order creation if CAPI tracking has an issue
     }
 
     return NextResponse.json(order, { status: 201 });

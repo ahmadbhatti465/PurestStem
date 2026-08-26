@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/utils";
+import { trackInitiateCheckout, trackPurchase } from "@/lib/meta/pixel";
 import { ArrowRight, ShoppingBag, Truck, Check, MapPin, User, Mail, Phone, FileText, ChevronRight } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -16,6 +17,7 @@ export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const initiateTracked = useRef(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,6 +30,14 @@ export default function CheckoutPage() {
 
   const shippingCost = total >= 5000 ? 0 : 190;
   const finalTotal = total + shippingCost;
+
+  // Track InitiateCheckout once when cart has items
+  useEffect(() => {
+    if (items.length > 0 && !initiateTracked.current) {
+      initiateTracked.current = true;
+      trackInitiateCheckout(items, total);
+    }
+  }, [items, total]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,8 +55,22 @@ export default function CheckoutPage() {
       });
 
       if (response.ok) {
+        const order = await response.json();
+
+        // Track browser-side Purchase event with matching event_id
+        try {
+          trackPurchase(order, `purchase_${order.id}`);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem(`meta_purchase_tracked_${order.id}`, "true");
+          }
+        } catch (trackError) {
+          if (process.env.NODE_ENV !== "production") {
+            console.warn("[Meta Purchase Track Error]", trackError);
+          }
+        }
+
         clearCart();
-        router.push("/shop/checkout/success");
+        router.push(`/shop/checkout/success?orderId=${order.id}`);
       } else {
         alert("Failed to place order. Please try again.");
       }

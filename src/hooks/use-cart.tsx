@@ -10,6 +10,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
+import { trackAddToCart } from "@/lib/meta/pixel";
 
 export interface CartItem {
   productId: string;
@@ -241,6 +242,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Optimistically update UI immediately
       setItems((prev) => addOrMerge(prev, item));
       setIsOpen(true);
+
+      // Meta Pixel & CAPI tracking
+      try {
+        trackAddToCart({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        });
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("[Meta AddToCart Error]", err);
+        }
+      }
 
       if (isLoggedIn) {
         try {
