@@ -19,7 +19,7 @@ import { useCart } from "@/hooks/use-cart";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop/products", label: "Products" },
-  { href: "/shop/blog", label: "Blog" },
+  { href: "/blog", label: "Blog" },
   { href: "/shop/about", label: "About" },
   { href: "/shop/contact", label: "Contact" },
 ];

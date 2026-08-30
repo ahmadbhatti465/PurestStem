@@ -59,7 +59,7 @@ export default function Footer() {
                 <Link href="/shop/products" className="text-green-100/80 hover:text-white transition-colors">Shop Products</Link>
               </li>
               <li>
-                <Link href="/shop/blog" className="text-green-100/80 hover:text-white transition-colors">Blog</Link>
+                <Link href="/blog" className="text-green-100/80 hover:text-white transition-colors">Blog</Link>
               </li>
               <li>
                 <Link href="/shop/about" className="text-green-100/80 hover:text-white transition-colors">About Us</Link>

@@ -21,38 +21,72 @@ model User {
 }
 
 model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
   description String?
   image       String?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime   @default(now())
   products    Product[]
+  blogPosts   BlogPost[]
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  name        String
-  slug        String      @unique
-  description String?
-  price       Float
-  salePrice   Float?
-  image       String?
-  images      String?
-  stock       Int         @default(0)
-  sku         String?     @unique
-  weight      String?
-  ingredients String?
-  howToUse    String?
-  featured    Boolean     @default(false)
-  isActive    Boolean     @default(true)
-  categoryId  String
-  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  orderItems  OrderItem[]
-  reviews     Review[]
-  cartItems   CartItem[]
+  id                    String      @id @default(cuid())
+  name                  String
+  slug                  String      @unique
+  description           String?
+  shortDescription      String?
+  brand                 String?     @default("PurestStem")
+  productType           String?
+  condition             String?     @default("New") // New, Used, Refurbished
+  gtin                  String?
+  mpn                   String?
+  unit                  String?     @default("piece")
+  price                 Float
+  salePrice             Float?
+  stock                 Int         @default(0)
+  sku                   String?     @unique
+  weight                String?
+  weightValue           Float?
+  weightUnit            String?     @default("ml")
+  ingredients           String?
+  structuredIngredients String?     // JSON array of { name: string, description?: string }
+  howToUse              String?
+  structuredHowToUse    String?     // JSON array of { step: number, instruction: string }
+  benefits              String?     // JSON array of strings
+  features              String?     // JSON array of strings
+  image                 String?
+  images                String?
+  imageMetadata         String?     // JSON array of { url, alt, title, caption, width, height, isDecorative, sortOrder, size }
+  featured              Boolean     @default(false)
+  isActive              Boolean     @default(true)
+  status                String      @default("published") // published, draft, scheduled
+  publishedAt           DateTime?
+  scheduledAt           DateTime?
+  seoTitle              String?
+  seoDescription        String?
+  focusKeyword          String?
+  secondaryKeywords     String?     // Comma-separated string or JSON
+  canonicalUrl          String?
+  robotsIndex           Boolean     @default(true)
+  robotsFollow          Boolean     @default(true)
+  ogTitle               String?
+  ogDescription         String?
+  ogImage               String?
+  twitterTitle          String?
+  twitterDescription    String?
+  twitterImage          String?
+  faqs                  String?     // JSON array of { question: string, answer: string }
+  relatedProductIds     String?     // JSON array of product IDs
+  relatedBlogIds        String?     // JSON array of blog post IDs
+  categoryId            String
+  category              Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  orderItems            OrderItem[]
+  reviews               Review[]
+  cartItems             CartItem[]
 }
 
 model Order {
@@ -86,16 +120,52 @@ model OrderItem {
 }
 
 model BlogPost {
-  id        String   @id @default(cuid())
-  title     String
-  slug      String   @unique
-  excerpt   String?
-  content   String
-  image     String?
-  author    String   @default("PurestStem")
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String    @id @default(cuid())
+  title             String
+  slug              String    @unique
+  excerpt           String?
+  content           String
+  image             String?
+  imageAlt          String?
+  imageCaption      String?
+  imageCredit       String?
+  imageWidth        Int?
+  imageHeight       Int?
+  author            String    @default("PurestStem")
+  authorBio         String?
+  authorImage       String?
+  categoryId        String?
+  category          Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags              String?   // JSON array or comma-separated string
+  status            String    @default("published") // draft, scheduled, published
+  published         Boolean   @default(true)
+  publishedAt       DateTime?
+  scheduledAt       DateTime?
+  seoTitle          String?
+  seoDescription    String?
+  focusKeyword      String?
+  secondaryKeywords String?   // JSON array or comma-separated string
+  canonicalUrl      String?
+  robotsIndex       Boolean   @default(true)
+  robotsFollow      Boolean   @default(true)
+  ogTitle           String?
+  ogDescription     String?
+  ogImage           String?
+  twitterTitle      String?
+  twitterDescription String?
+  twitterImage      String?
+  faqs              String?   // JSON array of FaqItem
+  relatedProductIds String?   // JSON array of product IDs
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Redirect {
+  id          String   @id @default(cuid())
+  sourcePath  String   @unique
+  targetPath  String
+  statusCode  Int      @default(301)
+  createdAt   DateTime @default(now())
 }
 
 model CartItem {

@@ -19,26 +19,33 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const folder = (formData.get("folder") as string) || "blog";
+    const sanitizedFolder = folder.replace(/[^a-zA-Z0-9_-]/g, "");
 
     if (!file || file.size === 0) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     const originalName = sanitizeFilename(file.name);
-    const filename = `products/${Date.now()}-${originalName}`;
+    const filename = `${sanitizedFolder}/${Date.now()}-${originalName}`;
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       const blob = await put(filename, file, {
         access: "public",
         addRandomSuffix: false,
       });
-      return NextResponse.json({ url: blob.url });
+      return NextResponse.json({
+        url: blob.url,
+        filename: originalName,
+        size: file.size,
+        type: file.type,
+      });
     }
 
     // Local filesystem fallback for development
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
+    const uploadDir = path.join(process.cwd(), "public", "uploads", sanitizedFolder);
 
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
@@ -48,8 +55,13 @@ export async function POST(req: NextRequest) {
     const filePath = path.join(uploadDir, localFilename);
     await writeFile(filePath, buffer);
 
-    const url = `/uploads/products/${localFilename}`;
-    return NextResponse.json({ url });
+    const url = `/uploads/${sanitizedFolder}/${localFilename}`;
+    return NextResponse.json({
+      url,
+      filename: originalName,
+      size: file.size,
+      type: file.type,
+    });
   } catch (e) {
     console.error("Upload failed:", e);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });

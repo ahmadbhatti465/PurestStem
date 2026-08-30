@@ -404,7 +404,7 @@ export default async function HomePage() {
           subtitle="Expert guides on hair care, skincare and natural wellness for Pakistani homes"
           action={
             <Link
-              href="/shop/blog"
+              href="/blog"
               className="inline-flex items-center gap-1 text-green-700 font-semibold hover:text-green-800 text-sm"
             >
               Read All Articles <ArrowRight className="w-4 h-4" />
@@ -416,12 +416,12 @@ export default async function HomePage() {
           {blogPosts.map((post) => (
             <StaggerItem key={post.id}>
               <article className="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all h-full flex flex-col">
-                <Link href={`/shop/blog/${post.slug}`} className="block h-full flex flex-col">
+                <Link href={`/blog/${post.slug}`} className="block h-full flex flex-col">
                   <div className="aspect-[16/10] bg-gray-100 overflow-hidden">
                     {post.image ? (
                       <img
                         src={post.image}
-                        alt={post.title}
+                        alt={post.imageAlt || post.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />

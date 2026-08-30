@@ -1,4 +1,15 @@
 import { Check } from "lucide-react";
+import { sanitizeHtml } from "@/lib/html-sanitizer";
+
+export interface StructuredIngredient {
+  name: string;
+  description?: string;
+}
+
+export interface StructuredStep {
+  step: number;
+  instruction: string;
+}
 
 /** Splits a description (newline separated) into individual bullet points. */
 export function splitDescription(text: string): string[] {
@@ -20,9 +31,7 @@ export function splitIngredients(text: string): string[] {
 }
 
 /**
- * Splits "how to use" prose into individual steps. If the text already uses
- * line breaks, each line becomes a step; otherwise it splits on sentence
- * boundaries.
+ * Splits "how to use" prose into individual steps.
  */
 export function splitSteps(text: string): string[] {
   const lines = text
@@ -40,9 +49,38 @@ export function splitSteps(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Renders the ingredient list as a modern pill/chip grid. */
-export function ProductIngredients({ text }: { text: string }) {
-  const items = splitIngredients(text);
+/** Renders the ingredient list with structured botanical cards or pills. */
+export function ProductIngredients({
+  text,
+  structured,
+}: {
+  text?: string | null;
+  structured?: StructuredIngredient[] | null;
+}) {
+  if (structured && structured.length > 0) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {structured.map((item, index) => (
+          <div
+            key={`${item.name}-${index}`}
+            className="p-3.5 rounded-xl bg-green-50/70 border border-green-100 hover:border-green-200 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Check className="w-3.5 h-3.5 text-green-700 shrink-0" strokeWidth={3} />
+              <h4 className="font-bold text-xs sm:text-sm text-green-950">{item.name}</h4>
+            </div>
+            {item.description && (
+              <p className="text-xs text-gray-600 mt-1 leading-relaxed pl-5">
+                {item.description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const items = text ? splitIngredients(text) : [];
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -59,8 +97,19 @@ export function ProductIngredients({ text }: { text: string }) {
   );
 }
 
-/** Renders the product description as a clean bullet list. */
+/** Renders the product description either as rich sanitized HTML or bullet points. */
 export function ProductDescription({ text }: { text: string }) {
+  const isHtml = /<[a-z][\s\S]*>/i.test(text);
+
+  if (isHtml) {
+    return (
+      <div
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }}
+        className="prose prose-sm sm:prose max-w-none text-gray-700 leading-relaxed"
+      />
+    );
+  }
+
   const lines = splitDescription(text);
 
   return (
@@ -79,8 +128,29 @@ export function ProductDescription({ text }: { text: string }) {
 }
 
 /** Renders the "how to use" instructions as numbered timeline steps. */
-export function ProductHowToUse({ text }: { text: string }) {
-  const steps = splitSteps(text);
+export function ProductHowToUse({
+  text,
+  structured,
+}: {
+  text?: string | null;
+  structured?: StructuredStep[] | null;
+}) {
+  if (structured && structured.length > 0) {
+    return (
+      <ol className="relative space-y-4">
+        {structured.map((s, index) => (
+          <li key={index} className="relative flex items-start gap-3.5">
+            <span className="z-10 mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-700 text-xs font-bold text-white shadow-sm shadow-green-700/20">
+              {s.step || index + 1}
+            </span>
+            <p className="pt-1 text-sm text-gray-700 leading-relaxed">{s.instruction}</p>
+          </li>
+        ))}
+      </ol>
+    );
+  }
+
+  const steps = text ? splitSteps(text) : [];
 
   return (
     <ol className="relative">
