@@ -97,7 +97,19 @@ async function main() {
   await safeExec(`ALTER TABLE "Product" ADD COLUMN "relatedProductIds" TEXT`, "relatedProductIds");
   await safeExec(`ALTER TABLE "Product" ADD COLUMN "relatedBlogIds" TEXT`, "relatedBlogIds");
 
-  // ── BlogPost SEO columns (if blog editor was also upgraded) ─────────────────
+  // ── BlogPost SEO columns & rich fields ──────────────────────────────────────
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "imageAlt" TEXT`, "BlogPost.imageAlt");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "imageCaption" TEXT`, "BlogPost.imageCaption");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "imageCredit" TEXT`, "BlogPost.imageCredit");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "imageWidth" INTEGER`, "BlogPost.imageWidth");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "imageHeight" INTEGER`, "BlogPost.imageHeight");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "authorBio" TEXT`, "BlogPost.authorBio");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "authorImage" TEXT`, "BlogPost.authorImage");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "categoryId" TEXT`, "BlogPost.categoryId");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "tags" TEXT`, "BlogPost.tags");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "publishedAt" DATETIME`, "BlogPost.publishedAt");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "secondaryKeywords" TEXT`, "BlogPost.secondaryKeywords");
+  await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "relatedProductIds" TEXT`, "BlogPost.relatedProductIds");
   await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "seoTitle" TEXT`, "BlogPost.seoTitle");
   await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "seoDescription" TEXT`, "BlogPost.seoDescription");
   await safeExec(`ALTER TABLE "BlogPost" ADD COLUMN "focusKeyword" TEXT`, "BlogPost.focusKeyword");

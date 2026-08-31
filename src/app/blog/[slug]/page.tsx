@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   RefreshCw,
 } from "lucide-react";
-import { notFound, redirect, RedirectType } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { SITE_URL, SITE_NAME, absoluteUrl } from "@/lib/site";
 import { readingTime } from "@/lib/blog-content";
@@ -135,11 +135,11 @@ export default async function BlogPostDetailPage({
   if (!post) {
     const redirectRecord = await findRedirect(`/blog/${slug}`);
     if (redirectRecord) {
-      redirect(redirectRecord.targetPath, RedirectType.replace);
+      permanentRedirect(redirectRecord.targetPath);
     }
     const legacyRedirect = await findRedirect(`/shop/blog/${slug}`);
     if (legacyRedirect) {
-      redirect(legacyRedirect.targetPath, RedirectType.replace);
+      permanentRedirect(legacyRedirect.targetPath);
     }
     notFound();
   }

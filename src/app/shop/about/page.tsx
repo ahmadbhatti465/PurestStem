@@ -5,25 +5,43 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
+import JsonLd from "@/components/json-ld";
+import { buildBreadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
   title: "About PurestStem | 60 Years of Trusted Herbal Products in Pakistan",
   description:
     "PurestStem has been crafting premium herbal products in Pakistan for over 60 years. Discover our story, mission, and commitment to 100% natural, lab-tested wellness products.",
+  alternates: {
+    canonical: `${SITE_URL}/shop/about`,
+  },
   openGraph: {
     title: "About PurestStem | 60 Years of Trusted Herbal Products in Pakistan",
     description:
       "Discover the story behind Pakistan's trusted herbal brand. PurestStem combines ancient mountain wisdom with modern quality standards.",
+    url: `${SITE_URL}/shop/about`,
+    siteName: SITE_NAME,
     type: "website",
   },
 };
 
 export default function AboutPage() {
+  const breadcrumbSchema = buildBreadcrumbSchema(
+    [
+      { label: "Home", href: "/" },
+      { label: "About Us" },
+    ],
+    SITE_URL
+  );
+
   return (
     <div className="pb-16">
+      <JsonLd data={breadcrumbSchema} />
       <PageSection background="light" padding="sm">
         <Breadcrumb items={[{ label: "About Us" }]} />
         <SectionHeader
+          titleAs="h1"
           className="mt-6"
           eyebrow="Since 1964"
           eyebrowIcon={Award}

@@ -122,6 +122,7 @@ export default async function BlogListingPage({
         <FadeIn className="relative text-center max-w-3xl mx-auto">
           <Breadcrumb items={[{ label: "Blog" }]} className="justify-center flex mb-6 text-white/70" />
           <SectionHeader
+            titleAs="h1"
             light
             eyebrow="Herbal Insights & Wellness Guides"
             eyebrowIcon={Sparkles}

@@ -112,6 +112,7 @@ export default async function ProductsPage({
             className="justify-center flex mb-6"
           />
           <SectionHeader
+            titleAs="h1"
             light
             eyebrow="Premium Herbal Collection"
             eyebrowIcon={Sparkles}

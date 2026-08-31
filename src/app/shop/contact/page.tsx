@@ -4,6 +4,9 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 import { FadeIn } from "@/components/animations/fade-in";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
+import JsonLd from "@/components/json-ld";
+import { buildBreadcrumbSchema } from "@/lib/structured-data";
 import type { Metadata } from "next";
 import { ContactForm } from "./contact-form";
 
@@ -11,10 +14,15 @@ export const metadata: Metadata = {
   title: "Contact PurestStem | Herbal Products Support in Pakistan",
   description:
     "Contact PurestStem for orders, shipping, returns, or product questions. Call 03334117668 or email pureststemofficial@gmail.com. We deliver herbal products across Pakistan.",
+  alternates: {
+    canonical: `${SITE_URL}/shop/contact`,
+  },
   openGraph: {
     title: "Contact PurestStem | Herbal Products Support in Pakistan",
     description:
       "Get in touch with Pakistan's trusted herbal brand. Call, email or send us a message.",
+    url: `${SITE_URL}/shop/contact`,
+    siteName: SITE_NAME,
     type: "website",
   },
 };
@@ -51,11 +59,21 @@ const contactCards = [
 ];
 
 export default function ContactPage() {
+  const breadcrumbSchema = buildBreadcrumbSchema(
+    [
+      { label: "Home", href: "/" },
+      { label: "Contact Us" },
+    ],
+    SITE_URL
+  );
+
   return (
     <div className="pb-16">
+      <JsonLd data={breadcrumbSchema} />
       <PageSection background="light" padding="sm">
         <Breadcrumb items={[{ label: "Contact Us" }]} />
         <SectionHeader
+          titleAs="h1"
           className="mt-6"
           title="Contact Us"
           subtitle="Have questions about our herbal products, shipping, or returns? We are here to help. Reach out and we'll get back to you within 24 hours."

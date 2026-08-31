@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound, redirect, RedirectType } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
   Shield,
@@ -235,11 +235,11 @@ export default async function ProductPage({
   if (!product) {
     const redirectRecord = await findRedirect(`/shop/products/${slug}`);
     if (redirectRecord) {
-      redirect(redirectRecord.targetPath, RedirectType.replace);
+      permanentRedirect(redirectRecord.targetPath);
     }
     const legacyRedirect = await findRedirect(`/products/${slug}`);
     if (legacyRedirect) {
-      redirect(legacyRedirect.targetPath, RedirectType.replace);
+      permanentRedirect(legacyRedirect.targetPath);
     }
     notFound();
   }
