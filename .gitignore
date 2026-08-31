@@ -43,3 +43,4 @@ Thumbs.db
 src/generated/
 .env*
 !.env.example
+data/test-generated-pdfs/

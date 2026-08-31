@@ -144,6 +144,18 @@ async function main() {
     "Redirect unique index"
   );
 
+  // ── Order document & tracking columns ──────────────────────────────────────
+  await safeExec(`ALTER TABLE "Order" ADD COLUMN "invoiceNumber" TEXT`, "Order.invoiceNumber");
+  await safeExec(`ALTER TABLE "Order" ADD COLUMN "awbNumber" TEXT`, "Order.awbNumber");
+  await safeExec(`ALTER TABLE "Order" ADD COLUMN "trackingNumber" TEXT`, "Order.trackingNumber");
+  await safeExec(`ALTER TABLE "Order" ADD COLUMN "courier" TEXT`, "Order.courier");
+  await safeExec(`ALTER TABLE "Order" ADD COLUMN "invoiceGeneratedAt" DATETIME`, "Order.invoiceGeneratedAt");
+  await safeExec(`ALTER TABLE "Order" ADD COLUMN "awbGeneratedAt" DATETIME`, "Order.awbGeneratedAt");
+  await safeExec(
+    `CREATE UNIQUE INDEX IF NOT EXISTS "Order_invoiceNumber_key" ON "Order"("invoiceNumber")`,
+    "Order_invoiceNumber_key unique index"
+  );
+
   console.log("\n✅ Build-time migration complete.\n");
 }
 

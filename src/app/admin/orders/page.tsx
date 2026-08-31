@@ -16,6 +16,8 @@ async function getOrders() {
     ...order,
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),
+    invoiceGeneratedAt: order.invoiceGeneratedAt ? order.invoiceGeneratedAt.toISOString() : null,
+    awbGeneratedAt: order.awbGeneratedAt ? order.awbGeneratedAt.toISOString() : null,
     items: order.items.map((item) => ({
       ...item,
       product: item.product
