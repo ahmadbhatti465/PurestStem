@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx prisma/seed.ts",
+    "db:pull-turso": "tsx scripts/pull-turso-data.ts",
+    "db:verify": "tsx scripts/verify-turso.ts",
     "db:seed-blogs": "tsx scripts/seed-blogs.ts",
     "db:export": "tsx scripts/export-data.ts",
     "db:import": "tsx scripts/import-data.ts",
