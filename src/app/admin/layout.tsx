@@ -17,8 +17,12 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
+  const adminRoles = [
+    "admin", "analytics_manager", "order_manager", "product_manager",
+    "category_manager", "blog_manager", "user_manager", "message_manager",
+  ];
 
-  if (!session || session.user.role !== "admin") {
+  if (!session || !adminRoles.includes(session.user.role)) {
     return <AdminLogin />;
   }
 

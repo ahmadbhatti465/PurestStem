@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
+  if (!session || !["admin", "category_manager"].includes(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
   return null;

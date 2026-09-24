@@ -3,30 +3,34 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
   LayoutDashboard, ShoppingBag, Package, FolderTree, FileText, Users, ArrowLeft, Mail, LogOut, BarChart3,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/categories", label: "Categories", icon: FolderTree },
-  { href: "/admin/blog", label: "Blog Posts", icon: FileText },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/messages", label: "Messages", icon: Mail },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, allowedRoles: ["admin", "analytics_manager", "order_manager", "product_manager", "category_manager", "blog_manager", "user_manager", "message_manager"] },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3, allowedRoles: ["admin", "analytics_manager"] },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingBag, allowedRoles: ["admin", "order_manager"] },
+  { href: "/admin/products", label: "Products", icon: Package, allowedRoles: ["admin", "product_manager"] },
+  { href: "/admin/categories", label: "Categories", icon: FolderTree, allowedRoles: ["admin", "category_manager"] },
+  { href: "/admin/blog", label: "Blog Posts", icon: FileText, allowedRoles: ["admin", "blog_manager"] },
+  { href: "/admin/users", label: "Users", icon: Users, allowedRoles: ["admin", "user_manager"] },
+  { href: "/admin/messages", label: "Messages", icon: Mail, allowedRoles: ["admin", "message_manager"] },
 ];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
+  const userRole = session?.user?.role || "user";
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(t);
   }, []);
+
+  const filteredItems = navItems.filter((item) => item.allowedRoles.includes(userRole));
 
   return (
     <div className="w-64 bg-[#0f2e1c] text-white fixed h-full flex flex-col z-40">
@@ -47,7 +51,7 @@ export default function AdminSidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
+        {filteredItems.map((item) => {
           const isActive = mounted && (pathname === item.href || pathname.startsWith(`${item.href}/`));
           const Icon = item.icon;
           return (
@@ -86,3 +90,4 @@ export default function AdminSidebar() {
     </div>
   );
 }
+

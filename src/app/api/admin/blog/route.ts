@@ -7,7 +7,7 @@ import { sanitizeHtml } from "@/lib/html-sanitizer";
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
+  if (!session || !["admin", "blog_manager"].includes(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
   return null;

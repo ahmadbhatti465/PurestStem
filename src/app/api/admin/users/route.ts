@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
+  if (!session || !["admin", "user_manager"].includes(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
   return null;
@@ -31,6 +31,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User with this email already exists" }, { status: 409 });
     }
 
+    const validRoles = [
+      "user", "admin", "analytics_manager", "order_manager",
+      "product_manager", "category_manager", "blog_manager",
+      "user_manager", "message_manager",
+    ];
+
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     const user = await prisma.user.create({
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
         email: body.email,
         name: body.name || null,
         password: hashedPassword,
-        role: body.role === "admin" ? "admin" : "user",
+        role: validRoles.includes(body.role) ? body.role : "user",
       },
     });
 

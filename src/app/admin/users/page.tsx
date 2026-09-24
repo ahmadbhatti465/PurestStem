@@ -62,11 +62,18 @@ export default async function AdminUsersPage() {
                     <td className="px-5 py-4 text-sm text-gray-600">{user.email}</td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                        user.role === "admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-blue-100 text-blue-700"
+                        {
+                          admin: "bg-purple-100 text-purple-700",
+                          analytics_manager: "bg-blue-100 text-blue-700",
+                          order_manager: "bg-amber-100 text-amber-700",
+                          product_manager: "bg-green-100 text-green-700",
+                          category_manager: "bg-teal-100 text-teal-700",
+                          blog_manager: "bg-indigo-100 text-indigo-700",
+                          user_manager: "bg-rose-100 text-rose-700",
+                          message_manager: "bg-cyan-100 text-cyan-700",
+                        }[user.role] || "bg-gray-100 text-gray-700"
                       }`}>
-                        {user.role}
+                        {user.role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-sm text-gray-500">
