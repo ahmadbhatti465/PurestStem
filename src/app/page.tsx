@@ -1,76 +1,85 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import {
-  ArrowRight,
-  Leaf,
-  Truck,
-  Shield,
-  Star,
-  Award,
-  Sparkles,
-  Heart,
-  BadgeCheck,
-  Clock,
-  Sprout,
-  Phone,
-} from "lucide-react";
+import { ArrowRight, Leaf, Sparkles, BookOpen, Clock } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { SITE_URL } from "@/lib/site";
-import ProductCard from "@/components/product-card";
 import JsonLd from "@/components/json-ld";
-import { Container } from "@/components/layout/container";
-import { PageSection } from "@/components/layout/page-section";
-import { SectionHeader } from "@/components/ui/section-header";
-import { FadeIn } from "@/components/animations/fade-in";
-import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
-import { NewsletterSection } from "@/components/newsletter-form";
+import { ScrollProgress } from "@/components/home/scroll-progress";
+import { DynamicHero } from "@/components/home/dynamic-hero";
+import { TickerMarquee } from "@/components/home/ticker-marquee";
+import { TrustComparison } from "@/components/home/trust-comparison";
+import { AppleFeatures } from "@/components/home/apple-features";
+import { AnimatedProductsSection } from "@/components/home/animated-products-section";
+import { HeritageStory } from "@/components/home/heritage-story";
+import { AnimatedStats } from "@/components/home/animated-stats";
+import { RoutineSteps } from "@/components/home/routine-steps";
+import { AnimatedTestimonials } from "@/components/home/animated-testimonials";
+import { FaqAccordion } from "@/components/home/faq-accordion";
 
-// Render per-request so newly added products appear immediately (no build-time cache).
+// Render per-request so newly added products appear immediately
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "PurestStem | Premium Herbal Products in Pakistan - 100% Natural",
+  title: "PurestStem | Pakistan's Trusted Herbal Hair & Skin Care Since 1964",
   description:
-    "Buy 100% natural herbal shampoos, hair oils, herbal teas, soaps and skin care products in Pakistan. 60+ years of trusted mountain herbalism. Cash on delivery. Free shipping over ₨ 5,000.",
+    "Buy 100% natural herbal shampoos, hair oils, herbal teas, soaps and skin care products in Pakistan. 60+ years of trusted mountain herbalism. Cash on delivery nationwide. Free shipping over ₨ 5,000.",
   alternates: {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: "PurestStem | Premium Herbal Products in Pakistan",
+    title: "PurestStem | Pakistan's Trusted Herbal Products Brand",
     description:
-      "Pakistan's trusted herbal brand since 1964. Shop herbal shampoos, hair oils, teas, soaps and skincare.",
+      "Pakistan's trusted herbal brand since 1964. Shop herbal shampoos, hair repairing oils, teas, soaps and organic skincare.",
     url: SITE_URL,
     type: "website",
   },
 };
 
 async function getFeaturedProducts() {
-  return await prisma.product.findMany({
-    where: { featured: true, isActive: true },
-    include: { category: true },
-    take: 8,
-  });
+  try {
+    return await prisma.product.findMany({
+      where: { isActive: true },
+      include: { category: true },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      take: 12,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
 }
 
 async function getRecentBlogPosts() {
-  return await prisma.blogPost.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-    take: 3,
-  });
+  try {
+    return await prisma.blogPost.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    });
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    return [];
+  }
 }
 
 async function getReviews() {
-  return await prisma.review.findMany({
-    take: 4,
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    return await prisma.review.findMany({
+      take: 4,
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    return [];
+  }
 }
 
 export default async function HomePage() {
-  const products = await getFeaturedProducts();
-  const blogPosts = await getRecentBlogPosts();
-  const reviews = await getReviews();
+  const [products, blogPosts, reviews] = await Promise.all([
+    getFeaturedProducts(),
+    getRecentBlogPosts(),
+    getReviews(),
+  ]);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -95,396 +104,117 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden bg-[#faf8f5]">
       <JsonLd data={structuredData} />
 
-      {/*  Hero  */}
-      <section className="relative bg-[#0e271a] overflow-hidden">
-        {/* Background gradient mesh + soft glows */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0e271a] via-[#14301f] to-[#1c4a2c]" />
-          <div className="absolute -top-24 -right-24 w-[40rem] h-[40rem] rounded-full bg-emerald-500/15 blur-[150px]" />
-          <div className="absolute bottom-0 -left-32 w-[34rem] h-[34rem] rounded-full bg-green-700/25 blur-[140px]" />
-          <div className="absolute top-1/2 left-1/3 w-[30rem] h-[30rem] rounded-full bg-lime-400/10 blur-[130px]" />
-          <Leaf className="absolute -right-6 top-10 w-72 h-72 text-green-300/5 rotate-12" strokeWidth={1} />
-          <Leaf className="absolute right-44 -top-8 w-44 h-44 text-green-300/5 -rotate-45" strokeWidth={1} />
-          <Leaf className="absolute left-1/2 top-full -translate-y-1/2 w-56 h-56 text-green-200/5" strokeWidth={1} />
-        </div>
+      {/* Top Scroll Progress Indicator */}
+      <ScrollProgress />
 
-        <Container className="relative py-16 md:py-24">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <FadeIn className="max-w-xl">
-              <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 text-sm font-medium text-green-100 mb-6">
-                <span className="relative flex w-2 h-2">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75 animate-ping" />
-                  <span className="relative inline-flex rounded-full w-2 h-2 bg-green-300" />
-                </span>
-                100% Natural & Organic
-              </span>
+      {/* 1. Dynamic Hero Section (Light Luxury Botanical Theme) */}
+      <DynamicHero products={products} />
 
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-5 leading-[1.12]">
-                Pakistan&apos;s Trusted{" "}
-                <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-emerald-200 to-green-300">
-                  Herbal Products
-                </span>{" "}
-                Brand
-              </h1>
+      {/* 2. Scrolltide-Style Emerald Marquee Ribbon */}
+      <TickerMarquee />
 
-              <p className="text-lg text-green-100/80 mb-8 leading-relaxed">
-                Premium herbal shampoos, hair oils, herbal teas, soaps and skin care made with ancient
-                mountain wisdom and modern purity. Cash on delivery across Pakistan.
-              </p>
+      {/* 3. Formal Side-by-Side Trust & Quality Comparison Table */}
+      <TrustComparison />
 
-              <div className="flex flex-wrap gap-3 mb-10">
-                <Link
-                  href="/shop/products"
-                  className="inline-flex items-center gap-2 bg-white text-green-900 px-7 py-3.5 rounded-full font-semibold hover:bg-green-50 transition-all shadow-lg hover:shadow-xl hover:scale-[1.03] hover:-translate-y-0.5"
-                >
-                  Shop Herbal Products
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/shop/about"
-                  className="inline-flex items-center gap-2 border border-white/25 bg-white/5 backdrop-blur-sm text-white px-7 py-3.5 rounded-full font-medium hover:bg-white/10 transition-colors"
-                >
-                  Our Story
-                </Link>
+      {/* 4. Apple-Style "The Botanical Architecture" (4-Pillar Interactive Showcase) */}
+      <AppleFeatures />
+
+      {/* 5. Animated Featured Products with 3D Tilt & Category Pills */}
+      <AnimatedProductsSection products={products} />
+
+      {/* 6. Authentic 60-Year Mountain Heritage Story (1964-2026) */}
+      <HeritageStory />
+
+      {/* 7. Apple-Style "By The Numbers" Animated Counters */}
+      <AnimatedStats />
+
+      {/* 8. The Purest 3-Step Routine (Transformation Timeline) */}
+      <RoutineSteps />
+
+      {/* 9. Scrolltide-Style Verified Customer Reviews Wall */}
+      <AnimatedTestimonials reviews={reviews} />
+
+      {/* 10. Herbal Insights & Wellness Blog Preview (High-End Magazine Layout) */}
+      {blogPosts && blogPosts.length > 0 && (
+        <section className="py-24 bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold uppercase tracking-wider mb-3 font-mono">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                  Herbal Wellness Journal
+                </div>
+                <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-950 tracking-tight">
+                  Ancient Wisdom, <span className="text-green-800 italic">Modern Wellness</span>
+                </h2>
               </div>
-
-              <div className="flex flex-wrap gap-x-10 gap-y-4 pt-6 border-t border-white/10">
-                {[
-                  { value: "60+", label: "Years Experience" },
-                  { value: "50K+", label: "Happy Customers" },
-                  { value: "100%", label: "Natural" },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
-                    <p className="text-sm text-green-200/70 mt-0.5">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-
-            <FadeIn direction="right" delay={0.1} className="hidden md:block">
-              <div className="relative flex items-center justify-center py-6">
-                {/* aurora halo behind products */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div
-                    className="w-[92%] aspect-[10/11] rounded-full blur-2xl"
-                    style={{
-                      background:
-                        "radial-gradient(circle at center, rgba(198,232,168,0.45) 0%, rgba(74,144,96,0.28) 42%, rgba(26,74,46,0) 70%)",
-                    }}
-                  />
-                </div>
-
-                {/* decorative rings */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="absolute w-[88%] aspect-[10/11] rounded-full border border-white/10" />
-                  <div className="absolute w-[68%] aspect-[10/11] rounded-full border border-dashed border-white/15" />
-                </div>
-
-                {/* product cutout */}
-                <div className="relative w-[72%] max-w-[24rem]">
-                  <img
-                    src="/hero-section.png"
-                    alt="PurestStem premium herbal products collection in Pakistan"
-                    width={934}
-                    height={1024}
-                    className="w-full h-auto object-contain drop-shadow-[0_35px_45px_rgba(0,0,0,0.5)]"
-                    loading="eager"
-                  />
-                  {/* ground shadow */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-3/4 h-10 rounded-full bg-black/45 blur-2xl" />
-                </div>
-
-                {/* floating accents */}
-                <Sparkles className="absolute top-3 right-3 w-6 h-6 text-green-200/70 animate-float-slow" />
-                <Sparkles className="absolute bottom-20 left-0 w-4 h-4 text-green-300/50 animate-float" />
-                <Leaf className="absolute top-8 left-5 w-7 h-7 text-green-300/50 rotate-12 animate-float-slower" />
-
-                {/* floating rating chip */}
-                <div className="absolute top-1 -left-2 animate-float-slow bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-yellow-50 flex items-center justify-center">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900 leading-none">4.9/5</p>
-                    <p className="text-[11px] text-gray-500 mt-0.5">12,000+ reviews</p>
-                  </div>
-                </div>
-
-                {/* floating certified chip */}
-                <div className="absolute bottom-1 -right-2 animate-float-slower bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
-                    <BadgeCheck className="w-5 h-5 text-green-700" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 leading-tight">Certified Organic</p>
-                    <p className="text-sm font-semibold text-gray-900 leading-tight">100% Pure & Natural</p>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-        </Container>
-      </section>
-
-      {/*  Trust bar  */}
-      <section className="py-10 bg-white border-b border-gray-100">
-        <Container>
-          <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { icon: Truck, title: "Free Shipping", desc: "On orders over ₨ 5,000" },
-              { icon: Shield, title: "100% Herbal", desc: "Pure & original products" },
-              { icon: Phone, title: "Cash on Delivery", desc: "Available across Pakistan" },
-            ].map((item) => (
-              <StaggerItem key={item.title}>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-green-50/60 border border-green-100 hover:border-green-200 hover:shadow-sm transition-all">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <item.icon className="w-6 h-6 text-green-700" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                    <p className="text-sm text-gray-500">{item.desc}</p>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </Container>
-      </section>
-
-      {/*  Featured products  */}
-      <PageSection background="light" id="featured">
-        <SectionHeader
-          eyebrow="Best Sellers"
-          eyebrowIcon={Award}
-          title={<>
-            Featured{" "}
-            <span className="text-green-700">Herbal Products</span>
-          </>}
-          subtitle="Discover our most loved herbal products, crafted with care from the finest mountain ingredients"
-          action={
-            <Link
-              href="/shop/products"
-              className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
-            >
-              View All Products
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          }
-        />
-
-        <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-          {products.map((product) => (
-            <StaggerItem key={product.id}>
-              <ProductCard product={product} />
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
-      </PageSection>
-
-      {/*  Why choose us  */}
-      <PageSection background="white">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <FadeIn direction="left" className="relative">
-            <div className="rounded-3xl overflow-hidden shadow-xl">
-              <img
-                src="/about_page.png"
-                alt="PurestStem traditional herbal preparation process"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-green-900 hover:text-green-700 transition-colors"
+              >
+                Read All Articles <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-            <div className="absolute -bottom-5 -right-5 bg-green-800 text-white rounded-2xl p-5 shadow-xl">
-              <p className="text-3xl font-bold">60+</p>
-              <p className="text-sm text-green-200">Years of Excellence</p>
-            </div>
-          </FadeIn>
 
-          <FadeIn direction="right" delay={0.15}>
-            <SectionHeader align="left" title={<>Why Choose <span className="text-green-700">PurestStem?</span></>}
-              subtitle="We combine ancient herbal wisdom with modern quality standards to deliver products that truly make a difference in your daily wellness routine."
-            />
-
-            <StaggerContainer staggerDelay={0.1} className="space-y-4 mt-8">
-              {[
-                {
-                  icon: Sprout,
-                  title: "100% Natural Ingredients",
-                  desc: "Sourced directly from pristine mountain regions of Pakistan.",
-                },
-                {
-                  icon: Heart,
-                  title: "Handcrafted with Love",
-                  desc: "Each batch is prepared following traditional family recipes.",
-                },
-                {
-                  icon: Shield,
-                  title: "Rigorous Quality Testing",
-                  desc: "Every product is lab-tested for purity and effectiveness.",
-                },
-                {
-                  icon: Clock,
-                  title: "Fast & Reliable Delivery",
-                  desc: "Cash on delivery available across Pakistan with quick dispatch.",
-                },
-              ].map((item) => (
-                <StaggerItem key={item.title}>
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 hover:bg-green-50/60 transition-colors">
-                    <div className="w-11 h-11 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-5 h-5 text-green-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">{item.desc}</p>
-                    </div>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </FadeIn>
-        </div>
-      </PageSection>
-
-      {/*  Testimonials  */}
-      <PageSection background="green">
-        <SectionHeader
-          light
-          eyebrow="Customer Love"
-          eyebrowIcon={Star}
-          title="What Our Customers Say"
-          subtitle="Real reviews from customers across Pakistan"
-        />
-
-        <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mt-12">
-          {reviews.map((review) => (
-            <StaggerItem key={review.id}>
-              <div className="bg-white/10 border border-white/10 p-5 rounded-2xl flex flex-col h-full">
-                <div className="flex gap-1 mb-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-white/20"}`}
-                    />
-                  ))}
-                </div>
-                <p className="text-white/90 text-sm mb-5 leading-relaxed flex-1">
-                  &ldquo;{review.comment}&rdquo;
-                </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                  <div className="w-9 h-9 bg-green-500/30 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {review.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{review.name}</p>
-                    {review.verified && (
-                      <p className="text-xs text-green-300 flex items-center gap-1">
-                        <BadgeCheck className="w-3 h-3" /> Verified Buyer
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
-      </PageSection>
-
-      {/*  Blog preview  */}
-      <PageSection background="white">
-        <SectionHeader
-          eyebrow="Latest Insights"
-          eyebrowIcon={Sparkles}
-          title={<>
-            Herbal{" "}
-            <span className="text-green-700">Wellness Tips</span>
-          </>}
-          subtitle="Expert guides on hair care, skincare and natural wellness for Pakistani homes"
-          action={
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-1 text-green-700 font-semibold hover:text-green-800 text-sm"
-            >
-              Read All Articles <ArrowRight className="w-4 h-4" />
-            </Link>
-          }
-        />
-
-        <StaggerContainer staggerDelay={0.12} className="grid md:grid-cols-3 gap-6 mt-12">
-          {blogPosts.map((post) => (
-            <StaggerItem key={post.id}>
-              <article className="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all h-full flex flex-col">
-                <Link href={`/blog/${post.slug}`} className="block h-full flex flex-col">
-                  <div className="aspect-[16/10] bg-gray-100 overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {blogPosts.map((post) => (
+                <article
+                  key={post.id}
+                  className="group bg-[#fbfcf9] rounded-3xl overflow-hidden border border-gray-200/90 hover:border-green-300 hover:shadow-xl transition-all duration-300 flex flex-col"
+                >
+                  <Link href={`/blog/${post.slug}`} className="block aspect-[16/10] overflow-hidden bg-gray-100 relative">
                     {post.image ? (
                       <img
                         src={post.image}
                         alt={post.imageAlt || post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 bg-green-50">
-                        <Leaf className="w-10 h-10" />
+                      <div className="w-full h-full flex items-center justify-center text-green-700 bg-green-100/60">
+                        <Leaf className="w-12 h-12" />
                       </div>
                     )}
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h3 className="font-semibold text-lg mb-2 group-hover:text-green-700 transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm line-clamp-2 flex-1">{post.excerpt}</p>
-                    <div className="mt-4 flex items-center gap-1 text-green-700 text-sm font-medium">
-                      Read More <ArrowRight className="w-4 h-4" />
+                    <div className="absolute top-3.5 left-3.5 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[11px] font-bold text-emerald-900 border border-white/60 shadow-xs flex items-center gap-1.5">
+                      <BookOpen className="w-3 h-3 text-emerald-700" />
+                      <span>Herbal Guide</span>
+                    </div>
+                  </Link>
+
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs text-gray-400 mb-2 font-mono">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-emerald-700" /> 4 min read
+                        </span>
+                        <span>•</span>
+                        <span>Verified by Herbalists</span>
+                      </div>
+                      <h3 className="font-display font-bold text-lg text-gray-900 group-hover:text-green-800 transition-colors line-clamp-2 mb-2 leading-snug">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                        {post.excerpt}
+                      </p>
+                    </div>
+
+                    <div className="mt-5 pt-4 border-t border-gray-200/60 flex items-center justify-between text-xs font-bold text-green-900">
+                      <span>Read Complete Article</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
-                </Link>
-              </article>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
-      </PageSection>
-
-      {/*  Newsletter  */}
-      <PageSection background="light" padding="md">
-        <NewsletterSection variant="dark" />
-      </PageSection>
-
-      {/*  Final CTA  */}
-      <PageSection background="dark" padding="xl">
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }}
-        />
-        <FadeIn className="relative text-center">
-          <SectionHeader
-            light
-            eyebrow="Join 50,000+ Happy Customers"
-            eyebrowIcon={Heart}
-            title={<>
-              Ready to Experience{" "}
-              <span className="text-green-300">Natural Wellness?</span>
-            </>}
-            subtitle="Make the switch to herbal today. Your body will thank you. Free shipping on orders over ₨ 5,000 with cash on delivery across Pakistan."
-          />
-          <div className="flex flex-wrap justify-center gap-3 mt-8">
-            <Link
-              href="/shop/products"
-              className="inline-flex items-center gap-2 bg-white text-green-900 px-7 py-3.5 rounded-full font-semibold hover:bg-green-50 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
-            >
-              Shop Now <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/shop/contact"
-              className="inline-flex items-center gap-2 border border-white/30 text-white px-7 py-3.5 rounded-full font-medium hover:bg-white/10 transition-colors"
-            >
-              Contact Us
-            </Link>
+                </article>
+              ))}
+            </div>
           </div>
-        </FadeIn>
-      </PageSection>
+        </section>
+      )}
+
+      {/* 11. Frequently Asked Questions (Spring Accordion) */}
+      <FaqAccordion />
     </div>
   );
 }
