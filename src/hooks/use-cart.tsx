@@ -35,6 +35,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const GUEST_KEY = "cart:guest";
+const AUTH_CACHE_KEY = "cart:auth-cache";
 
 function loadGuestCart(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -51,6 +52,26 @@ function saveGuestCart(items: CartItem[]) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(GUEST_KEY, JSON.stringify(items));
+  } catch {
+    // ignore
+  }
+}
+
+function loadAuthCart(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(AUTH_CACHE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {
+    // ignore
+  }
+  return [];
+}
+
+function saveAuthCart(items: CartItem[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(items));
   } catch {
     // ignore
   }
@@ -200,8 +221,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 : item.quantity;
               await syncAddToDb({ ...item, quantity: qty });
             }
-            clearGuestCart();
             const refreshed = await fetchDbCart();
+            clearGuestCart();
             if (active) setItems(refreshed);
           } else {
             if (active) setItems(dbItems);
@@ -209,7 +230,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error("[CartProvider] Failed to load DB cart:", err);
-          if (active) setItems([]);
+          if (active) {
+            setItems((prev) => mergeItems(loadGuestCart(), mergeItems(loadAuthCart(), prev)));
+          }
         }
       } else {
         const guestItems = loadGuestCart();
@@ -232,8 +255,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Persist guest cart
   useEffect(() => {
-    if (ready && !isLoggedIn) {
-      saveGuestCart(items);
+    if (ready) {
+      if (isLoggedIn) {
+        saveAuthCart(items);
+      } else {
+        saveGuestCart(items);
+      }
     }
   }, [items, ready, isLoggedIn]);
 
@@ -265,16 +292,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error("[useCart] addItem failed:", err);
-          // Revert optimistic update on failure
-          setItems((prev) =>
-            prev
-              .map((i) =>
-                i.productId === item.productId
-                  ? { ...i, quantity: Math.max(0, i.quantity - item.quantity) }
-                  : i
-              )
-              .filter((i) => i.quantity > 0)
-          );
         }
       }
     },
