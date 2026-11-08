@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { readingTime } from "@/lib/blog-content";
+import { readingTime, renderBlogContent } from "@/lib/blog-content";
 import { sanitizeHtml } from "@/lib/html-sanitizer";
 import type { Metadata } from "next";
 
@@ -174,7 +174,7 @@ export default async function AdminBlogPreviewPage({
           <div
             className="prose prose-lg prose-green max-w-none text-gray-800 leading-relaxed space-y-6"
             dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(post.content),
+              __html: renderBlogContent(post.content),
             }}
           />
 

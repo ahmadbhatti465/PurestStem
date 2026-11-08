@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { refreshStorefront } from "@/lib/storefront-cache";
 import { slugify } from "@/lib/slugify";
 import { sanitizeHtml } from "@/lib/html-sanitizer";
 import { recordBlogSlugRedirect } from "@/lib/redirects";
@@ -160,6 +161,7 @@ export async function PUT(
       },
     });
 
+    refreshStorefront();
     return NextResponse.json(updatedPost);
   } catch (error) {
     console.error("Failed to update post:", error);
@@ -177,6 +179,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     await prisma.blogPost.delete({ where: { id } });
+    refreshStorefront();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete post:", error);

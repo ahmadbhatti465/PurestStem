@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { refreshStorefront } from "@/lib/storefront-cache";
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
@@ -48,6 +49,7 @@ export async function PUT(
         description: body.description || null,
       },
     });
+    refreshStorefront();
     return NextResponse.json(category);
   } catch {
     return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
@@ -78,6 +80,7 @@ export async function DELETE(
       }
     }
     await prisma.category.delete({ where: { id } });
+    refreshStorefront();
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });

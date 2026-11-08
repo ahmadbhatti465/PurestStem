@@ -67,7 +67,7 @@ export function ProductIngredients({
           >
             <div className="flex items-center gap-2">
               <Check className="w-3.5 h-3.5 text-green-700 shrink-0" strokeWidth={3} />
-              <h4 className="font-bold text-xs sm:text-sm text-green-950">{item.name}</h4>
+              <h3 className="font-bold text-xs sm:text-sm text-green-950">{item.name}</h3>
             </div>
             {item.description && (
               <p className="text-xs text-gray-600 mt-1 leading-relaxed pl-5">
@@ -105,7 +105,7 @@ export function ProductDescription({ text }: { text: string }) {
     return (
       <div
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }}
-        className="prose prose-sm sm:prose max-w-none text-gray-700 leading-relaxed"
+        className="prose"
       />
     );
   }
@@ -120,7 +120,7 @@ export function ProductDescription({ text }: { text: string }) {
             aria-hidden="true"
             className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-green-600"
           />
-          <span className="text-gray-700 text-base sm:text-lg leading-relaxed">{line}</span>
+          <span className="leading-relaxed text-gray-700">{line}</span>
         </li>
       ))}
     </ul>

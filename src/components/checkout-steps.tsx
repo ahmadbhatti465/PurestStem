@@ -1,67 +1,30 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-import { ShoppingBag, Truck, Check } from "lucide-react";
+import { Check } from "lucide-react";
 
-interface CheckoutStepsProps {
-  currentStep: 1 | 2 | 3;
-  className?: string;
-}
+const steps = ["Cart", "Details", "Complete"];
 
-const steps = [
-  { id: 1, label: "Cart", icon: ShoppingBag },
-  { id: 2, label: "Details", icon: Truck },
-  { id: 3, label: "Complete", icon: Check },
-];
-
-export function CheckoutSteps({ currentStep, className }: CheckoutStepsProps) {
+export function CheckoutSteps({ currentStep, className }: { currentStep: 1 | 2 | 3; className?: string }) {
   return (
-    <div className={className}>
-      <div className="flex items-center justify-between max-w-md mx-auto">
-        {steps.map((step, index) => {
-          const isActive = currentStep >= step.id;
-          const isCurrent = currentStep === step.id;
-          const Icon = step.icon;
-          const isLast = index === steps.length - 1;
-
-          return (
-            <div key={step.id} className="flex items-center flex-1 last:flex-initial">
-              <div className="flex flex-col items-center gap-2">
-                <div
-                  className={cn(
-                    "w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all border-2",
-                    isActive
-                      ? isCurrent
-                        ? "bg-green-700 border-green-700 text-white shadow-lg shadow-green-700/20"
-                        : "bg-green-700 border-green-700 text-white"
-                      : "bg-white border-gray-200 text-gray-400"
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span
-                  className={cn(
-                    "text-xs font-medium",
-                    isActive ? "text-gray-900" : "text-gray-400"
-                  )}
-                >
-                  {step.label}
-                </span>
-              </div>
-              {!isLast && (
-                <div className="flex-1 h-0.5 mx-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className={cn(
-                      "h-full bg-green-700 transition-all duration-500",
-                      currentStep > step.id ? "w-full" : "w-0"
-                    )}
-                  />
-                </div>
+    <ol className={cn("flex items-center gap-2 text-sm", className)} aria-label="Checkout progress">
+      {steps.map((label, index) => {
+        const step = index + 1;
+        const done = step < currentStep || currentStep === 3;
+        const current = step === currentStep;
+        return (
+          <li key={label} className="flex items-center gap-2" aria-current={current ? "step" : undefined}>
+            {index > 0 && <span className="h-px w-5 bg-green-900/25 sm:w-10" aria-hidden="true" />}
+            <span
+              className={cn(
+                "flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
+                done || current ? "bg-green-900 text-white" : "bg-green-100 text-green-900"
               )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+            >
+              {done ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : step}
+            </span>
+            <span className={current ? "font-medium text-green-950" : "text-gray-600"}>{label}</span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }

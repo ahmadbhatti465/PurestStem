@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { refreshStorefront } from "@/lib/storefront-cache";
 import { slugify } from "@/lib/slugify";
 import { sanitizeHtml } from "@/lib/html-sanitizer";
 
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    refreshStorefront();
     return NextResponse.json(post, { status: 201 });
   } catch (error) {
     console.error("Failed to create blog post:", error);

@@ -1,7 +1,6 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface StarRatingProps {
   rating: number;
@@ -13,8 +12,8 @@ interface StarRatingProps {
 
 const sizeClasses = {
   sm: "w-3.5 h-3.5",
-  md: "w-5 h-5",
-  lg: "w-6 h-6",
+  md: "w-4.5 h-4.5",
+  lg: "w-7 h-7",
 };
 
 export default function StarRating({
@@ -27,42 +26,33 @@ export default function StarRating({
   const filledCount = Math.max(0, Math.min(5, Math.round(rating)));
 
   return (
-    <div className={`flex items-center gap-0.5 ${className}`}>
+    <div
+      className={`flex items-center gap-0.5 ${className}`}
+      role={interactive ? "radiogroup" : "img"}
+      aria-label={interactive ? "Your rating" : `Rated ${rating.toFixed(1)} out of 5`}
+    >
       {Array.from({ length: 5 }).map((_, i) => {
-        const isFilled = i < filledCount;
         const star = (
           <Star
-            className={`${sizeClasses[size]} ${
-              isFilled
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-200"
-            } transition-colors duration-200`}
+            aria-hidden="true"
+            className={`${sizeClasses[size]} ${i < filledCount ? "fill-amber-400 text-amber-400" : "text-gray-300"}`}
           />
         );
 
-        if (interactive) {
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => onChange?.(i + 1)}
-              className="p-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1 transition-transform hover:scale-110"
-              aria-label={`Rate ${i + 1} out of 5 stars`}
-            >
-              {star}
-            </button>
-          );
-        }
+        if (!interactive) return <span key={i}>{star}</span>;
 
         return (
-          <motion.span
+          <button
             key={i}
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.05, duration: 0.25 }}
+            type="button"
+            role="radio"
+            aria-checked={i + 1 === filledCount}
+            aria-label={`${i + 1} out of 5 stars`}
+            onClick={() => onChange?.(i + 1)}
+            className="rounded p-1"
           >
             {star}
-          </motion.span>
+          </button>
         );
       })}
     </div>

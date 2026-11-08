@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { refreshStorefront } from "@/lib/storefront-cache";
 import { sanitizeHtml } from "@/lib/html-sanitizer";
 import { slugify } from "@/lib/slugify";
 import { recordProductSlugRedirect } from "@/lib/redirects";
@@ -260,6 +261,7 @@ export async function PUT(
       },
     });
 
+    refreshStorefront();
     return NextResponse.json(product);
   } catch (error) {
     console.error("Update product failed:", error);
@@ -277,6 +279,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     await prisma.product.delete({ where: { id } });
+    refreshStorefront();
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof Error && error.message.includes("Foreign key constraint")) {

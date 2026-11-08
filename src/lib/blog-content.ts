@@ -19,6 +19,8 @@
  * entities so Google can render rich results (people-also-ask style).
  */
 
+import { isSafeUrl, sanitizeHtml } from "@/lib/html-sanitizer";
+
 export interface FaqItem {
   question: string;
   answer: string;
@@ -75,4 +77,71 @@ export function parseFaq(content: string): FaqItem[] {
 export function readingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
+}
+
+const escapeHtml = (text: string) =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+function renderInline(text: string): string {
+  return escapeHtml(text)
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_match, label: string, url: string) =>
+      isSafeUrl(url) ? `<a href="${url}">${label}</a>` : label
+    )
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
+function markdownToHtml(content: string): string {
+  const html: string[] = [];
+  let paragraph: string[] = [];
+  let listTag: "ul" | "ol" | null = null;
+
+  const flushParagraph = () => {
+    if (paragraph.length) html.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
+    paragraph = [];
+  };
+  const closeList = () => {
+    if (listTag) html.push(`</${listTag}>`);
+    listTag = null;
+  };
+
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    const heading = line.match(/^(#{2,4})\s+(.+)$/);
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    const numbered = line.match(/^\d+\.\s+(.+)$/);
+
+    if (!line) {
+      flushParagraph();
+      closeList();
+    } else if (heading) {
+      flushParagraph();
+      closeList();
+      const level = heading[1].length;
+      html.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+    } else if (bullet || numbered) {
+      flushParagraph();
+      const tag = bullet ? "ul" : "ol";
+      if (listTag !== tag) {
+        closeList();
+        html.push(`<${tag}>`);
+        listTag = tag;
+      }
+      html.push(`<li>${renderInline((bullet ?? numbered)![1])}</li>`);
+    } else {
+      closeList();
+      paragraph.push(line);
+    }
+  }
+
+  flushParagraph();
+  closeList();
+  return html.join("\n");
+}
+
+/**
+ * Article bodies are saved either as HTML (rich editor) or as the markdown-lite
+ * format described above (imported posts). Returns safe HTML for both.
+ */
+export function renderBlogContent(content: string): string {
+  return /^\s*</.test(content) ? sanitizeHtml(content) : markdownToHtml(content);
 }

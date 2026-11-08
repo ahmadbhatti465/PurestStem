@@ -1,10 +1,6 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, Eye, Package, Check } from "lucide-react";
-import { motion } from "framer-motion";
-import { useCart } from "@/hooks/use-cart";
+import { SmartImage } from "@/components/ui/smart-image";
+import { QuickAddButton } from "@/components/quick-add-button";
 import { formatPrice, calculateDiscount, getPrimaryImage, slugify } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -16,119 +12,75 @@ interface ProductCardProps {
     salePrice?: number | null;
     image?: string | null;
     images?: string | null;
+    stock?: number;
+    weight?: string | null;
     category: { name: string };
   };
+  /** Set on cards visible without scrolling. */
+  preload?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const { addItem } = useCart();
-  const [imgError, setImgError] = useState(false);
-  const [added, setAdded] = useState(false);
+export default function ProductCard({ product, preload = false }: ProductCardProps) {
   const discount = calculateDiscount(product.price, product.salePrice);
   const primaryImage = getPrimaryImage(product.image, product.images);
-  const productUrl = `/shop/products/${encodeURIComponent(slugify(product.slug || product.name))}`;
-
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem({
-      productId: product.id,
-      name: product.name,
-      price: product.salePrice || product.price,
-      quantity: 1,
-      image: primaryImage || undefined,
-    });
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1500);
-  };
+  const productSlug = slugify(product.slug || product.name);
+  const productUrl = `/shop/products/${encodeURIComponent(productSlug)}`;
+  const price = product.salePrice || product.price;
+  const soldOut = product.stock !== undefined && product.stock <= 0;
 
   return (
-    <article className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col">
-      <Link href={productUrl} className="block relative">
-        <div className="aspect-square bg-gradient-to-br from-green-50/80 to-gray-50 flex items-center justify-center relative overflow-hidden">
-          {primaryImage && !imgError ? (
-            <img
-              src={primaryImage}
-              alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              loading="lazy"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <div className="flex flex-col items-center text-gray-400">
-              <Package className="w-10 h-10 mb-2 opacity-40" />
-              <span className="text-xs">No Image</span>
-            </div>
-          )}
-          {discount > 0 && (
-            <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-              -{discount}%
-            </span>
-          )}
-
-          {/*  Quick Add - appears on hover (desktop), always visible on mobile  */}
-          <motion.button
-            onClick={handleAdd}
-            whileTap={{ scale: 0.92 }}
-            className="absolute bottom-3 right-3 z-10 w-11 h-11 min-w-[44px] min-h-[44px] bg-green-700 text-white rounded-full shadow-lg flex items-center justify-center opacity-100 translate-y-0 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 hover:bg-green-800 hover:scale-110"
-            aria-label={`Quick add ${product.name} to cart`}
-          >
-            <ShoppingCart className="w-4 h-4" />
-          </motion.button>
-        </div>
+    <article className="product-card flex h-full flex-col">
+      <Link
+        href={productUrl}
+        aria-label={product.name}
+        className="surface product-frame relative block aspect-[4/5] overflow-hidden"
+      >
+        <SmartImage
+          src={primaryImage}
+          alt=""
+          fill
+          preload={preload}
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+          className="relative object-contain p-3 sm:p-5"
+        />
+        {discount > 0 && (
+          <span className="absolute left-3 top-3 rounded-full bg-green-900 px-2.5 py-1 text-xs font-semibold text-white">
+            Save {discount}%
+          </span>
+        )}
+        {soldOut && (
+          <span className="absolute right-3 top-3 rounded-full bg-gray-900 px-2.5 py-1 text-xs font-semibold text-white">
+            Sold out
+          </span>
+        )}
       </Link>
 
-      <div className="p-4 flex-1 flex flex-col">
-        <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-1">
-          {product.category.name}
-        </p>
-        <Link href={productUrl}>
-          <h3 className="font-display font-semibold text-[15px] text-gray-900 mb-2 line-clamp-2 group-hover:text-green-700 transition-colors leading-snug">
+      <div className="flex flex-1 flex-col pt-4">
+        <p className="text-xs font-medium text-green-800">{product.category.name}</p>
+        <h3
+          className="mt-1 font-display text-base font-medium leading-snug text-green-950 sm:text-lg"
+        >
+          <Link href={productUrl} className="line-clamp-2 hover:text-green-800">
             {product.name}
-          </h3>
-        </Link>
-
-        <div className="flex items-center gap-2.5 mb-4">
-          <span className="text-lg font-bold text-green-700">
-            {formatPrice(product.salePrice || product.price)}
-          </span>
-          {product.salePrice && (
-            <span className="text-sm text-gray-400 line-through">
-              {formatPrice(product.price)}
-            </span>
-          )}
-        </div>
-
-        <div className="mt-auto space-y-2">
-          <button
-            type="button"
-            onClick={handleAdd}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-              added
-                ? "bg-green-100 text-green-800 border border-green-300"
-                : "bg-green-700 text-white hover:bg-green-800 shadow-sm hover:shadow active:scale-[0.98]"
-            }`}
-            aria-label={`Add ${product.name} to cart`}
-          >
-            {added ? (
-              <>
-                <Check className="w-4 h-4" />
-                Added to Cart
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" />
-                Add to Cart
-              </>
-            )}
-          </button>
-          <Link
-            href={productUrl}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium text-gray-500 hover:text-green-700 hover:bg-gray-50 transition-colors"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            View Product
           </Link>
+        </h3>
+
+        <p className="mb-3 mt-2 flex flex-wrap items-baseline gap-x-2">
+          <span className="text-base font-semibold text-gray-900">{formatPrice(price)}</span>
+          {discount > 0 && (
+            <span className="text-sm text-gray-500 line-through">{formatPrice(product.price)}</span>
+          )}
+        </p>
+
+        <div className="mt-auto">
+          <QuickAddButton
+            productId={product.id}
+            name={product.name}
+            slug={productSlug}
+            price={price}
+            image={primaryImage || undefined}
+            soldOut={soldOut}
+          />
         </div>
       </div>
     </article>

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { prisma } from "@/lib/db";
+import { getBestsellers } from "@/lib/catalog";
 import { Container } from "@/components/layout/container";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { SectionHeader } from "@/components/ui/section-header";
+import { AnimatedText } from "@/components/motion/animated-text";
 import CartItems from "./cart-items";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Shopping Cart | PurestStem Pakistan",
@@ -15,27 +17,13 @@ export const metadata: Metadata = {
   },
 };
 
-async function getRecommendations() {
-  return await prisma.product.findMany({
-    where: { isActive: true },
-    include: { category: true },
-    orderBy: { createdAt: "desc" },
-    take: 4,
-  });
-}
-
 export default async function CartPage() {
-  const recommendations = await getRecommendations();
+  const recommendations = await getBestsellers(4);
 
   return (
-    <Container className="py-8 pb-16">
+    <Container className="py-8 lg:py-12">
       <Breadcrumb items={[{ label: "Cart" }]} />
-      <SectionHeader
-        align="left"
-        className="mt-4 mb-8"
-        title="Shopping Cart"
-        subtitle="Review your items and proceed to checkout for cash on delivery across Pakistan."
-      />
+      <h1 className="heading-lg mb-8 mt-5 text-green-950"><AnimatedText text="Your cart" /></h1>
       <CartItems recommendations={recommendations} />
     </Container>
   );

@@ -1,19 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Leaf, Calendar, Sparkles, ChevronRight, Clock, User } from "lucide-react";
-import { prisma } from "@/lib/db";
-import { PageSection } from "@/components/layout/page-section";
-import { SectionHeader } from "@/components/ui/section-header";
+import { Leaf, ArrowRight } from "lucide-react";
+import { getBlogCategories, getPublishedPosts } from "@/lib/catalog";
+import { Container } from "@/components/layout/container";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { FadeIn } from "@/components/animations/fade-in";
-import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
-import { SITE_URL, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { PageHero } from "@/components/layout/page-hero";
+import { SmartImage } from "@/components/ui/smart-image";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import { readingTime } from "@/lib/blog-content";
 import JsonLd from "@/components/json-ld";
 import { buildBreadcrumbSchema } from "@/lib/structured-data";
-import type { Metadata } from "next";
-
-export const dynamic = "force-dynamic";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "PurestStem Blog | Herbal Hair Care & Skincare Tips for Pakistan",
@@ -48,43 +45,8 @@ export const metadata: Metadata = {
   },
 };
 
-async function getPublishedBlogPosts(categorySlug?: string) {
-  const now = new Date();
-  const where: Record<string, unknown> = {
-    AND: [
-      {
-        OR: [
-          { status: "published" },
-          { published: true, status: { not: "draft" } },
-        ],
-      },
-      {
-        OR: [
-          { scheduledAt: null },
-          { scheduledAt: { lte: now } },
-        ],
-      },
-    ],
-  };
-
-  if (categorySlug) {
-    where.category = { slug: categorySlug };
-  }
-
-  return await prisma.blogPost.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: true,
-    },
-  });
-}
-
-async function getCategories() {
-  return await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
-}
+const formatDate = (date: Date | string) =>
+  new Date(date).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
 
 export default async function BlogListingPage({
   searchParams,
@@ -92,175 +54,124 @@ export default async function BlogListingPage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category } = await searchParams;
-  const [posts, categories] = await Promise.all([
-    getPublishedBlogPosts(category),
-    getCategories(),
-  ]);
+  const [allPosts, categories] = await Promise.all([getPublishedPosts(), getBlogCategories()]);
+  const posts = category ? allPosts.filter((post) => post.category?.slug === category) : allPosts;
+  const [lead, ...rest] = posts;
 
-  const breadcrumbsSchema = buildBreadcrumbSchema(
-    [
-      { label: "Home", href: "/" },
-      { label: "Blog", href: "/blog" },
-      ...(category ? [{ label: `Category: ${category}` }] : []),
-    ],
-    SITE_URL
-  );
+  const pill = "whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors";
+  const pillState = (active: boolean) =>
+    active ? "bg-green-900 text-white" : "bg-white text-gray-700 ring-1 ring-inset ring-line hover:text-green-900";
 
   return (
-    <div className="pb-16">
-      <JsonLd data={breadcrumbsSchema} />
+    <>
+      <PageHero
+        crumbs={[{ label: "Blog" }]}
+        eyebrow="The journal"
+        title="Herbal guides for healthy hair and skin"
+        accent={["healthy"]}
+      />
+      <Container className="py-8 lg:py-12">
+      <JsonLd
+        data={buildBreadcrumbSchema(
+          [
+            { label: "Home", href: "/" },
+            { label: "Blog", href: "/blog" },
+            ...(category ? [{ label: `Category: ${category}` }] : []),
+          ],
+          SITE_URL
+        )}
+      />
+      {categories.length > 0 && (
+        <nav aria-label="Blog categories" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-0.5 sm:mx-0 sm:px-0.5">
+          <Link href="/blog" aria-current={!category ? "page" : undefined} className={cn(pill, pillState(!category))}>
+            All articles
+          </Link>
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/blog?category=${cat.slug}`}
+              aria-current={category === cat.slug ? "page" : undefined}
+              className={cn(pill, pillState(category === cat.slug))}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </nav>
+      )}
 
-      {/* Hero Header */}
-      <PageSection background="dark" padding="lg">
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-            backgroundSize: "32px 32px",
-          }}
+      {!lead ? (
+        <EmptyState
+          icon={Leaf}
+          title="No articles found"
+          description="We're preparing new guides for this section."
+          action={
+            <Link href="/shop/products" className="btn btn-primary">
+              Browse products <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          }
         />
-        <FadeIn className="relative text-center max-w-3xl mx-auto">
-          <Breadcrumb items={[{ label: "Blog" }]} className="justify-center flex mb-6 text-white/70" />
-          <SectionHeader
-            titleAs="h1"
-            light
-            eyebrow="Herbal Insights & Wellness Guides"
-            eyebrowIcon={Sparkles}
-            title={
-              <>
-                From Our <span className="text-green-300">Blog</span>
-              </>
-            }
-            subtitle="Scientifically backed and traditionally rooted advice on hair repair, glowing skin, digestive herbal teas, and natural living."
-          />
+      ) : (
+        <>
+          <article className="enter group mt-10 border-b border-line pb-12">
+            <Link href={`/blog/${lead.slug}`} className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
+              <div className="img-zoom relative aspect-[3/2] overflow-hidden rounded-3xl bg-green-200">
+                <SmartImage
+                  src={lead.image}
+                  alt={lead.imageAlt || lead.title}
+                  fill
+                  preload
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">
+                  {lead.category?.name && <span className="font-medium text-green-800">{lead.category.name} · </span>}
+                  {readingTime(lead.content)} min read
+                </p>
+                <h2 className="mt-3 font-display text-3xl leading-tight text-green-950 group-hover:text-green-800 sm:text-4xl">
+                  {lead.title}
+                </h2>
+                <p className="mt-3 line-clamp-3 leading-relaxed text-gray-600">
+                  {lead.excerpt || lead.seoDescription}
+                </p>
+                <p className="mt-4 text-sm text-gray-600">{formatDate(lead.publishedAt || lead.createdAt)}</p>
+              </div>
+            </Link>
+          </article>
 
-          {/* Category Filter Pills */}
-          {categories.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
-              <Link
-                href="/blog"
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  !category
-                    ? "bg-green-400 text-green-950 shadow-md scale-105"
-                    : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
-                }`}
-              >
-                All Articles
-              </Link>
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/blog?category=${cat.slug}`}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    category === cat.slug
-                      ? "bg-green-400 text-green-950 shadow-md scale-105"
-                      : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
-                  }`}
-                >
-                  {cat.name}
-                </Link>
+          {rest.length > 0 && (
+            <div className="mt-12 grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+              {rest.map((post) => (
+                <article key={post.id} className="reveal group">
+                  <Link href={`/blog/${post.slug}`} className="block">
+                    <div className="img-zoom relative aspect-[3/2] overflow-hidden rounded-2xl bg-green-200">
+                      <SmartImage
+                        src={post.image}
+                        alt={post.imageAlt || post.title}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <p className="mt-4 text-sm text-gray-600">
+                      {post.category?.name && <span className="font-medium text-green-800">{post.category.name} · </span>}
+                      {readingTime(post.content)} min read
+                    </p>
+                    <h2 className="mt-1.5 font-display text-xl leading-snug text-green-950 group-hover:text-green-800">
+                      {post.title}
+                    </h2>
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
+                      {post.excerpt || post.seoDescription}
+                    </p>
+                  </Link>
+                </article>
               ))}
             </div>
           )}
-        </FadeIn>
-      </PageSection>
-
-      {/* Blog Cards Grid */}
-      <PageSection background="white">
-        {posts.length === 0 ? (
-          <EmptyState
-            icon={Leaf}
-            title="No articles found"
-            description="We're currently preparing new guides for this section. Explore our herbal products in the meantime!"
-            action={
-              <Link
-                href="/shop/products"
-                className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg"
-              >
-                Browse Products <ChevronRight className="w-4 h-4" />
-              </Link>
-            }
-          />
-        ) : (
-          <StaggerContainer staggerDelay={0.12} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => {
-              const displayDate = post.publishedAt || post.createdAt;
-              const readTime = readingTime(post.content);
-
-              return (
-                <StaggerItem key={post.id}>
-                  <article className="group h-full bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-green-200 hover:shadow-xl transition-all flex flex-col">
-                    <Link href={`/blog/${post.slug}`} className="block h-full flex flex-col">
-                      {/* Featured Image */}
-                      <div className="aspect-[16/10] bg-gray-100 overflow-hidden relative">
-                        {post.image ? (
-                          <img
-                            src={post.image}
-                            alt={post.imageAlt || post.title}
-                            width={post.imageWidth || 600}
-                            height={post.imageHeight || 375}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 bg-green-50">
-                            <Leaf className="w-10 h-10 text-green-600/40" />
-                          </div>
-                        )}
-                        {post.category && (
-                          <span className="absolute top-3 left-3 bg-green-900/80 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1 rounded-full">
-                            {post.category.name}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Content Info */}
-                      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3 text-xs text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5" />
-                              {new Date(displayDate).toLocaleDateString("en-PK", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {readTime} min read
-                            </span>
-                          </div>
-
-                          <h2 className="text-xl font-bold text-gray-900 group-hover:text-green-700 transition-colors line-clamp-2 leading-snug">
-                            {post.title}
-                          </h2>
-
-                          <p className="text-gray-600 text-xs leading-relaxed line-clamp-3">
-                            {post.excerpt || post.seoDescription}
-                          </p>
-                        </div>
-
-                        {/* Card Footer */}
-                        <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-green-700">
-                          <div className="flex items-center gap-1.5 text-gray-600 font-normal">
-                            <User className="w-3.5 h-3.5 text-gray-400" />
-                            <span className="truncate max-w-[120px]">{post.author}</span>
-                          </div>
-                          <span className="inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                            Read Article <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
-        )}
-      </PageSection>
-    </div>
+        </>
+      )}
+    </Container>
+    </>
   );
 }

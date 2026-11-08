@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Plus, Minus, X, ArrowRight, Truck, Gift, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingBag, Plus, Minus, X, ArrowRight } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/utils";
+import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/shipping";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SmartImage } from "@/components/ui/smart-image";
 import ProductCard from "@/components/product-card";
-import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 
 interface CartItemsProps {
   recommendations: {
@@ -18,205 +18,142 @@ interface CartItemsProps {
     salePrice?: number | null;
     image?: string | null;
     images?: string | null;
+    stock?: number;
     category: { name: string };
   }[];
 }
 
 export default function CartItems({ recommendations }: CartItemsProps) {
-  const { items, removeItem, updateQuantity, total } = useCart();
-  const shippingCost = total >= 5000 ? 0 : 190;
-  const finalTotal = total + shippingCost;
-  const progressPercent = Math.min((total / 5000) * 100, 100);
-  const remainingForFree = Math.max(0, 5000 - total);
+  const { items, removeItem, updateQuantity, total, isReady } = useCart();
+  const shippingCost = shippingFor(total);
+  const progressPercent = Math.min((total / FREE_SHIPPING_THRESHOLD) * 100, 100);
+  const remainingForFree = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
+
+  const recommendationSection = recommendations.length > 0 && (
+    <section className="mt-16 border-t border-line pt-12">
+      <h2 className="font-display text-3xl text-green-950">You might also like</h2>
+      <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
+        {recommendations.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    </section>
+  );
+
+  if (!isReady) {
+    return <div className="surface h-48 animate-pulse !bg-green-100/50" aria-label="Loading your cart" />;
+  }
 
   if (items.length === 0) {
     return (
-      <div className="space-y-16">
+      <>
         <EmptyState
           icon={ShoppingBag}
           title="Your cart is empty"
-          description="Looks like you haven't added anything to your cart yet. Explore our herbal collection!"
+          description="Explore our herbal collection and find what your hair needs."
           action={
-            <Link
-              href="/shop/products"
-              className="inline-flex items-center gap-2 bg-green-700 text-white px-8 py-3.5 rounded-full font-medium hover:bg-green-800 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
-            >
-              Start Shopping
-              <ArrowRight className="w-4 h-4" />
+            <Link href="/shop/products" className="btn btn-primary">
+              Start shopping <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           }
         />
-
-        {recommendations.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-green-600" />
-              <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">You Might Also Like</h2>
-            </div>
-            <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {recommendations.map((product) => (
-                <StaggerItem key={product.id}>
-                  <ProductCard product={product} />
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </section>
-        )}
-      </div>
+        {recommendationSection}
+      </>
     );
   }
 
   return (
-    <div className="space-y-16">
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <AnimatePresence mode="popLayout">
-            <div className="space-y-4">
-              {items.map((item) => (
-                <motion.div
-                  key={item.productId}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -40, scale: 0.95 }}
-                  transition={{ duration: 0.25 }}
-                  className="flex gap-4 bg-white p-4 rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-md transition-all"
-                >
-                  <div className="w-24 h-24 bg-gray-100 rounded-xl flex-shrink-0 flex items-center justify-center text-xs text-gray-400 overflow-hidden">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+    <>
+      <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
+        <ul className="divide-y divide-line border-y border-line lg:col-span-2">
+          {items.map((item) => (
+            <li key={item.productId} className="flex gap-4 py-5">
+              <div className="surface relative h-24 w-24 shrink-0 overflow-hidden sm:h-28 sm:w-28">
+                <SmartImage src={item.image} alt="" fill sizes="112px" className="object-contain p-1.5" />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col justify-between">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    {item.slug ? (
+                      <Link href={`/shop/products/${item.slug}`} className="font-display text-lg leading-snug text-green-950 hover:text-green-800">
+                        {item.name}
+                      </Link>
                     ) : (
-                      <ShoppingBag className="w-6 h-6 text-gray-300" />
+                      <p className="font-display text-lg leading-snug text-green-950">{item.name}</p>
                     )}
+                    <p className="text-sm text-gray-600">{formatPrice(item.price)} each</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start">
-                      <div className="min-w-0">
-                        <Link
-                          href={`/shop/products/${item.productId}`}
-                          className="font-medium text-gray-900 hover:text-green-700 transition-colors truncate block"
-                        >
-                          {item.name}
-                        </Link>
-                        <p className="text-sm text-gray-500">{formatPrice(item.price)} each</p>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.productId)}
-                        className="p-2 min-w-[44px] min-h-[44px] text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
-                        aria-label={`Remove ${item.name}`}
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-3 mt-4">
-                      <div className="flex items-center bg-gray-50 rounded-xl border border-gray-200">
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-green-100 transition-colors rounded-l-xl"
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-10 text-center font-medium text-sm">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-green-100 transition-colors rounded-r-xl"
-                          aria-label="Increase quantity"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <span className="ml-auto font-semibold text-gray-900">{formatPrice(item.price * item.quantity)}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </AnimatePresence>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="lg:col-span-1"
-        >
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-24">
-            <h2 className="text-lg font-semibold mb-5 text-gray-900">Order Summary</h2>
-
-            <div className="space-y-3 mb-5">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Subtotal</span>
-                <span className="font-medium">{formatPrice(total)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Shipping</span>
-                <span className={shippingCost === 0 ? "text-green-600 font-semibold" : "font-medium"}>
-                  {shippingCost === 0 ? "Free" : formatPrice(shippingCost)}
-                </span>
-              </div>
-            </div>
-
-            {remainingForFree > 0 && (
-              <div className="mb-5 p-3 bg-green-50 rounded-xl border border-green-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <Gift className="w-4 h-4 text-green-600" />
-                  <p className="text-sm text-green-700 font-medium">
-                    Add {formatPrice(remainingForFree)} more for free shipping!
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.productId)}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                    aria-label={`Remove ${item.name}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="w-full bg-green-200 rounded-full h-2">
-                  <div
-                    className="bg-green-600 h-2 rounded-full transition-all"
-                    style={{ width: `${progressPercent}%` }}
-                  />
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center overflow-hidden rounded-full border border-line bg-white">
+                    <button
+                      type="button"
+                      onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                      className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-green-100"
+                      aria-label={`Decrease quantity of ${item.name}`}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-7 text-center text-sm font-medium">{item.quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                      className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-green-100"
+                      aria-label={`Increase quantity of ${item.name}`}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <span className="font-semibold text-gray-900">{formatPrice(item.price * item.quantity)}</span>
                 </div>
               </div>
-            )}
+            </li>
+          ))}
+        </ul>
 
-            {/*  Total  */}
-            <div className="border-t pt-4 mb-5">
-              <div className="flex justify-between text-xl font-bold text-gray-900">
-                <span>Total</span>
-                <span>{formatPrice(finalTotal)}</span>
+        <aside className="surface h-fit p-6 lg:sticky lg:top-28">
+          <h2 className="font-display text-2xl text-green-950">Order summary</h2>
+
+          {remainingForFree > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-green-800">Add {formatPrice(remainingForFree)} more for free shipping</p>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-green-100">
+                <div className="h-full rounded-full bg-green-800" style={{ width: `${progressPercent}%` }} />
               </div>
             </div>
+          )}
 
-            <div className="mb-5 p-4 bg-gray-50 rounded-xl flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Truck className="w-5 h-5 text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">Cash on Delivery</p>
-                <p className="text-xs text-gray-500">Pay when you receive your order</p>
-              </div>
+          <dl className="mt-5 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Subtotal</dt>
+              <dd className="font-medium">{formatPrice(total)}</dd>
             </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Shipping</dt>
+              <dd className="font-medium">{shippingCost === 0 ? "Free" : formatPrice(shippingCost)}</dd>
+            </div>
+            <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold text-gray-900">
+              <dt>Total</dt>
+              <dd>{formatPrice(total + shippingCost)}</dd>
+            </div>
+          </dl>
 
-            <Link
-              href="/shop/checkout"
-              className="block w-full min-h-[48px] bg-green-700 text-white text-center py-3.5 rounded-full font-semibold hover:bg-green-800 transition-all shadow-lg shadow-green-700/20 hover:shadow-xl hover:scale-[1.02]"
-            >
-              Proceed to Checkout
-            </Link>
-          </div>
-        </motion.div>
+          <Link href="/shop/checkout" className="btn btn-primary mt-5 w-full">
+            Proceed to checkout
+          </Link>
+          <p className="mt-3 text-center text-xs text-gray-600">Pay cash when your order arrives</p>
+        </aside>
       </div>
 
-      {recommendations.length > 0 && (
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <Sparkles className="w-5 h-5 text-green-600" />
-            <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">You Might Also Like</h2>
-          </div>
-          <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {recommendations.map((product) => (
-              <StaggerItem key={product.id}>
-                <ProductCard product={product} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </section>
-      )}
-    </div>
+      {recommendationSection}
+    </>
   );
 }

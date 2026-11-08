@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { SITE_URL } from "@/lib/site";
-import { ChevronRight, Home } from "lucide-react";
-import JsonLd from "@/components/json-ld";
+import { ChevronRight } from "lucide-react";
 
 interface BreadcrumbItem {
   label: string;
@@ -12,50 +10,31 @@ interface BreadcrumbItem {
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
   className?: string;
-  showHome?: boolean;
+  light?: boolean;
 }
 
-export function Breadcrumb({ items, className, showHome = true }: BreadcrumbProps) {
-  const allItems: BreadcrumbItem[] = showHome
-    ? [{ label: "Home", href: "/" }, ...items]
-    : items;
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: allItems.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.label,
-      item: item.href ? `${SITE_URL}${item.href}` : undefined,
-    })),
-  };
+/** Visible trail only. Pages add their own BreadcrumbList JSON-LD where indexed. */
+export function Breadcrumb({ items, className, light = false }: BreadcrumbProps) {
+  const allItems: BreadcrumbItem[] =
+    items[0]?.label === "Home" ? items : [{ label: "Home", href: "/" }, ...items];
 
   return (
-    <nav aria-label="Breadcrumb" className={cn("py-4", className)}>
-      <JsonLd data={structuredData} />
-      <ol className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
+    <nav aria-label="Breadcrumb" className={className}>
+      <ol className={cn("flex flex-wrap items-center gap-1.5 text-sm", light ? "text-green-100/80" : "text-gray-600")}>
         {allItems.map((item, index) => {
           const isLast = index === allItems.length - 1;
           return (
-            <li key={item.label + index} className="flex items-center gap-2">
-              {index > 0 && <ChevronRight className="w-4 h-4 text-gray-300" />}
+            <li key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
+              {index > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" aria-hidden="true" />}
               {isLast || !item.href ? (
                 <span
-                  className={cn(
-                    "flex items-center gap-1.5",
-                    isLast ? "text-gray-900 font-medium truncate max-w-[200px]" : "text-gray-500"
-                  )}
+                  aria-current={isLast ? "page" : undefined}
+                  className={cn("max-w-[14rem] truncate", isLast && (light ? "text-white" : "text-green-950"))}
                 >
-                  {index === 0 && showHome && <Home className="w-4 h-4" />}
                   {item.label}
                 </span>
               ) : (
-                <Link
-                  href={item.href}
-                  className="flex items-center gap-1.5 hover:text-green-700 transition-colors"
-                >
-                  {index === 0 && showHome && <Home className="w-4 h-4" />}
+                <Link href={item.href} className={cn("transition-colors", light ? "hover:text-white" : "hover:text-green-900")}>
                   {item.label}
                 </Link>
               )}

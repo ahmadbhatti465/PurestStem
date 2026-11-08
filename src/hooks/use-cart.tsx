@@ -15,6 +15,7 @@ import { trackAddToCart } from "@/lib/meta/pixel";
 export interface CartItem {
   productId: string;
   name: string;
+  slug?: string;
   price: number;
   quantity: number;
   image?: string;
@@ -30,6 +31,8 @@ interface CartContextType {
   itemCount: number;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  /** False until the saved cart has loaded in the browser. */
+  isReady: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -100,6 +103,7 @@ async function fetchDbCart(): Promise<CartItem[]> {
     quantity: number;
     product?: {
       name?: string;
+      slug?: string;
       salePrice?: number | null;
       price?: number;
       image?: string | null;
@@ -109,6 +113,7 @@ async function fetchDbCart(): Promise<CartItem[]> {
   return (data as DbCartItem[]).map((dbItem) => ({
     productId: dbItem.productId,
     name: dbItem.product?.name ?? "Product",
+    slug: dbItem.product?.slug,
     price: dbItem.product?.salePrice ?? dbItem.product?.price ?? 0,
     quantity: dbItem.quantity ?? 1,
     image:
@@ -399,8 +404,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       itemCount,
       isOpen,
       setIsOpen,
+      isReady: ready,
     }),
-    [items, addItem, removeItem, updateQuantity, clearCart, total, itemCount, isOpen]
+    [items, addItem, removeItem, updateQuantity, clearCart, total, itemCount, isOpen, ready]
   );
 
   return (

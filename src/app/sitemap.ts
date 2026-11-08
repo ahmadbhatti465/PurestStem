@@ -2,6 +2,9 @@ import { prisma } from "@/lib/db";
 import { SITE_URL } from "@/lib/site";
 import type { MetadataRoute } from "next";
 
+// Refresh periodically so new products and articles reach search engines without a deploy.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
   const now = new Date();
@@ -12,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
     { url: `${baseUrl}/shop/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/shop/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/shop/shipping-returns`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
   ];
 
   // Only include active, published/scheduled-due, and indexable products

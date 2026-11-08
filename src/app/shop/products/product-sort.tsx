@@ -1,13 +1,12 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { ArrowUpDown } from "lucide-react";
 
 const sortOptions = [
   { value: "featured", label: "Featured" },
   { value: "newest", label: "Newest" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
+  { value: "price-asc", label: "Price: low to high" },
+  { value: "price-desc", label: "Price: high to low" },
   { value: "name-asc", label: "Name: A to Z" },
 ];
 
@@ -24,17 +23,17 @@ export function ProductSort() {
     } else {
       params.set("sort", value);
     }
-    router.push(`${pathname}?${params.toString()}`);
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <ArrowUpDown className="w-4 h-4 text-gray-500" />
+    <label className="flex shrink-0 items-center gap-2 text-sm text-gray-600">
+      Sort by
       <select
         value={currentSort}
         onChange={(e) => handleChange(e.target.value)}
-        aria-label="Sort products"
-        className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-all cursor-pointer"
+        className="min-h-10 cursor-pointer rounded-full border border-line bg-white px-3 py-2 text-sm text-gray-800"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
@@ -42,6 +41,6 @@ export function ProductSort() {
           </option>
         ))}
       </select>
-    </div>
+    </label>
   );
 }

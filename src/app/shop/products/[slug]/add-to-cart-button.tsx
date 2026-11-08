@@ -1,14 +1,14 @@
 "use client";
 
-import { ShoppingCart, Check, Minus, Plus } from "lucide-react";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { Check, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { getPrimaryImage } from "@/lib/utils";
 
-interface Product {
+export interface PurchasableProduct {
   id: string;
   name: string;
+  slug: string;
   price: number;
   salePrice?: number | null;
   stock: number;
@@ -16,20 +16,11 @@ interface Product {
   images?: string | null;
 }
 
-interface AddToCartButtonProps {
-  product: Product;
-  variant?: "default" | "sticky";
-  quantity?: number;
-  increase?: () => void;
-  decrease?: () => void;
-  handleAdd?: () => void;
-  added?: boolean;
-}
-
-export function useAddToCart(product: Product) {
+export function useAddToCart(product: PurchasableProduct) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
 
   const increase = () => setQuantity((q) => Math.min(q + 1, product.stock));
   const decrease = () => setQuantity((q) => Math.max(q - 1, 1));
@@ -39,12 +30,14 @@ export function useAddToCart(product: Product) {
     addItem({
       productId: product.id,
       name: product.name,
+      slug: product.slug,
       price: product.salePrice || product.price,
       quantity,
       image: getPrimaryImage(product.image, product.images) || undefined,
     });
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setAdded(false), 1500);
   };
 
   return { quantity, increase, decrease, handleAdd, added };
@@ -55,127 +48,54 @@ export function QuantityStepper({
   increase,
   decrease,
   stock,
-  compact = false,
 }: {
   quantity: number;
   increase: () => void;
   decrease: () => void;
   stock: number;
-  compact?: boolean;
 }) {
-  const size = compact ? "px-2.5 py-2" : "px-4 py-3";
+  const button =
+    "flex h-12 w-11 items-center justify-center text-green-950 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
-    <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-      <button
-        type="button"
-        onClick={decrease}
-        disabled={quantity <= 1 || stock <= 0}
-        className={`${size} min-w-[44px] min-h-[44px] text-gray-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
-        aria-label="Decrease quantity"
-      >
-        <Minus className="w-4 h-4" />
+    <div className="flex shrink-0 items-center overflow-hidden rounded-full border border-line bg-white">
+      <button type="button" onClick={decrease} disabled={quantity <= 1 || stock <= 0} className={button} aria-label="Decrease quantity">
+        <Minus className="h-4 w-4" />
       </button>
-      <span className={`${compact ? "w-9" : "w-12"} text-center font-semibold text-gray-900 select-none`}>
+      <span className="w-7 select-none text-center font-medium" aria-live="polite">
         {quantity}
       </span>
-      <button
-        type="button"
-        onClick={increase}
-        disabled={quantity >= stock || stock <= 0}
-        className={`${size} min-w-[44px] min-h-[44px] text-gray-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
-        aria-label="Increase quantity"
-      >
-        <Plus className="w-4 h-4" />
+      <button type="button" onClick={increase} disabled={quantity >= stock || stock <= 0} className={button} aria-label="Increase quantity">
+        <Plus className="h-4 w-4" />
       </button>
     </div>
   );
 }
 
 export default function AddToCartButton({
-  product,
-  variant = "default",
-  quantity: externalQuantity,
-  increase: externalIncrease,
-  decrease: externalDecrease,
-  handleAdd: externalHandleAdd,
-  added: externalAdded,
-}: AddToCartButtonProps) {
-  const hook = useAddToCart(product);
-  const quantity = externalQuantity ?? hook.quantity;
-  const increase = externalIncrease ?? hook.increase;
-  const decrease = externalDecrease ?? hook.decrease;
-  const handleAdd = externalHandleAdd ?? hook.handleAdd;
-  const added = externalAdded ?? hook.added;
-
-  if (variant === "sticky") {
-    return (
-      <motion.button
-        onClick={handleAdd}
-        disabled={product.stock <= 0}
-        whileTap={product.stock > 0 ? { scale: 0.96 } : undefined}
-        className={`flex-1 min-h-[48px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all ${
-          product.stock <= 0
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : added
-            ? "bg-green-100 text-green-800"
-            : "bg-green-700 text-white hover:bg-green-800 shadow-lg"
-        }`}
-      >
-        {added ? (
-          <>
-            <Check className="w-4 h-4" /> Added
-          </>
-        ) : product.stock > 0 ? (
-          <>
-            <ShoppingCart className="w-4 h-4" /> Add to Cart
-          </>
-        ) : (
-          <>Out of Stock</>
-        )}
-      </motion.button>
-    );
-  }
-
+  stock,
+  handleAdd,
+  added,
+  className = "",
+}: {
+  stock: number;
+  handleAdd: () => void;
+  added: boolean;
+  className?: string;
+}) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-      <QuantityStepper
-        quantity={quantity}
-        increase={increase}
-        decrease={decrease}
-        stock={product.stock}
-      />
-
-      <motion.button
-        onClick={handleAdd}
-        disabled={product.stock <= 0}
-        whileTap={product.stock > 0 ? { scale: 0.96 } : undefined}
-        className={`min-h-[48px] inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-base transition-all ${
-          product.stock <= 0
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : added
-            ? "bg-green-100 text-green-800"
-            : "bg-green-700 text-white hover:bg-green-800 shadow-lg hover:shadow-xl"
-        }`}
-      >
-        {added ? (
-          <motion.span
-            key="added"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2"
-          >
-            <Check className="w-5 h-5" /> Added
-          </motion.span>
-        ) : product.stock > 0 ? (
-          <>
-            <ShoppingCart className="w-5 h-5" /> Add to Cart
-          </>
-        ) : (
-          <>Out of Stock</>
-        )}
-      </motion.button>
-    </div>
+    <button type="button" onClick={handleAdd} disabled={stock <= 0} className={`btn btn-primary ${className}`}>
+      {stock <= 0 ? (
+        "Sold out"
+      ) : added ? (
+        <>
+          <Check className="h-4 w-4" aria-hidden="true" /> Added to cart
+        </>
+      ) : (
+        <>
+          <ShoppingBag className="h-4 w-4" aria-hidden="true" /> Add to cart
+        </>
+      )}
+    </button>
   );
 }

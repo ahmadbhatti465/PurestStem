@@ -3,22 +3,24 @@ import { Inter, Playfair_Display } from "next/font/google";
 import MetaPixel from "@/components/meta-pixel";
 import { Providers } from "@/components/providers";
 import SiteChrome from "@/components/layout/site-chrome";
+import PromoBar from "@/components/layout/promo-bar";
+import Footer from "@/components/layout/footer";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
+import "./motion.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 const display = Playfair_Display({
+  weight: "500",
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-display",
+  variable: "--font-playfair",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: `${SITE_NAME} | Premium Herbal Products in Pakistan - 100% Natural`,
-    template: `%s | ${SITE_NAME}`,
-  },
+  // Every page title already includes the brand, so no template is applied.
+  title: `${SITE_NAME} | Premium Herbal Products in Pakistan - 100% Natural`,
   description:
     "Pakistan's trusted herbal brand since 1964. Buy 100% natural herbal shampoos, hair oils, herbal teas, soaps and skin care products. Cash on delivery across Pakistan. Free shipping over ₨ 5,000.",
   keywords: [
@@ -58,8 +60,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: `${SITE_URL}/hero-section.png`,
-        width: 1200,
-        height: 630,
+        width: 934,
+        height: 1024,
         alt: "PurestStem herbal products collection",
       },
     ],
@@ -92,7 +94,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
-          <SiteChrome>{children}</SiteChrome>
+          <SiteChrome promoBar={<PromoBar />} footer={<Footer />}>
+            {children}
+          </SiteChrome>
         </Providers>
       </body>
     </html>

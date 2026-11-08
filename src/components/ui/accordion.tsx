@@ -1,6 +1,4 @@
-"use client";
-
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ReactNode } from "react";
 
 interface AccordionProps {
@@ -10,29 +8,14 @@ interface AccordionProps {
   defaultOpen?: boolean;
 }
 
-export default function Accordion({
-  title,
-  children,
-  icon,
-  defaultOpen = false,
-}: AccordionProps) {
+export default function Accordion({ title, children, defaultOpen = false }: AccordionProps) {
   return (
-    <details
-      className="group rounded-2xl border border-gray-100 bg-white overflow-hidden"
-      open={defaultOpen}
-    >
-      <summary className="flex cursor-pointer items-center justify-between gap-3 p-4 text-base font-semibold text-gray-900 list-none [&::-webkit-details-marker]:hidden transition-colors hover:bg-gray-50">
-        <span className="flex items-center gap-2">
-          {icon && <span className="text-green-600">{icon}</span>}
-          {title}
-        </span>
-        <ChevronDown className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180" />
+    <details className="group border-b border-line" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-display text-lg text-green-950 [&::-webkit-details-marker]:hidden">
+        {title}
+        <Plus className="h-5 w-5 shrink-0 text-green-800 transition-transform duration-200 group-open:rotate-45" aria-hidden="true" />
       </summary>
-      <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-open:grid-rows-[1fr]">
-        <div className="overflow-hidden px-4 pb-4">
-          {children}
-        </div>
-      </div>
+      <div className="pb-5">{children}</div>
     </details>
   );
 }

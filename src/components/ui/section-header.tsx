@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
 import { type ReactNode, type ElementType } from "react";
 import { type LucideIcon } from "lucide-react";
+import { AnimatedText } from "@/components/motion/animated-text";
 
 interface SectionHeaderProps {
   eyebrow?: string;
+  /** Kept for existing callers; the new eyebrow style has no icon. */
   eyebrowIcon?: LucideIcon;
   title: ReactNode;
   subtitle?: ReactNode;
@@ -16,10 +18,9 @@ interface SectionHeaderProps {
 
 export function SectionHeader({
   eyebrow,
-  eyebrowIcon: EyebrowIcon,
   title,
   subtitle,
-  align = "center",
+  align = "left",
   action,
   className,
   titleAs: TitleComponent = "h2",
@@ -28,47 +29,24 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4",
-        align === "center" ? "text-center items-center" : "text-left items-start",
+        "flex flex-col gap-5",
+        align === "center" ? "items-center text-center" : "items-start text-left",
+        action && "sm:flex-row sm:items-end sm:justify-between",
         className
       )}
     >
-      {eyebrow && (
-        <span
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium w-fit",
-            light
-              ? "bg-white/10 text-green-100 border border-white/10 backdrop-blur-sm"
-              : "bg-green-100 text-green-800"
-          )}
-        >
-          {EyebrowIcon && <EyebrowIcon className="w-4 h-4" />}
-          {eyebrow}
-        </span>
-      )}
-      <div className={cn("flex flex-col gap-3", align === "center" ? "items-center" : "items-start", align === "left" && action && "sm:flex-row sm:items-end sm:justify-between sm:w-full")}>
-        <div className={cn("flex flex-col gap-3", align === "center" ? "items-center" : "items-start")}>
-          <TitleComponent
-            className={cn(
-              "font-display text-3xl md:text-4xl lg:text-5xl font-bold leading-tight",
-              light ? "text-white" : "text-gray-900"
-            )}
-          >
-            {title}
-          </TitleComponent>
-          {subtitle && (
-            <p
-              className={cn(
-                "max-w-2xl text-base md:text-lg",
-                light ? "text-green-100/80" : "text-gray-600"
-              )}
-            >
-              {subtitle}
-            </p>
-          )}
-        </div>
-        {action && <div className="flex-shrink-0">{action}</div>}
+      <div className={cn("flex max-w-3xl flex-col gap-3", align === "center" && "items-center")}>
+        {eyebrow && <span className={cn("eyebrow", light && "eyebrow-light")}>{eyebrow}</span>}
+        <TitleComponent className={cn("heading-lg", light ? "text-white" : "text-green-950")}>
+          {typeof title === "string" ? <AnimatedText mode="scroll" text={title} /> : title}
+        </TitleComponent>
+        {subtitle && (
+          <p className={cn("max-w-2xl text-base sm:text-lg", light ? "text-green-100/85" : "text-gray-600")}>
+            {subtitle}
+          </p>
+        )}
       </div>
+      {action && <div className="reveal shrink-0">{action}</div>}
     </div>
   );
 }

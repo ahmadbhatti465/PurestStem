@@ -1,178 +1,156 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { X, Plus, Minus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
-import { formatPrice } from "@/lib/utils";
+import { SmartImage } from "@/components/ui/smart-image";
+import { cn, formatPrice } from "@/lib/utils";
+import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/shipping";
 
 export default function CartDrawer() {
   const { items, removeItem, updateQuantity, total, isOpen, setIsOpen } = useCart();
-  // eslint-disable-next-line no-console
-  console.log("[CartDrawer] render, items:", items.length, "isOpen:", isOpen);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const shipping = shippingFor(total);
+  const remaining = FREE_SHIPPING_THRESHOLD - total;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    closeRef.current?.focus();
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, setIsOpen]);
+
+  const qtyButton =
+    "flex h-9 w-9 items-center justify-center text-green-950 transition-colors hover:bg-green-100";
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+    <>
+      <div
+        className={cn(
+          "fixed inset-0 z-50 bg-green-950/50 transition-opacity duration-200",
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping cart"
+        inert={!isOpen}
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-green-50 transition-transform duration-300 ease-out sm:w-[26rem]",
+          isOpen ? "translate-x-0" : "invisible translate-x-full"
+        )}
+      >
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
+          <h2 className="font-display text-2xl text-green-950">
+            Your cart <span className="font-sans text-sm text-gray-600">({items.length})</span>
+          </h2>
+          <button
+            ref={closeRef}
+            type="button"
             onClick={() => setIsOpen(false)}
-          />
-
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-50 flex flex-col"
+            aria-label="Close cart"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-green-950 transition-colors hover:bg-green-100"
           >
-            <div className="flex items-center justify-between p-5 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5 text-green-700" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">Your Cart</h2>
-                  <p className="text-xs text-gray-500">{items.length} {items.length === 1 ? "item" : "items"}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-green-100 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {items.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <ShoppingBag className="mb-4 h-10 w-10 text-green-700/40" strokeWidth={1.25} />
+              <p className="font-display text-xl text-green-950">Your cart is empty</p>
+              <p className="mb-5 mt-1 text-sm text-gray-600">Add something good for your hair.</p>
+              <Link href="/shop/products" onClick={() => setIsOpen(false)} className="btn btn-primary">
+                Shop products
+              </Link>
             </div>
-
-            <div className="flex-1 overflow-y-auto p-5">
-              {items.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center h-full text-center"
-                >
-                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
-                    <ShoppingBag className="w-10 h-10 text-gray-300" />
+          ) : (
+            <ul className="divide-y divide-line">
+              {items.map((item) => (
+                <li key={item.productId} className="flex gap-4 py-4 first:pt-0">
+                  <div className="surface relative h-20 w-20 shrink-0 overflow-hidden !rounded-xl">
+                    <SmartImage src={item.image} alt="" fill sizes="80px" className="object-contain p-1" />
                   </div>
-                  <p className="text-gray-900 font-medium mb-1">Your cart is empty</p>
-                  <p className="text-sm text-gray-500 mb-6 max-w-[200px]">Looks like you have not added anything yet.</p>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm text-green-700 font-medium hover:underline"
-                  >
-                    Continue Shopping
-                  </button>
-                </motion.div>
-              ) : (
-                <AnimatePresence mode="popLayout">
-                  {items.map((item) => (
-                    <motion.div
-                      key={item.productId}
-                      layout
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20, scale: 0.9 }}
-                      transition={{ duration: 0.25 }}
-                      className="flex gap-4 bg-green-50 p-4 rounded-xl mb-3"
-                    >
-                      <div className="w-20 h-20 bg-white rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-100">
-                        {item.image ? (
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <ShoppingBag className="w-6 h-6 text-gray-300" />
-                        )}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="line-clamp-2 text-sm font-medium text-gray-900">{item.name}</h3>
+                    <p className="mt-0.5 text-sm font-semibold text-green-900">{formatPrice(item.price)}</p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="flex items-center overflow-hidden rounded-full border border-line bg-white">
+                        <button
+                          type="button"
+                          className={qtyButton}
+                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                          aria-label={`Decrease quantity of ${item.name}`}
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="w-7 text-center text-sm font-medium">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className={qtyButton}
+                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          aria-label={`Increase quantity of ${item.name}`}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold truncate text-gray-900">{item.name}</h3>
-                        <p className="text-sm text-green-700 font-bold mt-1">
-                          {formatPrice(item.price)}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <button
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            className="w-7 h-7 flex items-center justify-center bg-white border rounded-md hover:bg-green-100 transition-colors"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="text-sm font-semibold w-6 text-center">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            className="w-7 h-7 flex items-center justify-center bg-white border rounded-md hover:bg-green-100 transition-colors"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={() => removeItem(item.productId)}
-                            className="ml-auto p-1.5 text-gray-400 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              )}
-            </div>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.productId)}
+                        aria-label={`Remove ${item.name}`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-            {items.length > 0 && (
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="border-t bg-green-50 p-5 space-y-4"
-              >
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-semibold">{formatPrice(total)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className={total >= 5000 ? "text-green-600 font-semibold" : "font-semibold"}>
-                      {total >= 5000 ? "Free" : formatPrice(190)}
-                    </span>
-                  </div>
-                  {total < 5000 && (
-                    <p className="text-xs text-green-600">
-                      Add {formatPrice(5000 - total)} more for free shipping
-                    </p>
-                  )}
-                  <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span>{formatPrice(total + (total >= 5000 ? 0 : 190))}</span>
-                  </div>
-                </div>
-
-                <Link
-                  href="/shop/checkout"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full bg-green-700 text-white py-3.5 rounded-xl font-semibold hover:bg-green-800 transition-colors shadow-lg shadow-green-700/20"
-                >
-                  Checkout
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="block w-full text-center py-2 text-sm text-gray-600 hover:text-gray-900 font-medium"
-                >
-                  Continue Shopping
-                </button>
-              </motion.div>
+        {items.length > 0 && (
+          <div className="space-y-3 border-t border-line bg-white px-5 py-4">
+            {remaining > 0 && (
+              <p className="text-xs text-green-800">Add {formatPrice(remaining)} more for free shipping</p>
             )}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-gray-600">Subtotal</dt>
+                <dd className="font-medium">{formatPrice(total)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-gray-600">Shipping</dt>
+                <dd className="font-medium">{shipping === 0 ? "Free" : formatPrice(shipping)}</dd>
+              </div>
+              <div className="flex justify-between border-t border-line pt-2 text-base font-semibold">
+                <dt>Total</dt>
+                <dd>{formatPrice(total + shipping)}</dd>
+              </div>
+            </dl>
+            <Link
+              href="/shop/checkout"
+              onClick={() => setIsOpen(false)}
+              className="btn btn-primary w-full"
+            >
+              Checkout <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

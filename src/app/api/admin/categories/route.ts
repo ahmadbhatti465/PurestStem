@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { refreshStorefront } from "@/lib/storefront-cache";
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
         description: body.description || null,
       },
     });
+    refreshStorefront();
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
