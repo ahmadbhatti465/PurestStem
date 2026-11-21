@@ -2,6 +2,7 @@
 
 import { X, Star, Leaf, Sparkles, Check, Truck, Banknote, ShieldCheck, Heart, Package, RotateCcw } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { sanitizeHtml } from "@/lib/html-sanitizer";
 
 interface ProductPreviewModalProps {
   isOpen: boolean;
@@ -262,7 +263,7 @@ export default function ProductPreviewModal({
             <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-3">
               <h3 className="text-base font-bold text-gray-900">Full Description</h3>
               <div
-                dangerouslySetInnerHTML={{ __html: product.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
                 className="prose prose-sm max-w-none text-gray-700 text-xs"
               />
             </div>

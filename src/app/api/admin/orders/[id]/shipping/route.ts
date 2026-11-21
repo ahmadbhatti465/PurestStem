@@ -1,33 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { requireApiSection, logAdminAction, isNotFound, readJson } from "@/lib/admin-auth";
+import { str } from "@/lib/admin-input";
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireApiSection("orders");
+  if (!auth.ok) return auth.response;
+
+  const body = await readJson(req);
+  if (!body) return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+
+  const field = (key: string) => (body[key] !== undefined ? str(body[key], 120) : undefined);
 
   try {
     const { id } = await params;
-    const body = await req.json();
-    const { courier, awbNumber, trackingNumber } = body;
-
     const order = await prisma.order.update({
       where: { id },
       data: {
-        courier: courier !== undefined ? (courier?.trim() || null) : undefined,
-        awbNumber: awbNumber !== undefined ? (awbNumber?.trim() || null) : undefined,
-        trackingNumber: trackingNumber !== undefined ? (trackingNumber?.trim() || null) : undefined,
+        courier: field("courier"),
+        awbNumber: field("awbNumber"),
+        trackingNumber: field("trackingNumber"),
       },
     });
-
+    await logAdminAction(auth.session, "shipping", "order", id, {
+      courier: order.courier,
+      awbNumber: order.awbNumber,
+      trackingNumber: order.trackingNumber,
+    });
     return NextResponse.json(order);
   } catch (error) {
+    if (isNotFound(error)) return NextResponse.json({ error: "Order not found" }, { status: 404 });
     console.error("[Update Shipping Info Error]", error);
     return NextResponse.json({ error: "Failed to update shipping information" }, { status: 500 });
   }

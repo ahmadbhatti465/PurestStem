@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
 import { analyzeBlogSeo } from "@/lib/seo-analyzer";
+import { getSectionSession } from "@/lib/admin-auth";
+import AccessDenied from "../access-denied";
 
 async function getPosts() {
   return await prisma.blogPost.findMany({
@@ -34,6 +36,7 @@ export default async function AdminBlogPage({
 }: {
   searchParams: Promise<{ filter?: string; q?: string }>;
 }) {
+  if (!(await getSectionSession("blog"))) return <AccessDenied />;
   const { filter = "all", q } = await searchParams;
   const allPosts = await getPosts();
 

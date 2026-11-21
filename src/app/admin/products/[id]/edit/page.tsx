@@ -28,6 +28,8 @@ import InternalLinksSuggest from "@/components/admin/product-editor/internal-lin
 import ProductPreviewModal from "@/components/admin/product-editor/product-preview-modal";
 import { slugify } from "@/lib/slugify";
 import { analyzeProductSeo } from "@/lib/product-seo-analyzer";
+import { toDateTimeLocalValue } from "@/lib/visibility";
+import { escapeAttr, escapeHtml } from "@/lib/html-sanitizer";
 
 interface Category {
   id: string;
@@ -54,7 +56,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const { id } = use(params);
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [originalSlug, setOriginalSlug] = useState("");
+  // Sent back on save so the server can refuse to overwrite someone else's newer edit.
+  const [loadedUpdatedAt, setLoadedUpdatedAt] = useState<string | null>(null);
 
   // Basic Information
   const [name, setName] = useState("");
@@ -142,8 +147,18 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setAllBlogs(bData.posts || bData || []);
         }
 
+        if (!prodRes.ok) {
+          const body = await prodRes.json().catch(() => ({}));
+          setLoadError(
+            prodRes.status === 404
+              ? "This product doesn't exist. It may have been deleted."
+              : body.error || "Failed to load product data."
+          );
+        }
+
         if (prodRes.ok) {
           const p = await prodRes.json();
+          setLoadedUpdatedAt(p.updatedAt ?? null);
           setName(p.name || "");
           setSlug(p.slug || "");
           setOriginalSlug(p.slug || "");
@@ -164,7 +179,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setDescription(p.description || "");
           setFeatured(!!p.featured);
           setStatus(p.status || (p.isActive ? "published" : "draft"));
-          if (p.scheduledAt) setScheduledAt(new Date(p.scheduledAt).toISOString().slice(0, 16));
+          if (p.scheduledAt) setScheduledAt(toDateTimeLocalValue(p.scheduledAt));
 
           setRawLegacyIngredients(p.ingredients || "");
           setRawLegacyHowToUse(p.howToUse || "");
@@ -399,7 +414,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   ]);
 
   function handleInsertSuggestedLink(linkUrl: string, linkTitle: string) {
-    const linkHtml = `<a href="${linkUrl}" class="text-green-700 underline font-medium">${linkTitle}</a>`;
+    const linkHtml = `<a href="${escapeAttr(linkUrl)}" class="text-green-700 underline font-medium">${escapeHtml(linkTitle)}</a>`;
     setDescription((prev) => prev + `<p>${linkHtml}</p>`);
   }
 
@@ -500,6 +515,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       twitterImage: twitterImage || (images.length > 0 ? images[0].url : null),
       relatedProductIds: selectedProductIds,
       relatedBlogIds: selectedBlogIds,
+      expectedUpdatedAt: loadedUpdatedAt,
     };
 
     try {
@@ -509,19 +525,30 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         router.push("/admin/products");
         router.refresh();
       } else {
-        setErrorMessage(data.error || "Failed to update product.");
+        setErrorMessage(data.error || `Failed to update product (error ${res.status}).`);
       }
     } catch {
       setErrorMessage("An unexpected network error occurred.");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!loading && loadError) {
+    return (
+      <div className="max-w-xl py-12 space-y-4">
+        <p className="text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-xl p-4">{loadError}</p>
+        <Link href="/admin/products" className="text-sm text-green-700 hover:underline">
+          ← Back to products
+        </Link>
+      </div>
+    );
   }
 
   if (loading) {

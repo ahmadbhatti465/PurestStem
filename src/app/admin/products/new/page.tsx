@@ -32,6 +32,7 @@ import InternalLinksSuggest from "@/components/admin/product-editor/internal-lin
 import ProductPreviewModal from "@/components/admin/product-editor/product-preview-modal";
 import { slugify } from "@/lib/slugify";
 import { analyzeProductSeo } from "@/lib/product-seo-analyzer";
+import { escapeAttr, escapeHtml } from "@/lib/html-sanitizer";
 
 interface Category {
   id: string;
@@ -186,7 +187,8 @@ export default function NewProductPage() {
 
     loadCatalog();
 
-    // Restore draft from localStorage
+    // Restore a browser-saved draft just after mount (localStorage is browser-only).
+    const restoreTimer = setTimeout(() => {
     const saved = localStorage.getItem("pureststem_product_draft_new");
     if (saved) {
       try {
@@ -202,11 +204,23 @@ export default function NewProductPage() {
         if (p.focusKeyword) setFocusKeyword(p.focusKeyword);
         if (p.seoTitle) setSeoTitle(p.seoTitle);
         if (p.seoDescription) setSeoDescription(p.seoDescription);
+        if (p.categoryId) setCategoryId(p.categoryId);
+        if (p.brand) setBrand(p.brand);
+        if (p.productType) setProductType(p.productType);
+        if (p.weightValue) setWeightValue(p.weightValue);
+        if (p.weightUnit) setWeightUnit(p.weightUnit);
+        if (Array.isArray(p.images)) setImages(p.images);
+        if (Array.isArray(p.benefits)) setBenefits(p.benefits);
+        if (Array.isArray(p.features)) setFeatures(p.features);
+        if (Array.isArray(p.faqs)) setFaqs(p.faqs);
+        if (Array.isArray(p.secondaryKeywords)) setSecondaryKeywords(p.secondaryKeywords);
         setLastSaved("Restored from auto-saved browser draft");
       } catch {
         // ignore
       }
     }
+    }, 0);
+    return () => clearTimeout(restoreTimer);
   }, []);
 
   // Autosave to localStorage
@@ -225,6 +239,16 @@ export default function NewProductPage() {
           focusKeyword,
           seoTitle,
           seoDescription,
+          categoryId,
+          brand,
+          productType,
+          weightValue,
+          weightUnit,
+          images,
+          benefits,
+          features,
+          faqs,
+          secondaryKeywords,
           updatedAt: new Date().toISOString(),
         };
         localStorage.setItem("pureststem_product_draft_new", JSON.stringify(payload));
@@ -233,7 +257,11 @@ export default function NewProductPage() {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [name, slug, price, salePrice, stock, sku, shortDescription, description, focusKeyword, seoTitle, seoDescription]);
+  }, [
+    name, slug, price, salePrice, stock, sku, shortDescription, description, focusKeyword, seoTitle,
+    seoDescription, categoryId, brand, productType, weightValue, weightUnit, images, benefits, features,
+    faqs, secondaryKeywords,
+  ]);
 
   // Name to slug auto generation
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -345,7 +373,7 @@ export default function NewProductPage() {
 
   // Insert Link from Link Explorer
   function handleInsertSuggestedLink(linkUrl: string, linkTitle: string) {
-    const linkHtml = `<a href="${linkUrl}" class="text-green-700 underline font-medium">${linkTitle}</a>`;
+    const linkHtml = `<a href="${escapeAttr(linkUrl)}" class="text-green-700 underline font-medium">${escapeHtml(linkTitle)}</a>`;
     setDescription((prev) => prev + `<p>${linkHtml}</p>`);
   }
 

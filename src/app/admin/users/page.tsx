@@ -3,6 +3,9 @@ import Link from "next/link";
 import DeleteButton from "@/components/admin/delete-button";
 import { Plus, Pencil, User, ArrowRight } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
+import { getSectionSession } from "@/lib/admin-auth";
+import AccessDenied from "../access-denied";
+import { canManageRole } from "@/lib/admin-roles";
 
 async function getUsers() {
   return await prisma.user.findMany({
@@ -12,6 +15,8 @@ async function getUsers() {
 }
 
 export default async function AdminUsersPage() {
+  const session = await getSectionSession("users");
+  if (!session) return <AccessDenied />;
   const users = await getUsers();
 
   return (
@@ -91,10 +96,13 @@ export default async function AdminUsersPage() {
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>
-                        <DeleteButton
-                          apiUrl={`/api/admin/users/${user.id}`}
-                          redirectPath="/admin/users"
-                        />
+                        {user.id !== session.user.id &&
+                          canManageRole(session.user.role, user.role) && (
+                            <DeleteButton
+                              apiUrl={`/api/admin/users/${user.id}`}
+                              redirectPath="/admin/users"
+                            />
+                          )}
                       </div>
                     </td>
                   </tr>

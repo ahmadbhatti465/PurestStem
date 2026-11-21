@@ -2,6 +2,8 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { MIN_PASSWORD_LENGTH } from "@/lib/admin-roles";
 import {
   BarChart3,
   ShoppingBag,
@@ -34,7 +36,7 @@ const roles = [
   {
     value: "analytics_manager",
     label: "Analytics Manager",
-    description: "View site analytics, traffic reports, and performance metrics",
+    description: "View sales, revenue and order analytics",
     icon: BarChart3,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     dot: "bg-blue-500",
@@ -82,7 +84,7 @@ const roles = [
   {
     value: "message_manager",
     label: "Message Manager",
-    description: "Read and respond to customer contact messages",
+    description: "Read, reply to (by email) and manage customer contact messages",
     icon: Mail,
     color: "bg-cyan-50 text-cyan-700 border-cyan-200",
     dot: "bg-cyan-500",
@@ -94,13 +96,17 @@ interface UserData {
   name: string | null;
   email: string;
   role: string;
+  isSelf?: boolean;
+  canEditRole?: boolean;
 }
 
 export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const { data: session } = useSession();
   const [user, setUser] = useState<UserData | null>(null);
   const [selectedRole, setSelectedRole] = useState("user");
 
@@ -113,9 +119,12 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           const data = await res.json();
           setUser(data);
           setSelectedRole(data.role);
+        } else {
+          const body = await res.json().catch(() => ({}));
+          setLoadError(res.status === 404 ? "User not found." : body.error || "Failed to load user.");
         }
       } catch {
-        alert("Failed to load user");
+        setLoadError("Failed to load user. Check your connection.");
       } finally {
         setLoading(false);
       }
@@ -162,6 +171,14 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   }
 
   if (!user) {
+    if (loadError) {
+      return (
+        <div className="max-w-2xl">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit User</h1>
+          <p className="text-red-600">{loadError}</p>
+        </div>
+      );
+    }
     return (
       <div className="max-w-2xl">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit User</h1>
@@ -201,8 +218,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           <input
             name="password"
             type="password"
-            minLength={6}
-            placeholder="Leave blank to keep current password"
+            minLength={MIN_PASSWORD_LENGTH}
+            placeholder={`Leave blank to keep current password (min ${MIN_PASSWORD_LENGTH} characters)`}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <p className="text-xs text-gray-500 mt-1">Leave blank to keep current password</p>
@@ -211,9 +228,19 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         {/* Role Selection */}
         <div>
           <label className="block text-sm font-medium mb-3">Role *</label>
-          <input type="hidden" name="role" value={selectedRole} />
-          <div className="grid gap-2">
-            {roles.map((role) => {
+          {user.canEditRole ? (
+            <input type="hidden" name="role" value={selectedRole} />
+          ) : (
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-2.5 mb-3">
+              {user.isSelf
+                ? "You can't change your own role. Ask another Admin."
+                : "Only an Admin can change this account's role."}
+            </p>
+          )}
+          <div className={`grid gap-2 ${user.canEditRole ? "" : "opacity-60 pointer-events-none"}`}>
+            {roles
+              .filter((r) => r.value !== "admin" || session?.user?.role === "admin" || user.role === "admin")
+              .map((role) => {
               const Icon = role.icon;
               const isSelected = selectedRole === role.value;
               return (

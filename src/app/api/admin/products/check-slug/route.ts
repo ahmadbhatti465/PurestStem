@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { requireApiSection } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
+  const auth = await requireApiSection("products");
+  if (!auth.ok) return auth.response;
 
   const { searchParams } = new URL(req.url);
   const slug = slugify(searchParams.get("slug") || "");

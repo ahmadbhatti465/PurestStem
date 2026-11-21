@@ -48,7 +48,7 @@ async function main() {
       try {
         const r = await tursoClient.execute(`SELECT COUNT(*) as c FROM [${t}]`);
         tursoCount = String(r.rows[0].c);
-      } catch (e: any) {
+      } catch {
         tursoCount = "err";
       }
     }
@@ -56,7 +56,7 @@ async function main() {
     try {
       const r = await localClient.execute(`SELECT COUNT(*) as c FROM [${t}]`);
       localCount = String(r.rows[0].c);
-    } catch (e: any) {
+    } catch {
       localCount = "err";
     }
 

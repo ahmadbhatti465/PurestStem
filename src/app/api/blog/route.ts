@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { livePostWhere } from "@/lib/visibility";
 
 export async function GET() {
   try {
     const posts = await prisma.blogPost.findMany({
-      where: { published: true },
+      where: livePostWhere(),
       orderBy: { createdAt: "desc" },
     });
 

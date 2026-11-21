@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mail, Check, Trash2, MailOpen, Sparkles } from "lucide-react";
+import { Mail, Check, Trash2, MailOpen, Reply, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
@@ -18,14 +18,21 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Message | null>(null);
+  const [loadError, setLoadError] = useState("");
 
   async function fetchMessages() {
-    const res = await fetch("/api/admin/messages");
-    if (res.ok) {
-      const data = await res.json();
-      setMessages(data);
+    setLoading(true);
+    setLoadError("");
+    try {
+      const res = await fetch("/api/admin/messages");
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || `Failed to load messages (error ${res.status}).`);
+      setMessages(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to load messages.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -38,8 +45,13 @@ export default function MessagesPage() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, read }),
-    });
-    if (res.ok) {
+    }).catch(() => null);
+    if (!res?.ok) {
+      const body = await res?.json().catch(() => ({}));
+      alert(body?.error || "Couldn't update the message. Please try again.");
+      return;
+    }
+    {
       setMessages((prev) =>
         prev.map((m) => (m.id === id ? { ...m, read } : m))
       );
@@ -51,10 +63,15 @@ export default function MessagesPage() {
 
   async function deleteMsg(id: string) {
     if (!confirm("Are you sure you want to delete this message?")) return;
-    const res = await fetch(`/api/admin/messages?id=${id}`, {
+    const res = await fetch(`/api/admin/messages?id=${encodeURIComponent(id)}`, {
       method: "DELETE",
-    });
-    if (res.ok) {
+    }).catch(() => null);
+    if (!res?.ok) {
+      const body = await res?.json().catch(() => ({}));
+      alert(body?.error || "Couldn't delete the message. Please try again.");
+      return;
+    }
+    {
       setMessages((prev) => prev.filter((m) => m.id !== id));
       if (selected?.id === id) setSelected(null);
     }
@@ -78,6 +95,16 @@ export default function MessagesPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : loadError ? (
+        <div className="bg-white p-12 rounded-2xl border border-red-100 text-center">
+          <p className="text-red-600 text-sm mb-4">{loadError}</p>
+          <button
+            onClick={fetchMessages}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-700 text-white text-sm font-medium hover:bg-green-800"
+          >
+            <RefreshCw className="w-4 h-4" /> Try again
+          </button>
         </div>
       ) : messages.length === 0 ? (
         <div className="bg-white p-16 rounded-2xl border border-gray-100 text-center">
@@ -173,6 +200,15 @@ export default function MessagesPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
+                      <a
+                        href={`mailto:${encodeURIComponent(selected.email)}?subject=${encodeURIComponent(
+                          `Re: ${selected.subject || "Your message to PurestStem"}`
+                        )}`}
+                        className="p-2.5 text-gray-500 hover:text-green-700 hover:bg-green-50 rounded-xl transition-colors"
+                        title="Reply by email"
+                      >
+                        <Reply className="w-4 h-4" />
+                      </a>
                       <button
                         onClick={() => markRead(selected.id, !selected.read)}
                         className="p-2.5 text-gray-500 hover:text-green-700 hover:bg-green-50 rounded-xl transition-colors"

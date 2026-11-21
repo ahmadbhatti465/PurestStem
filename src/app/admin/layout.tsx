@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { isStaffRole } from "@/lib/admin-roles";
 import AdminSidebar from "./sidebar";
 import AdminLogin from "@/components/admin-login";
 
@@ -17,22 +18,16 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  const adminRoles = [
-    "admin", "analytics_manager", "order_manager", "product_manager",
-    "category_manager", "blog_manager", "user_manager", "message_manager",
-  ];
 
-  if (!session || !adminRoles.includes(session.user.role)) {
+  if (!session || !isStaffRole(session.user.role)) {
     return <AdminLogin />;
   }
 
   return (
     <div className="min-h-screen flex">
-      <AdminSidebar />
-      <div className="flex-1 ml-64">
-        <div className="p-8">
-          {children}
-        </div>
+      <AdminSidebar role={session.user.role} />
+      <div className="flex-1 min-w-0 lg:ml-64">
+        <div className="p-4 pt-20 sm:p-6 sm:pt-20 lg:p-8 lg:pt-8">{children}</div>
       </div>
     </div>
   );

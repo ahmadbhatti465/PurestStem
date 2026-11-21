@@ -13,6 +13,7 @@ import {
   Info,
   Layers,
 } from "lucide-react";
+import { uploadImage } from "@/lib/upload-client";
 
 export interface ProductImageItem {
   url: string;
@@ -53,43 +54,12 @@ export default function ImageGalleryManager({
     const newItems: ProductImageItem[] = [];
 
     for (const file of Array.from(files)) {
-      if (!file.type.startsWith("image/")) {
-        setUploadError("Only image files (JPG, PNG, WebP, AVIF) are supported.");
-        continue;
-      }
-
-      // Check file size (> 2MB warning)
-      const sizeInMb = file.size / (1024 * 1024);
-
-      // Measure dimensions
-      let width = 800;
-      let height = 800;
-      try {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        await new Promise((resolve) => {
-          img.onload = () => {
-            width = img.naturalWidth;
-            height = img.naturalHeight;
-            resolve(true);
-          };
-          img.onerror = () => resolve(false);
-        });
-      } catch {
-        // ignore
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "products");
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (res.ok && data.url) {
+      const result = await uploadImage(file, "products");
+      {
+        if (result.ok) {
+          const data = { url: result.url };
+          const width = result.width ?? 800;
+          const height = result.height ?? 800;
           // Default alt text suggestion based on product name and sequence
           const count = images.length + newItems.length + 1;
           const defaultAlt = count === 1
@@ -109,10 +79,8 @@ export default function ImageGalleryManager({
             filename: file.name,
           });
         } else {
-          setUploadError(data.error || "Upload failed");
+          setUploadError(result.error);
         }
-      } catch {
-        setUploadError("Network error while uploading image.");
       }
     }
 

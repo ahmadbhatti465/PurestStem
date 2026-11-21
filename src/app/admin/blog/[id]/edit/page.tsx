@@ -29,12 +29,18 @@ import SeoHealthPanel from "@/components/admin/blog-editor/seo-health-panel";
 import InternalLinksSuggest from "@/components/admin/blog-editor/internal-links-suggest";
 import { slugify } from "@/lib/slugify";
 import { analyzeBlogSeo } from "@/lib/seo-analyzer";
+import { toDateTimeLocalValue } from "@/lib/visibility";
+import { uploadImage } from "@/lib/upload-client";
+import { escapeAttr, escapeHtml } from "@/lib/html-sanitizer";
 
 export default function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  // Sent back on save so the server can refuse to overwrite someone else's newer edit.
+  const [loadedUpdatedAt, setLoadedUpdatedAt] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -198,13 +204,18 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
           const st = post.status || (post.published ? "published" : "draft");
           setStatus(st);
           setOriginalStatus(st);
-          if (post.scheduledAt) setScheduledAt(post.scheduledAt.slice(0, 16));
+          if (post.scheduledAt) setScheduledAt(toDateTimeLocalValue(post.scheduledAt));
           if (post.publishedAt) setPublishedAt(post.publishedAt);
+          setLoadedUpdatedAt(post.updatedAt ?? null);
         } else {
-          setErrorMessage("Failed to load blog post.");
+          setLoadError(
+            postRes.status === 404
+              ? "This article doesn't exist. It may have been deleted."
+              : "Failed to load blog post."
+          );
         }
-      } catch (e) {
-        setErrorMessage("Network error while loading post.");
+      } catch {
+        setLoadError("Network error while loading post.");
       } finally {
         setLoading(false);
       }
@@ -253,31 +264,15 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
     setUploadingImage(true);
     setErrorMessage("");
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", "blog");
-
     try {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        setImageWidth(img.naturalWidth);
-        setImageHeight(img.naturalHeight);
-      };
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setImageUrl(data.url);
+      const result = await uploadImage(file, "blog");
+      if (result.ok) {
+        setImageUrl(result.url);
+        if (result.width) setImageWidth(result.width);
+        if (result.height) setImageHeight(result.height);
       } else {
-        setErrorMessage(data.error || "Image upload failed");
+        setErrorMessage(result.error);
       }
-    } catch {
-      setErrorMessage("Image upload failed");
     } finally {
       setUploadingImage(false);
     }
@@ -323,7 +318,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
   ]);
 
   function handleInsertSuggestedLink(linkUrl: string, linkTitle: string) {
-    const linkHtml = `<a href="${linkUrl}" class="text-green-700 underline font-medium">${linkTitle}</a>`;
+    const linkHtml = `<a href="${escapeAttr(linkUrl)}" class="text-green-700 underline font-medium">${escapeHtml(linkTitle)}</a>`;
     setContent((prev) => prev + `<p>${linkHtml}</p>`);
   }
 
@@ -390,6 +385,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
       twitterImage: twitterImage || null,
       faqs,
       relatedProductIds: selectedProductIds,
+      expectedUpdatedAt: loadedUpdatedAt,
     };
 
     try {
@@ -399,19 +395,30 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         router.push("/admin/blog");
         router.refresh();
       } else {
-        setErrorMessage(data.error || "Failed to update article.");
+        setErrorMessage(data.error || `Failed to update article (error ${res.status}).`);
       }
-    } catch (e) {
+    } catch {
       setErrorMessage("An unexpected network error occurred.");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!loading && loadError) {
+    return (
+      <div className="max-w-xl py-12 space-y-4">
+        <p className="text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-xl p-4">{loadError}</p>
+        <a href="/admin/blog" className="text-sm text-green-700 hover:underline">
+          ← Back to blog posts
+        </a>
+      </div>
+    );
   }
 
   if (loading) {

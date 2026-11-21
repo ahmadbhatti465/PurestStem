@@ -1,4 +1,8 @@
 import { prisma } from "@/lib/db";
+import { getSectionSession } from "@/lib/admin-auth";
+import { canAccess } from "@/lib/admin-roles";
+import { REVENUE_STATUSES } from "@/lib/order-status";
+import AccessDenied from "./access-denied";
 import {
   Package, Users, ShoppingBag, DollarSign, Mail, ArrowRight, TrendingUp, TrendingDown,
 } from "lucide-react";
@@ -6,15 +10,21 @@ import Link from "next/link";
 import { FadeIn } from "@/components/animations/fade-in";
 import { StaggerContainer, StaggerItem } from "@/components/animations/stagger-container";
 
-async function getStats() {
+type Access = { orders: boolean; products: boolean; users: boolean; analytics: boolean; messages: boolean };
+
+/** Only queries what this role is allowed to see. */
+async function getStats(access: Access) {
   const [totalOrders, totalProducts, totalUsers, totalRevenue, unreadMessages] = await Promise.all([
-    prisma.order.count(),
-    prisma.product.count(),
-    prisma.user.count(),
-    prisma.order.aggregate({
-      _sum: { total: true },
-    }),
-    prisma.contactMessage.count({ where: { read: false } }),
+    access.orders || access.analytics ? prisma.order.count() : 0,
+    access.products ? prisma.product.count() : 0,
+    access.users ? prisma.user.count() : 0,
+    access.orders || access.analytics
+      ? prisma.order.aggregate({
+          where: { status: { in: REVENUE_STATUSES } },
+          _sum: { total: true },
+        })
+      : { _sum: { total: 0 } },
+    access.messages ? prisma.contactMessage.count({ where: { read: false } }) : 0,
   ]);
 
   return {
@@ -46,11 +56,24 @@ async function getRecentMessages() {
 }
 
 export default async function AdminPage() {
-  const stats = await getStats();
-  const recentOrders = await getRecentOrders();
-  const recentMessages = await getRecentMessages();
+  const session = await getSectionSession("dashboard");
+  if (!session) return <AccessDenied />;
+  const role = session.user.role;
+  const access: Access = {
+    orders: canAccess(role, "orders"),
+    products: canAccess(role, "products"),
+    users: canAccess(role, "users"),
+    analytics: canAccess(role, "analytics"),
+    messages: canAccess(role, "messages"),
+  };
 
-  const statCards = [
+  const [stats, recentOrders, recentMessages] = await Promise.all([
+    getStats(access),
+    access.orders ? getRecentOrders() : Promise.resolve([]),
+    access.messages ? getRecentMessages() : Promise.resolve([]),
+  ]);
+
+  const allStatCards = [
     {
       label: "Total Orders",
       value: stats.totalOrders,
@@ -58,6 +81,7 @@ export default async function AdminPage() {
       href: "/admin/orders",
       color: "bg-blue-500/10 text-blue-600",
       trend: "up",
+      visible: access.orders || access.analytics,
     },
     {
       label: "Products",
@@ -66,6 +90,7 @@ export default async function AdminPage() {
       href: "/admin/products",
       color: "bg-green-500/10 text-green-600",
       trend: "up",
+      visible: access.products,
     },
     {
       label: "Users",
@@ -74,14 +99,16 @@ export default async function AdminPage() {
       href: "/admin/users",
       color: "bg-purple-500/10 text-purple-600",
       trend: "up",
+      visible: access.users,
     },
     {
       label: "Revenue",
       value: `Rs ${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
-      href: "/admin/analytics",
+      href: access.analytics ? "/admin/analytics" : "/admin/orders",
       color: "bg-emerald-500/10 text-emerald-600",
       trend: "up",
+      visible: access.orders || access.analytics,
     },
     {
       label: "Messages",
@@ -90,8 +117,10 @@ export default async function AdminPage() {
       href: "/admin/messages",
       color: "bg-orange-500/10 text-orange-600",
       trend: "down",
+      visible: access.messages,
     },
   ];
+  const statCards = allStatCards.filter((card) => card.visible);
 
   return (
     <div>
@@ -125,6 +154,7 @@ export default async function AdminPage() {
         ))}
       </StaggerContainer>
 
+      {access.orders && (
       <FadeIn delay={0.3}>
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
           <div className="p-5 border-b border-gray-100 flex items-center justify-between">
@@ -156,6 +186,13 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
+                {recentOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-10 text-center text-sm text-gray-400">
+                      No orders yet.
+                    </td>
+                  </tr>
+                )}
                 {recentOrders.map((order) => (
                   <tr
                     key={order.id}
@@ -169,7 +206,7 @@ export default async function AdminPage() {
                       <div className="text-xs text-gray-400">{order.email}</div>
                     </td>
                     <td className="px-5 py-4 text-sm text-gray-700">
-                      {order.items.length} items
+                      {order.items.length} item{order.items.length === 1 ? "" : "s"}
                     </td>
                     <td className="px-5 py-4 text-sm font-semibold text-gray-900">
                       Rs {order.total.toLocaleString()}
@@ -202,6 +239,7 @@ export default async function AdminPage() {
           </div>
         </div>
       </FadeIn>
+      )}
 
       {recentMessages.length > 0 && (
         <FadeIn delay={0.4}>

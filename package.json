@@ -28,24 +28,25 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
+    "@react-pdf/renderer": "^4.3.0",
     "@vercel/blob": "^2.4.1",
     "bcryptjs": "^3.0.3",
+    "bwip-js": "^4.11.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.16.0",
-    "next": "16.2.6",
+    "next": "16.4.5",
     "next-auth": "^4.24.14",
     "prisma": "^7.8.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.76.1",
     "recharts": "^3.8.1",
+    "sanitize-html": "^2.18.2",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3",
-    "@react-pdf/renderer": "^4.3.0",
-    "bwip-js": "^4.11.4",
-    "qrcode": "^1.5.4"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -55,11 +56,20 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.2",
     "dotenv": "^17.4.2",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@vercel/cli-config": {
+      "zod": "$zod"
+    },
+    "@prisma/config": {
+      "effect": "3.22.3"
+    }
   }
 }

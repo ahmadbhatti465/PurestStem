@@ -61,21 +61,34 @@ export async function prepareOrderPDFData(orderId: string): Promise<PDFOrderData
   const shortId = order.id.slice(-6).toUpperCase();
   const year = new Date(order.createdAt).getFullYear();
 
-  // Ensure deterministic invoice number is persisted
+  // Persist a unique invoice number the first time. The short form uses the
+  // last 6 id characters; if another order already holds it, use a longer
+  // suffix rather than printing a duplicate number.
   let invoiceNumber = order.invoiceNumber;
   if (!invoiceNumber) {
-    invoiceNumber = `INV-${year}-${shortId}`;
-    try {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          invoiceNumber,
-          invoiceGeneratedAt: order.invoiceGeneratedAt || new Date(),
-        },
-      });
-    } catch (e) {
-      console.warn("[PDF Generator] Could not persist invoiceNumber (may already exist):", e);
+    const fullId = order.id.toUpperCase();
+    for (const length of [6, 10, fullId.length]) {
+      const candidate = `INV-${year}-${fullId.slice(-length)}`;
+      try {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: {
+            invoiceNumber: candidate,
+            invoiceGeneratedAt: order.invoiceGeneratedAt || new Date(),
+          },
+        });
+        invoiceNumber = candidate;
+        break;
+      } catch (e) {
+        const code = (e as { code?: string })?.code;
+        if (code !== "P2002") {
+          console.error("[PDF Generator] Could not persist invoiceNumber:", e);
+          invoiceNumber = candidate;
+          break;
+        }
+      }
     }
+    invoiceNumber ??= `INV-${year}-${fullId}`;
   }
 
   const shippingCost = order.shippingCost ?? (order.total >= 5000 ? 0 : 190);
@@ -85,9 +98,9 @@ export async function prepareOrderPDFData(orderId: string): Promise<PDFOrderData
 
   const pdfItems: PDFOrderItem[] = order.items.map((item) => ({
     id: item.id,
-    name: item.product?.name || "PurestStem Herbal Product",
-    sku: item.product?.sku || null,
-    weight: item.product?.weight || null,
+    name: item.productName || item.product?.name || "PurestStem Herbal Product",
+    sku: item.productSku || item.product?.sku || null,
+    weight: item.productWeight || item.product?.weight || null,
     quantity: item.quantity,
     unitPrice: item.price,
     subtotal: item.price * item.quantity,
@@ -141,8 +154,10 @@ export type DocumentType = "invoice" | "awb" | "combined";
  */
 export async function generateOrderPDF(
   orderId: string,
-  type: DocumentType = "invoice"
+  type: DocumentType = "invoice",
+  options: { markGenerated?: boolean } = {}
 ): Promise<{ buffer: Buffer; filename: string } | null> {
+  const markGenerated = options.markGenerated ?? true;
   const data = await prepareOrderPDFData(orderId);
   if (!data) return null;
 
@@ -166,7 +181,7 @@ export async function generateOrderPDF(
   }
 
   // Update generated timestamp
-  if (type === "awb" || type === "combined") {
+  if (markGenerated && (type === "awb" || type === "combined")) {
     try {
       await prisma.order.update({
         where: { id: orderId },

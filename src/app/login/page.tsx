@@ -52,7 +52,9 @@ export default function LoginPage() {
       const result = await signIn("credentials", { email, password, redirect: false });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        setError(
+          result.error === "CredentialsSignin" ? "Invalid email or password" : result.error
+        );
         return;
       }
 
@@ -106,7 +108,7 @@ export default function LoginPage() {
                 id="login-password"
                 type="password"
                 required
-                minLength={isSignup ? 6 : undefined}
+                minLength={isSignup ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete={isSignup ? "new-password" : "current-password"}

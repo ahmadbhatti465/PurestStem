@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useTransition } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Package,
   MapPin,
@@ -27,6 +28,8 @@ import {
   Eye,
   Layers,
   MoreVertical,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import OrderDocumentsModal from "@/components/admin/order-documents-modal";
 import OrderShippingEditor from "@/components/admin/order-shipping-editor";
@@ -106,6 +109,9 @@ const STATUS_CONFIG: Record<
   },
 };
 
+/** Fixed time zone so the server render and the browser render produce the same text. */
+const TIME_ZONE = "Asia/Karachi";
+
 function formatRelativeTime(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
@@ -118,7 +124,7 @@ function formatRelativeTime(dateStr: string) {
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString("en-PK", { day: "numeric", month: "short" });
+  return date.toLocaleDateString("en-PK", { day: "numeric", month: "short", timeZone: TIME_ZONE });
 }
 
 function formatDateTime(dateStr: string) {
@@ -128,15 +134,17 @@ function formatDateTime(dateStr: string) {
       day: "2-digit",
       month: "short",
       year: "numeric",
+      timeZone: TIME_ZONE,
     }),
-    time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    full: date.toLocaleDateString("en-PK", {
+    time: date.toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE }),
+    full: date.toLocaleString("en-PK", {
       weekday: "short",
       day: "numeric",
       month: "short",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: TIME_ZONE,
     }),
   };
 }
@@ -162,17 +170,23 @@ function OrderStatusBadge({ status }: { status: string }) {
 
 function OrderStatusUpdate({
   orderId,
-  currentStatus,
+  status,
+  onChanged,
 }: {
   orderId: string;
-  currentStatus: string;
+  status: string;
+  onChanged: (status: string) => void;
 }) {
-  const [status, setStatus] = useState(currentStatus);
   const [loading, setLoading] = useState(false);
 
   async function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newStatus = e.target.value;
-    setStatus(newStatus);
+    const select = e.target;
+    const newStatus = select.value;
+    if (newStatus === status) return;
+    if (newStatus === "cancelled" && !confirm("Cancel this order? Its items will be returned to stock.")) {
+      select.value = status;
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -180,10 +194,12 @@ function OrderStatusUpdate({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) throw new Error("Update failed");
-    } catch {
-      setStatus(currentStatus);
-      alert("Failed to update status");
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Failed to update status");
+      onChanged(newStatus);
+    } catch (err) {
+      select.value = status;
+      alert(err instanceof Error ? err.message : "Failed to update status");
     } finally {
       setLoading(false);
     }
@@ -210,10 +226,36 @@ function OrderStatusUpdate({
   );
 }
 
-export default function OrdersList({ orders: initialOrders }: { orders: Order[] }) {
+interface OrdersListProps {
+  orders: Order[];
+  counts: Record<string, number>;
+  totalRevenue: number;
+  todayCount: number;
+  filter: string;
+  search: string;
+  page: number;
+  totalPages: number;
+  matching: number;
+}
+
+export default function OrdersList({
+  orders: initialOrders,
+  counts: initialCounts,
+  totalRevenue,
+  todayCount,
+  filter,
+  search: initialSearch,
+  page,
+  totalPages,
+  matching,
+}: OrdersListProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isNavigating, startTransition] = useTransition();
   const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
+  const [counts, setCounts] = useState(initialCounts);
+  const [search, setSearch] = useState(initialSearch);
+  const [mounted, setMounted] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
@@ -226,42 +268,67 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
   // Document download loading states
   const [downloadingState, setDownloadingState] = useState<Record<string, "invoice" | "awb" | "combined" | null>>({});
 
-  const stats = useMemo(() => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const pending = orders.filter((o) => o.status === "pending").length;
-    const processing = orders.filter((o) => o.status === "processing").length;
-    const shipped = orders.filter((o) => o.status === "shipped").length;
-    const todayCount = orders.filter(
-      (o) => new Date(o.createdAt) >= todayStart
-    ).length;
-    const totalRevenue = orders
-      .filter((o) => o.status !== "cancelled")
-      .reduce((s, o) => s + o.total, 0);
-    return { total: orders.length, pending, processing, shipped, todayCount, totalRevenue };
-  }, [orders]);
+  // Relative times ("5m ago", "New") depend on the clock, so only show them after mount.
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
+  }, []);
 
-  const filteredOrders = useMemo(() => {
-    let result = [...orders];
-    if (filter !== "all") {
-      result = result.filter((o) => o.status === filter);
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
-      result = result.filter(
-        (o) =>
-          o.id.toLowerCase().includes(q) ||
-          o.name.toLowerCase().includes(q) ||
-          o.email.toLowerCase().includes(q) ||
-          o.phone.includes(q) ||
-          (o.invoiceNumber && o.invoiceNumber.toLowerCase().includes(q)) ||
-          (o.awbNumber && o.awbNumber.toLowerCase().includes(q)) ||
-          (o.trackingNumber && o.trackingNumber.toLowerCase().includes(q)) ||
-          o.items.some((i) => i.product.name.toLowerCase().includes(q))
-      );
-    }
-    return result;
-  }, [orders, filter, search]);
+  // Close the actions menu on any click outside it, or on Escape.
+  useEffect(() => {
+    if (!activeDropdownId) return;
+    const close = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-order-menu]")) setActiveDropdownId(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveDropdownId(null);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [activeDropdownId]);
+
+  function navigate(next: { status?: string; q?: string; page?: number }) {
+    const params = new URLSearchParams();
+    const status = next.status ?? filter;
+    const q = next.q ?? search;
+    const p = next.page ?? 1;
+    if (status !== "all") params.set("status", status);
+    if (q.trim()) params.set("q", q.trim());
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    startTransition(() => router.push(qs ? `${pathname}?${qs}` : pathname));
+  }
+
+  // Debounced server-side search.
+  useEffect(() => {
+    if (search.trim() === initialSearch) return;
+    const t = setTimeout(() => navigate({ q: search, page: 1 }), 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  function handleStatusChanged(orderId: string, from: string, to: string) {
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: to } : o)));
+    setCounts((prev) => ({
+      ...prev,
+      [from]: Math.max(0, (prev[from] ?? 0) - 1),
+      [to]: (prev[to] ?? 0) + 1,
+    }));
+    // Revenue and stock figures come from the server; refresh them quietly.
+    router.refresh();
+  }
+
+  const stats = {
+    total: counts.all ?? 0,
+    pending: counts.pending ?? 0,
+    todayCount,
+    totalRevenue,
+  };
+  const filteredOrders = orders;
 
   const handleDownload = async (
     orderId: string,
@@ -275,7 +342,8 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
     try {
       const res = await fetch(`/api/admin/orders/${orderId}/${type}`);
       if (!res.ok) {
-        throw new Error(`Failed to download ${type}`);
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Unable to download ${type}. Please try again.`);
       }
 
       const blob = await res.blob();
@@ -298,7 +366,7 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      alert(`Unable to download ${type}. Please try again.`);
+      alert(err instanceof Error ? err.message : `Unable to download ${type}. Please try again.`);
     } finally {
       setDownloadingState((prev) => ({ ...prev, [orderId]: null }));
     }
@@ -339,16 +407,13 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
   };
 
   const statusFilters = [
-    { key: "all", label: "All Orders", count: stats.total },
-    { key: "pending", label: "Pending", count: stats.pending },
-    { key: "processing", label: "Processing", count: stats.processing },
-    { key: "shipped", label: "Shipped", count: stats.shipped },
-    { key: "completed", label: "Completed", count: 0 },
-    { key: "cancelled", label: "Cancelled", count: 0 },
+    { key: "all", label: "All Orders", count: counts.all ?? 0 },
+    { key: "pending", label: "Pending", count: counts.pending ?? 0 },
+    { key: "processing", label: "Processing", count: counts.processing ?? 0 },
+    { key: "shipped", label: "Shipped", count: counts.shipped ?? 0 },
+    { key: "completed", label: "Completed", count: counts.completed ?? 0 },
+    { key: "cancelled", label: "Cancelled", count: counts.cancelled ?? 0 },
   ];
-
-  statusFilters[4].count = orders.filter((o) => o.status === "completed").length;
-  statusFilters[5].count = orders.filter((o) => o.status === "cancelled").length;
 
   return (
     <div>
@@ -392,7 +457,7 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
               <TrendingUp className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Revenue</p>
+              <p className="text-xs text-gray-500">Revenue (excl. cancelled)</p>
               <p className="text-xl font-bold text-gray-900">
                 Rs {Math.round(stats.totalRevenue).toLocaleString()}
               </p>
@@ -418,7 +483,7 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
           {statusFilters.map((s) => (
             <button
               key={s.key}
-              onClick={() => setFilter(s.key)}
+              onClick={() => navigate({ status: s.key, page: 1 })}
               className={`whitespace-nowrap px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all border ${
                 filter === s.key
                   ? "bg-[#1a4a2e] text-white border-[#1a4a2e]"
@@ -464,7 +529,7 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
           <div className="divide-y divide-gray-50">
             {filteredOrders.map((order) => {
               const dt = formatDateTime(order.createdAt);
-              const _new = isNewOrder(order.createdAt);
+              const _new = mounted && isNewOrder(order.createdAt);
               const expanded = expandedId === order.id;
               const shortId = order.id.slice(-6).toUpperCase();
               const shipping = order.shippingCost ?? 190;
@@ -494,7 +559,7 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
                       </div>
                       <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
                         <Clock className="w-3 h-3" />
-                        {formatRelativeTime(order.createdAt)}
+                        {mounted ? formatRelativeTime(order.createdAt) : dt.date}
                       </div>
                     </div>
 
@@ -575,9 +640,11 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
                       </button>
 
                       {/* More / Combined Dropdown Menu */}
-                      <div className="relative">
+                      <div className="relative" data-order-menu>
                         <button
                           type="button"
+                          aria-haspopup="menu"
+                          aria-expanded={isDropdownOpen}
                           onClick={(e) => {
                             e.stopPropagation();
                             setActiveDropdownId(isDropdownOpen ? null : order.id);
@@ -693,7 +760,11 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
                             <span>{dt.full}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <OrderStatusUpdate orderId={order.id} currentStatus={order.status} />
+                            <OrderStatusUpdate
+                              orderId={order.id}
+                              status={order.status}
+                              onChanged={(to) => handleStatusChanged(order.id, order.status, to)}
+                            />
                           </div>
                         </div>
 
@@ -939,15 +1010,36 @@ export default function OrdersList({ orders: initialOrders }: { orders: Order[] 
         )}
       </div>
 
-      {/* Footer count */}
-      {filteredOrders.length > 0 && (
-        <p className="text-xs text-gray-400 mt-4 text-center">
-          Showing {filteredOrders.length} of {orders.length} orders
-        </p>
+      {/* Footer count + pagination */}
+      {matching > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+          <p className="text-xs text-gray-400">
+            Page {page} of {totalPages} · {matching} matching order{matching === 1 ? "" : "s"}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={page <= 1 || isNavigating}
+              onClick={() => navigate({ page: page - 1 })}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Previous
+            </button>
+            <button
+              type="button"
+              disabled={page >= totalPages || isNavigating}
+              onClick={() => navigate({ page: page + 1 })}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40"
+            >
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Document Preview & Print Modal */}
       <OrderDocumentsModal
+        key={previewModalOpen ? `${previewOrderId}-${previewDocType}` : "closed"}
         isOpen={previewModalOpen}
         onClose={() => setPreviewModalOpen(false)}
         orderId={previewOrderId}

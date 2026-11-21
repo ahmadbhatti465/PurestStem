@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Shield, Leaf } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,7 +23,8 @@ export default function AdminLogin() {
     });
 
     if (result?.error) {
-      setError("Invalid email or password");
+      // A lockout message comes through as the error text; anything else is a bad login.
+      setError(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
       setLoading(false);
     } else {
       window.location.reload();
@@ -106,10 +106,12 @@ export default function AdminLogin() {
         </motion.form>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-green-700 hover:underline inline-flex items-center gap-1">
+          {/* Plain <a> on purpose: a full load gives the storefront its own CSP. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/" className="text-sm text-green-700 hover:underline inline-flex items-center gap-1">
             <Leaf className="w-3 h-3" />
             Back to Store
-          </Link>
+          </a>
         </div>
       </motion.div>
     </div>

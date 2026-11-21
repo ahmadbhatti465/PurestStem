@@ -14,6 +14,7 @@ import { Testimonials } from "@/components/home/testimonials";
 import { Journal } from "@/components/home/journal";
 import { Faq } from "@/components/home/faq";
 import { NatureCta } from "@/components/home/nature-cta";
+import { livePostWhere } from "@/lib/visibility";
 
 // Served from cache; admin edits refresh it immediately (see refreshStorefront).
 export const revalidate = 300;
@@ -57,7 +58,7 @@ export default async function HomePage() {
   const [products, posts, reviews, reviewStats] = await Promise.all([
     getShowcaseProducts(6),
     prisma.blogPost.findMany({
-      where: { published: true },
+      where: livePostWhere(),
       orderBy: { createdAt: "desc" },
       take: 3,
       select: { id: true, slug: true, title: true, excerpt: true, image: true, imageAlt: true },

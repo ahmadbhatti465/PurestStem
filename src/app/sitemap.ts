@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { SITE_URL } from "@/lib/site";
 import type { MetadataRoute } from "next";
+import { liveProductWhere, livePostWhere } from "@/lib/visibility";
 
 // Refresh periodically so new products and articles reach search engines without a deploy.
 export const revalidate = 3600;
@@ -21,19 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Only include active, published/scheduled-due, and indexable products
   const products = await prisma.product.findMany({
     where: {
-      AND: [
-        { isActive: true },
-        { robotsIndex: true },
-        {
-          OR: [
-            { status: "published" },
-            {
-              status: "scheduled",
-              scheduledAt: { lte: now },
-            },
-          ],
-        },
-      ],
+      AND: [liveProductWhere(now), { robotsIndex: true }],
     },
     select: { slug: true, updatedAt: true },
   });
@@ -48,23 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Only include published, scheduled-due, and indexable blog posts
   const blogPosts = await prisma.blogPost.findMany({
     where: {
-      AND: [
-        {
-          OR: [
-            { status: "published" },
-            { published: true, status: { not: "draft" } },
-          ],
-        },
-        {
-          robotsIndex: true,
-        },
-        {
-          OR: [
-            { scheduledAt: null },
-            { scheduledAt: { lte: now } },
-          ],
-        },
-      ],
+      AND: [livePostWhere(now), { robotsIndex: true }],
     },
     select: { slug: true, updatedAt: true },
   });

@@ -47,16 +47,6 @@ export default function LinkModal({
     categories: InternalItem[];
   }>({ products: [], blogPosts: [], categories: [] });
 
-  useEffect(() => {
-    if (isOpen) {
-      setUrl(initialData?.url || "");
-      setText(initialData?.text || "");
-      setTargetBlank(initialData?.targetBlank ?? false);
-      setRelType(initialData?.rel || "");
-      fetchInternalLinks("");
-    }
-  }, [isOpen, initialData]);
-
   async function fetchInternalLinks(q: string) {
     setLoading(true);
     try {
@@ -71,6 +61,15 @@ export default function LinkModal({
       setLoading(false);
     }
   }
+
+  // Load the initial suggestions when the modal opens. (The parent mounts the
+  // modal fresh each time, so the form fields start from initialData.)
+  useEffect(() => {
+    if (!isOpen) return;
+    const t = setTimeout(() => fetchInternalLinks(""), 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
@@ -287,7 +286,7 @@ export default function LinkModal({
                 onChange={(e) => setTargetBlank(e.target.checked)}
                 className="rounded text-green-700 focus:ring-green-600"
               />
-              <span>Open in new tab (target="_blank")</span>
+              <span>Open in new tab (target=&quot;_blank&quot;)</span>
             </label>
 
             <div>
@@ -300,9 +299,9 @@ export default function LinkModal({
                 className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
               >
                 <option value="">Normal Editorial Follow (Standard for internal & verified citations)</option>
-                <option value="nofollow">rel="nofollow" (Untrusted or paid content)</option>
-                <option value="sponsored">rel="sponsored" (Sponsored / Affiliate links)</option>
-                <option value="ugc">rel="ugc" (User-Generated Content)</option>
+                <option value="nofollow">rel=&quot;nofollow&quot; (Untrusted or paid content)</option>
+                <option value="sponsored">rel=&quot;sponsored&quot; (Sponsored / Affiliate links)</option>
+                <option value="ugc">rel=&quot;ugc&quot; (User-Generated Content)</option>
               </select>
             </div>
           </div>

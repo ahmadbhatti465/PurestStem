@@ -120,7 +120,7 @@ export function analyzeBlogSeo(data: SeoInputData): SeoAnalysisResult {
 
   // Images analysis
   const imgMatches = Array.from(content.matchAll(/<img\b([^>]*)>/gi));
-  let embeddedImagesCount = imgMatches.length;
+  const embeddedImagesCount = imgMatches.length;
   let missingAltCount = 0;
 
   for (const match of imgMatches) {
@@ -505,12 +505,12 @@ export function analyzeBlogSeo(data: SeoInputData): SeoAnalysisResult {
   }
 
   // Compute Health Score (0 - 100)
-  let passCount = checks.filter((c) => c.status === "pass").length;
-  let warnCount = checks.filter((c) => c.status === "warning").length;
-  let failCount = checks.filter((c) => c.status === "fail").length;
-  let totalChecks = checks.length;
+  const passCount = checks.filter((c) => c.status === "pass").length;
+  const warnCount = checks.filter((c) => c.status === "warning").length;
+  const failCount = checks.filter((c) => c.status === "fail").length;
+  const totalChecks = checks.length;
 
-  let healthScore = Math.round(
+  const healthScore = Math.round(
     ((passCount * 1.0 + warnCount * 0.5) / Math.max(1, totalChecks)) * 100
   );
 

@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, SearchX } from "lucide-react";
 import { SITE_URL } from "@/lib/site";
+import { permanentRedirect } from "next/navigation";
 import { getActiveProducts, getShopCategories } from "@/lib/catalog";
+import { categoryRedirectPath, findRedirect } from "@/lib/redirects";
 import { buildBreadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
 import ProductCard from "@/components/product-card";
@@ -79,6 +81,17 @@ export default async function ProductsPage({
   );
 
   const activeCategory = categories.find((item) => item.slug === category);
+
+  // A renamed category: send old links to its new slug, keeping other filters.
+  if (category && !activeCategory) {
+    const moved = await findRedirect(categoryRedirectPath(category));
+    if (moved) {
+      const target = new URL(moved.targetPath, "http://placeholder");
+      if (search) target.searchParams.set("search", search);
+      if (sort) target.searchParams.set("sort", sort);
+      permanentRedirect(`${target.pathname}${target.search}`);
+    }
+  }
   const heading = term ? `Results for “${search?.trim()}”` : activeCategory?.name ?? "All products";
 
   return (

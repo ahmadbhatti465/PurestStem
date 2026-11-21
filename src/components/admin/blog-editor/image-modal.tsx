@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ImageIcon, Upload, Info, X, Check } from "lucide-react";
+import { uploadImage } from "@/lib/upload-client";
 
 export interface ImageData {
   url: string;
@@ -45,32 +46,15 @@ export default function ImageModal({
     setError("");
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", "blog");
-
     try {
-      // Extract dimensions locally first
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        setWidth(img.naturalWidth);
-        setHeight(img.naturalHeight);
-      };
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setUrl(data.url);
+      const result = await uploadImage(file, "blog");
+      if (result.ok) {
+        setUrl(result.url);
+        if (result.width) setWidth(result.width);
+        if (result.height) setHeight(result.height);
       } else {
-        setError(data.error || "Image upload failed");
+        setError(result.error);
       }
-    } catch {
-      setError("Image upload failed");
     } finally {
       setUploading(false);
     }
@@ -177,7 +161,7 @@ export default function ImageModal({
                   onChange={(e) => setIsDecorative(e.target.checked)}
                   className="rounded text-green-700 focus:ring-green-600"
                 />
-                <span>Decorative image (alt="")</span>
+                <span>Decorative image (alt=&quot;&quot;)</span>
               </label>
             </div>
 

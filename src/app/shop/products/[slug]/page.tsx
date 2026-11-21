@@ -24,13 +24,14 @@ import { SmartImage } from "@/components/ui/smart-image";
 import { Container } from "@/components/layout/container";
 import { AnimatedText } from "@/components/motion/animated-text";
 import { ShareButtons } from "@/components/share-buttons";
+import { liveProductWhere, isProductLive, livePostWhere } from "@/lib/visibility";
 
 // Served from cache; admin edits, orders and reviews refresh it immediately.
 export const revalidate = 300;
 
 export async function generateStaticParams() {
   const products = await prisma.product.findMany({
-    where: { isActive: true },
+    where: liveProductWhere(),
     select: { slug: true },
   });
   return products.map(({ slug }) => ({ slug }));
@@ -63,7 +64,7 @@ async function getRelatedProducts(product: { id: string; categoryId: string; rel
   const ids = parseJsonArray<string>(product.relatedProductIds);
   if (ids.length > 0) {
     const explicit = await prisma.product.findMany({
-      where: { id: { in: ids }, isActive: true },
+      where: { id: { in: ids }, ...liveProductWhere() },
       select: relatedProductSelect,
       take: 4,
     });
@@ -71,7 +72,7 @@ async function getRelatedProducts(product: { id: string; categoryId: string; rel
   }
 
   return prisma.product.findMany({
-    where: { id: { not: product.id }, isActive: true, categoryId: product.categoryId },
+    where: { id: { not: product.id }, ...liveProductWhere(), categoryId: product.categoryId },
     select: relatedProductSelect,
     take: 4,
   });
@@ -84,8 +85,8 @@ async function getRelatedBlogPosts(product: { categoryId: string; relatedBlogIds
   return prisma.blogPost.findMany({
     where:
       ids.length > 0
-        ? { id: { in: ids }, published: true }
-        : { categoryId: product.categoryId, published: true },
+        ? { id: { in: ids }, ...livePostWhere() }
+        : { categoryId: product.categoryId, ...livePostWhere() },
     select,
     take: 3,
   });
@@ -138,7 +139,7 @@ export async function generateMetadata({
   const ogImage = product.ogImage || primaryImage || "/pureststem_logo.png";
 
   const isIndexable = Boolean(
-    product.robotsIndex && product.isActive && product.status !== "draft"
+    product.robotsIndex && isProductLive(product)
   );
   const isFollow = Boolean(product.robotsFollow);
 
@@ -207,7 +208,7 @@ export default async function ProductPage({
     notFound();
   }
 
-  if (!product.isActive) notFound();
+  if (!isProductLive(product)) notFound();
 
   const [relatedProducts, relatedBlogs] = await Promise.all([
     getRelatedProducts(product),

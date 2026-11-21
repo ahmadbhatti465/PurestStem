@@ -28,6 +28,11 @@ function MetaPixelTracker() {
 }
 
 export default function MetaPixel() {
+  const pathname = usePathname();
+  // No tracking in the admin panel: staff page views aren't marketing data,
+  // and the admin's strict CSP doesn't allow third-party scripts.
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <>
       {/* The tracker (260KB) loads on first interaction or after 3s. Events fired

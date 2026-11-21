@@ -156,6 +156,57 @@ async function main() {
     "Order_invoiceNumber_key unique index"
   );
 
+  // ── Order item snapshots (history survives product deletion) ───────────────
+  await safeExec(`ALTER TABLE "OrderItem" ADD COLUMN "productName" TEXT`, "OrderItem.productName");
+  await safeExec(`ALTER TABLE "OrderItem" ADD COLUMN "productSku" TEXT`, "OrderItem.productSku");
+  await safeExec(`ALTER TABLE "OrderItem" ADD COLUMN "productWeight" TEXT`, "OrderItem.productWeight");
+  await safeExec(
+    `UPDATE "OrderItem"
+     SET "productName" = (SELECT "name" FROM "Product" WHERE "Product"."id" = "OrderItem"."productId"),
+         "productSku" = (SELECT "sku" FROM "Product" WHERE "Product"."id" = "OrderItem"."productId"),
+         "productWeight" = (SELECT "weight" FROM "Product" WHERE "Product"."id" = "OrderItem"."productId")
+     WHERE "productId" IS NOT NULL AND "productName" IS NULL`,
+    "OrderItem snapshot backfill"
+  );
+
+  // ── Scheduled products are active-but-not-yet-due (visibility uses scheduledAt) ─
+  await safeExec(
+    `UPDATE "Product" SET "isActive" = 1 WHERE "status" = 'scheduled'`,
+    "Scheduled products active flag"
+  );
+
+  // ── Audit log ──────────────────────────────────────────────────────────────
+  await safeExec(`
+    CREATE TABLE IF NOT EXISTS "AuditLog" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "userId" TEXT,
+      "userEmail" TEXT,
+      "action" TEXT NOT NULL,
+      "entity" TEXT NOT NULL,
+      "entityId" TEXT,
+      "details" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `, "AuditLog table");
+  await safeExec(
+    `CREATE INDEX IF NOT EXISTS "AuditLog_createdAt_idx" ON "AuditLog"("createdAt")`,
+    "AuditLog createdAt index"
+  );
+  await safeExec(
+    `CREATE INDEX IF NOT EXISTS "AuditLog_entity_entityId_idx" ON "AuditLog"("entity", "entityId")`,
+    "AuditLog entity index"
+  );
+
+  // ── Login lockout counter (shared across server instances) ─────────────────
+  await safeExec(`
+    CREATE TABLE IF NOT EXISTS "LoginAttempt" (
+      "key" TEXT NOT NULL PRIMARY KEY,
+      "count" INTEGER NOT NULL DEFAULT 0,
+      "firstAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "lockedUntil" DATETIME
+    )
+  `, "LoginAttempt table");
+
   console.log("\n✅ Build-time migration complete.\n");
 }
 

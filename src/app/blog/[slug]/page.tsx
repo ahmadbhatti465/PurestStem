@@ -21,13 +21,14 @@ import {
   FaqItem,
 } from "@/lib/structured-data";
 import type { Metadata } from "next";
+import { liveProductWhere, isPostLive, livePostWhere } from "@/lib/visibility";
 
 // Served from cache; admin edits refresh it immediately (see refreshStorefront).
 export const revalidate = 300;
 
 export async function generateStaticParams() {
   const posts = await prisma.blogPost.findMany({
-    where: { OR: [{ status: "published" }, { published: true, status: { not: "draft" } }] },
+    where: livePostWhere(),
     select: { slug: true },
   });
   return posts.map(({ slug }) => ({ slug }));
@@ -151,9 +152,7 @@ export default async function BlogPostDetailPage({
   }
 
   // Drafts and future-dated posts are only viewable through the admin preview.
-  const isPublished = post.status === "published" || (post.published && post.status !== "draft");
-  const isDue = !post.scheduledAt || new Date(post.scheduledAt) <= new Date();
-  if (!isPublished || !isDue) notFound();
+  if (!isPostLive(post)) notFound();
 
   const faqs = parseJson<FaqItem[]>(post.faqs, []);
   const relatedProductIds = parseJson<string[]>(post.relatedProductIds, []);
@@ -173,12 +172,12 @@ export default async function BlogPostDetailPage({
   const [relatedProducts, relatedArticles] = await Promise.all([
     relatedProductIds.length > 0
       ? prisma.product.findMany({
-          where: { id: { in: relatedProductIds }, isActive: true },
+          where: { id: { in: relatedProductIds }, ...liveProductWhere() },
           select: productSelect,
         })
       : post.categoryId
         ? prisma.product.findMany({
-            where: { categoryId: post.categoryId, isActive: true },
+            where: { categoryId: post.categoryId, ...liveProductWhere() },
             take: 3,
             select: productSelect,
           })
@@ -186,7 +185,7 @@ export default async function BlogPostDetailPage({
     prisma.blogPost.findMany({
       where: {
         id: { not: post.id },
-        status: "published",
+        ...livePostWhere(),
         ...(post.categoryId ? { categoryId: post.categoryId } : {}),
       },
       take: 3,

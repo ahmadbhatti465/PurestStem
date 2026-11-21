@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { MIN_PASSWORD_LENGTH } from "@/lib/admin-roles";
 import {
   LayoutDashboard,
   BarChart3,
@@ -35,7 +37,7 @@ const roles = [
   {
     value: "analytics_manager",
     label: "Analytics Manager",
-    description: "View site analytics, traffic reports, and performance metrics",
+    description: "View sales, revenue and order analytics",
     icon: BarChart3,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     dot: "bg-blue-500",
@@ -83,7 +85,7 @@ const roles = [
   {
     value: "message_manager",
     label: "Message Manager",
-    description: "Read and respond to customer contact messages",
+    description: "Read, reply to (by email) and manage customer contact messages",
     icon: Mail,
     color: "bg-cyan-50 text-cyan-700 border-cyan-200",
     dot: "bg-cyan-500",
@@ -94,6 +96,9 @@ export default function NewUserPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState("user");
+  const { data: session } = useSession();
+  // Only Admins can create Admins (the server enforces this too).
+  const visibleRoles = roles.filter((r) => r.value !== "admin" || session?.user?.role === "admin");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -153,7 +158,7 @@ export default function NewUserPage() {
             name="password"
             type="password"
             required
-            minLength={6}
+            minLength={MIN_PASSWORD_LENGTH}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
@@ -164,7 +169,7 @@ export default function NewUserPage() {
           <label className="block text-sm font-medium mb-3">Role *</label>
           <input type="hidden" name="role" value={selectedRole} />
           <div className="grid gap-2">
-            {roles.map((role) => {
+            {visibleRoles.map((role) => {
               const Icon = role.icon;
               const isSelected = selectedRole === role.value;
               return (

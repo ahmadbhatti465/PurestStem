@@ -44,3 +44,6 @@ src/generated/
 .env*
 !.env.example
 data/test-generated-pdfs/
+
+# Database exports (contain password hashes and customer data)
+data/*.json

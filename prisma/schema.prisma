@@ -123,6 +123,10 @@ model OrderItem {
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   quantity  Int
   price     Float
+  // Snapshot taken when the order is placed, so history survives product edits/deletion.
+  productName   String?
+  productSku    String?
+  productWeight String?
 }
 
 model BlogPost {
@@ -208,4 +212,26 @@ model ContactMessage {
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userEmail String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
+
+/// Failed sign-in counter, shared by every server instance.
+model LoginAttempt {
+  key         String    @id
+  count       Int       @default(0)
+  firstAt     DateTime  @default(now())
+  lockedUntil DateTime?
 }

@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import DeleteButton from "@/components/admin/delete-button";
 import { getPrimaryImage, formatPrice } from "@/lib/utils";
-import { analyzeProductSeo } from "@/lib/product-seo-analyzer";
 
 interface ProductRow {
   id: string;
@@ -34,13 +33,12 @@ interface ProductRow {
   robotsIndex: boolean;
   image: string | null;
   images: string | null;
-  imageMetadata: string | null;
-  seoTitle: string | null;
-  seoDescription: string | null;
-  focusKeyword: string | null;
-  shortDescription: string | null;
-  description: string | null;
+  scheduledAt: string | null;
   updatedAt: Date | string;
+  /** Computed on the server (see products/page.tsx). */
+  seoHealthScore: number;
+  missingAlt: boolean;
+  missingSeo: boolean;
   category: {
     id: string;
     name: string;
@@ -56,59 +54,8 @@ export default function ProductTable({ products }: ProductTableProps) {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Calculate SEO Health scores for all rows
-  const productsWithSeo = useMemo(() => {
-    return products.map((p) => {
-      let parsedImages: any[] = [];
-      if (p.imageMetadata) {
-        try {
-          parsedImages = JSON.parse(p.imageMetadata);
-        } catch {
-          // ignore
-        }
-      } else if (p.images) {
-        try {
-          const raw = JSON.parse(p.images);
-          if (Array.isArray(raw)) {
-            parsedImages = raw.map((u) => ({ url: u, alt: "" }));
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      const seo = analyzeProductSeo({
-        name: p.name,
-        slug: p.slug,
-        description: p.description || "",
-        shortDescription: p.shortDescription || "",
-        categoryId: p.category.id,
-        categoryName: p.category.name,
-        price: p.price,
-        salePrice: p.salePrice,
-        stock: p.stock,
-        sku: p.sku || "",
-        brand: p.brand || "PurestStem",
-        images: parsedImages,
-        primaryImage: p.image || (parsedImages.length > 0 ? parsedImages[0].url : ""),
-        seoTitle: p.seoTitle || "",
-        seoDescription: p.seoDescription || "",
-        focusKeyword: p.focusKeyword || "",
-        robotsIndex: p.robotsIndex,
-        status: p.status || (p.isActive ? "published" : "draft"),
-      });
-
-      const missingAlt = parsedImages.some((img) => !img.isDecorative && (!img.alt || !img.alt.trim()));
-      const missingSeo = !p.seoTitle || !p.seoDescription || !p.focusKeyword;
-
-      return {
-        ...p,
-        seoHealthScore: seo.healthScore,
-        missingAlt,
-        missingSeo,
-      };
-    });
-  }, [products]);
+  // SEO scores arrive precomputed from the server.
+  const productsWithSeo = products;
 
   // Filter & search logic
   const filteredProducts = useMemo(() => {
@@ -124,8 +71,9 @@ export default function ProductTable({ products }: ProductTableProps) {
       }
 
       // Filter Tabs
-      if (filter === "published") return p.status === "published" || (p.isActive && p.status !== "draft");
+      if (filter === "published") return p.isActive && p.status === "published";
       if (filter === "draft") return p.status === "draft" || !p.isActive;
+      if (filter === "scheduled") return p.isActive && p.status === "scheduled";
       if (filter === "outOfStock") return p.stock <= 0;
       if (filter === "missingSeo") return p.missingSeo;
       if (filter === "missingAlt") return p.missingAlt;
@@ -158,6 +106,7 @@ export default function ProductTable({ products }: ProductTableProps) {
             { id: "all", label: `All (${products.length})` },
             { id: "published", label: "Published" },
             { id: "draft", label: "Draft" },
+            { id: "scheduled", label: "Scheduled" },
             { id: "outOfStock", label: "Out of Stock" },
             { id: "missingSeo", label: "Missing SEO" },
             { id: "missingAlt", label: "Missing Alt Text" },

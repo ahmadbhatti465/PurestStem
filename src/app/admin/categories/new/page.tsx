@@ -25,7 +25,8 @@ export default function NewCategoryPage() {
         router.push("/admin/categories");
         router.refresh();
       } else {
-        alert("Failed to create category");
+        const body = await res.json().catch(() => ({}));
+        alert(body.error || "Failed to create category");
       }
     } catch {
       alert("An error occurred");

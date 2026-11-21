@@ -20,6 +20,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { readingTime, renderBlogContent } from "@/lib/blog-content";
 import { sanitizeHtml } from "@/lib/html-sanitizer";
 import type { Metadata } from "next";
+import { canAccess } from "@/lib/admin-roles";
 
 export const dynamic = "force-dynamic";
 
@@ -41,8 +42,8 @@ export default async function AdminBlogPreviewPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
-    redirect("/login");
+  if (!session || !canAccess(session.user.role, "blog")) {
+    redirect("/admin");
   }
 
   const { id } = await params;

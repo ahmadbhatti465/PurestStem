@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X, Download, Printer, FileText, Truck, Layers, Loader2, ExternalLink } from "lucide-react";
 
 interface OrderDocumentsModalProps {
@@ -20,7 +20,29 @@ export function OrderDocumentsModal({
 }: OrderDocumentsModalProps) {
   const [docType, setDocType] = useState<"invoice" | "awb" | "combined">(initialDocType);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // The parent re-mounts this modal (via key) each time it opens, so state
+  // starts from the requested document; just move focus into the dialog.
+  useEffect(() => {
+    if (isOpen) closeRef.current?.focus();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -33,6 +55,32 @@ export function OrderDocumentsModal({
       iframeRef.current.contentWindow.print();
     } else {
       window.open(previewUrl, "_blank");
+    }
+  };
+
+  /** Fetch first, so a server error shows a message instead of saving a broken "PDF". */
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(downloadUrl);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Unable to download this document.");
+      }
+      const blob = await res.blob();
+      const match = res.headers.get("content-disposition")?.match(/filename="?([^";]+)"?/);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = match?.[1] || `PurestStem-${docType}-${orderShortId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Unable to download this document.");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -49,8 +97,18 @@ export function OrderDocumentsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
-      <div className="bg-white w-full max-w-5xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${getDocTitle()} for order ${orderShortId}`}
+        className="bg-white w-full max-w-5xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200"
+      >
         {/* Top bar */}
         <div className="px-5 py-3.5 bg-[#132e1f] text-white flex items-center justify-between gap-4 border-b border-green-900/40 shrink-0">
           <div className="flex items-center gap-3">
@@ -131,14 +189,15 @@ export function OrderDocumentsModal({
               Print
             </button>
 
-            <a
-              href={downloadUrl}
-              download
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-sm"
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-sm disabled:opacity-60"
             >
-              <Download className="w-3.5 h-3.5" />
+              {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
               Download
-            </a>
+            </button>
 
             <a
               href={previewUrl}
@@ -151,7 +210,10 @@ export function OrderDocumentsModal({
             </a>
 
             <button
+              ref={closeRef}
+              type="button"
               onClick={onClose}
+              aria-label="Close"
               className="p-1.5 rounded-lg bg-white/10 hover:bg-red-500/80 text-white transition-all ml-1 cursor-pointer"
             >
               <X className="w-4 h-4" />

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { extractClientIp, sendSingleCapiEvent, splitName } from "@/lib/meta/capi";
 import { shippingFor } from "@/lib/shipping";
 import { refreshStorefront } from "@/lib/storefront-cache";
+import { liveProductWhere } from "@/lib/visibility";
 
 const orderSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -50,8 +51,8 @@ export async function POST(request: NextRequest) {
       async (tx) => {
         // Prices always come from the database, never from the browser.
         const products = await tx.product.findMany({
-          where: { id: { in: [...quantities.keys()] }, isActive: true },
-          select: { id: true, name: true, price: true, salePrice: true },
+          where: { id: { in: [...quantities.keys()] }, ...liveProductWhere() },
+          select: { id: true, name: true, price: true, salePrice: true, sku: true, weight: true },
         });
         const productsById = new Map(products.map((product) => [product.id, product]));
 
@@ -94,7 +95,14 @@ export async function POST(request: NextRequest) {
             shippingCost,
             paymentMethod: "cod",
             items: {
-              create: lines.map(({ productId, quantity, price }) => ({ productId, quantity, price })),
+              create: lines.map(({ product, productId, quantity, price }) => ({
+                productId,
+                quantity,
+                price,
+                productName: product.name,
+                productSku: product.sku,
+                productWeight: product.weight,
+              })),
             },
           },
           include: { items: true },

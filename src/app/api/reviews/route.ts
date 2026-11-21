@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { refreshStorefront } from "@/lib/storefront-cache";
+import { liveProductWhere } from "@/lib/visibility";
 
 const reviewSchema = z.object({
   productId: z.string().min(1).max(64),
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const product = await prisma.product.findFirst({
-      where: { id: input.productId, isActive: true },
+      where: { id: input.productId, ...liveProductWhere() },
       select: { id: true },
     });
     if (!product) {

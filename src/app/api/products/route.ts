@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
+import { liveProductWhere } from "@/lib/visibility";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get("featured");
     const search = searchParams.get("search");
 
-    const where: Prisma.ProductWhereInput = { isActive: true };
+    const where: Prisma.ProductWhereInput = { ...liveProductWhere() };
 
     if (category) {
       where.category = { slug: category };

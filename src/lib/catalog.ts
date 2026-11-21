@@ -7,6 +7,7 @@ import {
   CATALOG_TAG,
   STOREFRONT_REVALIDATE_SECONDS,
 } from "@/lib/storefront-cache";
+import { liveProductWhere, livePostWhere } from "@/lib/visibility";
 
 const cardSelect = {
   id: true,
@@ -27,7 +28,7 @@ const cardSelect = {
 export const getActiveProducts = unstable_cache(
   () =>
     prisma.product.findMany({
-      where: { isActive: true },
+      where: liveProductWhere(),
       select: { ...cardSelect, description: true },
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     }),
@@ -43,7 +44,7 @@ export const getShopCategories = unstable_cache(
         id: true,
         name: true,
         slug: true,
-        _count: { select: { products: { where: { isActive: true } } } },
+        _count: { select: { products: { where: liveProductWhere() } } },
       },
       orderBy: { name: "asc" },
     });
@@ -55,7 +56,7 @@ export const getShopCategories = unstable_cache(
 
 export const getBestsellers = cache((take: number) =>
   prisma.product.findMany({
-    where: { isActive: true },
+    where: liveProductWhere(),
     select: cardSelect,
     orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     take,
@@ -66,7 +67,7 @@ export const getBestsellers = cache((take: number) =>
 export async function getShowcaseProducts(take: number) {
   const [products, ratings] = await Promise.all([
     prisma.product.findMany({
-      where: { isActive: true },
+      where: liveProductWhere(),
       select: { ...cardSelect, shortDescription: true },
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
       take,
@@ -116,12 +117,7 @@ export const getProductBySlug = cache(async (slug: string) => {
 export const getPublishedPosts = unstable_cache(
   () =>
     prisma.blogPost.findMany({
-      where: {
-        AND: [
-          { OR: [{ status: "published" }, { published: true, status: { not: "draft" } }] },
-          { OR: [{ scheduledAt: null }, { scheduledAt: { lte: new Date() } }] },
-        ],
-      },
+      where: livePostWhere(),
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -145,7 +141,7 @@ export const getPublishedPosts = unstable_cache(
 export const getBlogCategories = unstable_cache(
   () =>
     prisma.category.findMany({
-      where: { blogPosts: { some: { status: "published" } } },
+      where: { blogPosts: { some: livePostWhere() } },
       select: { id: true, name: true, slug: true },
       orderBy: { name: "asc" },
     }),

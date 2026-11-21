@@ -1,68 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-
-async function checkAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session || !["admin", "message_manager"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
-  return null;
-}
+import { requireApiSection, logAdminAction, isNotFound, readJson } from "@/lib/admin-auth";
 
 export async function GET() {
-  const denied = await checkAdmin();
-  if (denied) return denied;
+  const auth = await requireApiSection("messages");
+  if (!auth.ok) return auth.response;
 
   try {
     const messages = await prisma.contactMessage.findMany({
       orderBy: { createdAt: "desc" },
+      take: 500,
     });
     return NextResponse.json(messages);
   } catch {
-    return NextResponse.json(
-      { error: "Failed to fetch messages" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });
   }
 }
 
 export async function PATCH(req: NextRequest) {
-  const denied = await checkAdmin();
-  if (denied) return denied;
+  const auth = await requireApiSection("messages");
+  if (!auth.ok) return auth.response;
+
+  const body = await readJson(req);
+  if (typeof body?.id !== "string" || typeof body.read !== "boolean") {
+    return NextResponse.json({ error: "id and read (boolean) are required." }, { status: 400 });
+  }
 
   try {
-    const body = await req.json();
     const msg = await prisma.contactMessage.update({
       where: { id: body.id },
       data: { read: body.read },
     });
     return NextResponse.json(msg);
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to update message" },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (isNotFound(error)) return NextResponse.json({ error: "Message not found" }, { status: 404 });
+    return NextResponse.json({ error: "Failed to update message" }, { status: 500 });
   }
 }
 
 export async function DELETE(req: NextRequest) {
-  const denied = await checkAdmin();
-  if (denied) return denied;
+  const auth = await requireApiSection("messages");
+  if (!auth.ok) return auth.response;
+
+  const id = new URL(req.url).searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
   try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-    if (!id) {
-      return NextResponse.json({ error: "ID required" }, { status: 400 });
-    }
     await prisma.contactMessage.delete({ where: { id } });
+    await logAdminAction(auth.session, "delete", "message", id);
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to delete message" },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (isNotFound(error)) return NextResponse.json({ error: "Message not found" }, { status: 404 });
+    return NextResponse.json({ error: "Failed to delete message" }, { status: 500 });
   }
 }

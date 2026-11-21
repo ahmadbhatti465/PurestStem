@@ -1,95 +1,92 @@
 /**
- * HTML Sanitizer for Rich Text Blog Content.
- * Strictly strips dangerous elements, attributes, event handlers, and unsafe protocols
- * while preserving valid semantic HTML tags for articles.
+ * HTML sanitizer for rich text (blog content, product descriptions).
+ *
+ * Uses a real HTML parser with a strict allowlist: anything not listed below
+ * (tags, attributes, URL schemes) is removed. Runs on the server (API writes and
+ * storefront rendering) and in the browser (admin editors).
  */
+import sanitize from "sanitize-html";
 
-const ALLOWED_TAGS = new Set([
-  "h2",
-  "h3",
-  "h4",
-  "p",
-  "strong",
-  "b",
-  "em",
-  "i",
-  "u",
-  "s",
-  "strike",
-  "del",
-  "ul",
-  "ol",
-  "li",
-  "blockquote",
-  "a",
-  "img",
-  "figure",
-  "figcaption",
-  "table",
-  "thead",
-  "tbody",
-  "tr",
-  "th",
-  "td",
-  "hr",
-  "pre",
-  "code",
-  "span",
-  "div",
-  "br",
-]);
+const ALLOWED_TAGS = [
+  "h2", "h3", "h4", "p", "strong", "b", "em", "i", "u", "s", "strike", "del",
+  "ul", "ol", "li", "blockquote", "a", "img", "figure", "figcaption",
+  "table", "thead", "tbody", "tr", "th", "td", "hr", "pre", "code", "span", "div", "br",
+];
 
-const ALLOWED_ATTRS: Record<string, Set<string>> = {
-  a: new Set(["href", "title", "target", "rel", "class", "id"]),
-  img: new Set(["src", "alt", "title", "width", "height", "loading", "class", "data-credit"]),
-  figure: new Set(["class"]),
-  figcaption: new Set(["class"]),
-  table: new Set(["class"]),
-  th: new Set(["colspan", "rowspan", "scope", "class"]),
-  td: new Set(["colspan", "rowspan", "class"]),
-  span: new Set(["class"]),
-  div: new Set(["class"]),
-  pre: new Set(["class"]),
-  code: new Set(["class"]),
-  h2: new Set(["id", "class"]),
-  h3: new Set(["id", "class"]),
-  h4: new Set(["id", "class"]),
-  p: new Set(["class"]),
-  blockquote: new Set(["class", "cite"]),
+const ALLOWED_ATTRIBUTES: sanitize.IOptions["allowedAttributes"] = {
+  a: ["href", "title", "target", "rel", "class", "id"],
+  img: ["src", "alt", "title", "width", "height", "loading", "class", "data-credit"],
+  figure: ["class"],
+  figcaption: ["class"],
+  table: ["class"],
+  th: ["colspan", "rowspan", "scope", "class"],
+  td: ["colspan", "rowspan", "class"],
+  span: ["class"],
+  div: ["class"],
+  pre: ["class"],
+  code: ["class"],
+  h2: ["id", "class"],
+  h3: ["id", "class"],
+  h4: ["id", "class"],
+  p: ["class"],
+  blockquote: ["class", "cite"],
 };
 
-const SAFE_URL_PATTERN = /^(?:(?:https?|mailto|tel):|\/|#)/i;
+const OPTIONS: sanitize.IOptions = {
+  allowedTags: ALLOWED_TAGS,
+  allowedAttributes: ALLOWED_ATTRIBUTES,
+  allowedSchemes: ["http", "https", "mailto", "tel"],
+  allowedSchemesByTag: { img: ["http", "https", "data"] },
+  allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
+  allowProtocolRelative: false,
+  // Drop the contents of dangerous elements entirely rather than keeping their text.
+  nonTextTags: ["script", "style", "textarea", "noscript", "iframe", "object", "embed", "template"],
+  transformTags: {
+    // Links that open a new tab must not get a handle on this window.
+    a: (tagName, attribs) => {
+      if (attribs.target === "_blank") {
+        const rel = new Set((attribs.rel || "").split(/\s+/).filter(Boolean));
+        rel.add("noopener");
+        rel.add("noreferrer");
+        attribs.rel = [...rel].join(" ");
+      }
+      return { tagName, attribs };
+    },
+  },
+};
+
+const SAFE_URL_PATTERN = /^(?:(?:https?|mailto|tel):|\/(?!\/)|#)/i;
 
 /**
- * Check if a URL uses a safe protocol (http, https, mailto, tel, or relative).
+ * Check if a URL uses a safe protocol (http, https, mailto, tel, or a
+ * site-relative path / fragment). Protocol-relative `//host` URLs are rejected.
  */
 export function isSafeUrl(url: string): boolean {
   if (!url) return false;
-  const trimmed = url.trim();
-  if (/^javascript:/i.test(trimmed) || /^data:(?!image\/)/i.test(trimmed) || /^vbscript:/i.test(trimmed)) {
-    return false;
-  }
+  // Browsers ignore control characters and whitespace inside a scheme.
+  const trimmed = url.replace(/[\u0000- \u007f-\u009f]/g, "");
   return SAFE_URL_PATTERN.test(trimmed);
 }
 
-/**
- * Sanitize HTML string on client and server.
- */
+/** Sanitize an HTML string against the rich-text allowlist. */
 export function sanitizeHtml(html: string): string {
   if (!html) return "";
+  return sanitize(html, OPTIONS);
+}
 
-  // Remove <script> tags and contents completely
-  let clean = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
-  // Remove <iframe>, <object>, <embed>, <form>, <input>, <style>
-  clean = clean.replace(/<(iframe|object|embed|form|input|button|style)\b[^>]*>.*?<\/\1>/gi, "");
-  clean = clean.replace(/<(iframe|object|embed|form|input|button|style)\b[^>]*\/?>/gi, "");
+/** Escape a value for use inside a double-quoted HTML attribute. */
+export function escapeAttr(value: string | number | null | undefined): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
-  // Remove on* event handlers (e.g. onload, onerror, onclick)
-  clean = clean.replace(/\s+on[a-z]+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, "");
-
-  // Remove javascript: pseudo-protocols
-  clean = clean.replace(/href\s*=\s*(['"]?)\s*javascript:[^'"]*\1/gi, 'href="#"');
-  clean = clean.replace(/src\s*=\s*(['"]?)\s*javascript:[^'"]*\1/gi, "");
-
-  return clean;
+/** Escape a value for use as HTML text content. */
+export function escapeHtml(value: string | number | null | undefined): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }

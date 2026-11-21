@@ -13,7 +13,7 @@ interface Category {
 export default function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [category, setCategory] = useState<Category | null>(null);
 
@@ -51,7 +51,8 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
         router.push("/admin/categories");
         router.refresh();
       } else {
-        alert("Failed to update category");
+        const body = await res.json().catch(() => ({}));
+        alert(body.error || "Failed to update category");
       }
     } catch {
       alert("An error occurred");

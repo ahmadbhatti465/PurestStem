@@ -105,6 +105,7 @@ export function OrderShippingEditor({
                 onChange={(e) => {
                   if (e.target.value === "other") {
                     setIsCustomMode(true);
+                    setCustomCourier(courier);
                   } else {
                     setCourier(e.target.value);
                   }
@@ -130,7 +131,11 @@ export function OrderShippingEditor({
               />
               <button
                 type="button"
-                onClick={() => setIsCustomMode(false)}
+                onClick={() => {
+                  setIsCustomMode(false);
+                  setCustomCourier("");
+                  setCourier("");
+                }}
                 className="text-[10px] text-gray-400 hover:text-gray-600 px-1"
               >
                 List

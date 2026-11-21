@@ -3,6 +3,8 @@ import Link from "next/link";
 import DeleteButton from "@/components/admin/delete-button";
 import { Plus, Pencil, FolderTree, ArrowRight } from "lucide-react";
 import { FadeIn } from "@/components/animations/fade-in";
+import { getSectionSession } from "@/lib/admin-auth";
+import AccessDenied from "../access-denied";
 
 async function getCategories() {
   return await prisma.category.findMany({
@@ -12,6 +14,7 @@ async function getCategories() {
 }
 
 export default async function AdminCategoriesPage() {
+  if (!(await getSectionSession("categories"))) return <AccessDenied />;
   const categories = await getCategories();
 
   return (
@@ -46,6 +49,13 @@ export default async function AdminCategoriesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
+                {categories.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-12 text-center text-sm text-gray-400">
+                      No categories yet. Add one to start listing products.
+                    </td>
+                  </tr>
+                )}
                 {categories.map((category) => (
                   <tr
                     key={category.id}

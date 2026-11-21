@@ -44,8 +44,14 @@ async function fetchPage(url: string) {
       html = await res.text();
     }
     return { status, location, xRobotsTag, html };
-  } catch (err: any) {
-    return { status: 0, location: null, xRobotsTag: null, html: "", error: err.message };
+  } catch (err) {
+    return {
+      status: 0,
+      location: null,
+      xRobotsTag: null,
+      html: "",
+      error: err instanceof Error ? err.message : String(err),
+    };
   }
 }
 

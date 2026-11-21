@@ -28,6 +28,8 @@ import SeoHealthPanel from "@/components/admin/blog-editor/seo-health-panel";
 import InternalLinksSuggest from "@/components/admin/blog-editor/internal-links-suggest";
 import { slugify } from "@/lib/slugify";
 import { analyzeBlogSeo } from "@/lib/seo-analyzer";
+import { uploadImage } from "@/lib/upload-client";
+import { escapeAttr, escapeHtml } from "@/lib/html-sanitizer";
 
 export default function NewBlogPostPage() {
   const router = useRouter();
@@ -94,11 +96,6 @@ export default function NewBlogPostPage() {
   useEffect(() => {
     async function loadMetadata() {
       try {
-        const [catRes, prodRes] = await fetch("/api/admin/blog/search-links").then((r) => r.json());
-      } catch {
-        // Fallback
-      }
-      try {
         const res = await fetch("/api/categories");
         if (res.ok) {
           const data = await res.json();
@@ -119,7 +116,8 @@ export default function NewBlogPostPage() {
     }
     loadMetadata();
 
-    // Check localStorage for draft recovery
+    // Restore a browser-saved draft just after mount (localStorage is browser-only).
+    const restoreTimer = setTimeout(() => {
     const savedDraft = localStorage.getItem("pureststem_blog_draft_new");
     if (savedDraft) {
       try {
@@ -136,6 +134,8 @@ export default function NewBlogPostPage() {
         console.error("Draft restore error:", e);
       }
     }
+    }, 0);
+    return () => clearTimeout(restoreTimer);
   }, []);
 
   // Autosave to localStorage
@@ -220,31 +220,15 @@ export default function NewBlogPostPage() {
     setUploadingImage(true);
     setErrorMessage("");
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", "blog");
-
     try {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        setImageWidth(img.naturalWidth);
-        setImageHeight(img.naturalHeight);
-      };
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setImageUrl(data.url);
+      const result = await uploadImage(file, "blog");
+      if (result.ok) {
+        setImageUrl(result.url);
+        if (result.width) setImageWidth(result.width);
+        if (result.height) setImageHeight(result.height);
       } else {
-        setErrorMessage(data.error || "Image upload failed");
+        setErrorMessage(result.error);
       }
-    } catch {
-      setErrorMessage("Image upload failed");
     } finally {
       setUploadingImage(false);
     }
@@ -291,7 +275,7 @@ export default function NewBlogPostPage() {
 
   // Insert Link from suggestions
   function handleInsertSuggestedLink(linkUrl: string, linkTitle: string) {
-    const linkHtml = `<a href="${linkUrl}" class="text-green-700 underline font-medium">${linkTitle}</a>`;
+    const linkHtml = `<a href="${escapeAttr(linkUrl)}" class="text-green-700 underline font-medium">${escapeHtml(linkTitle)}</a>`;
     setContent((prev) => prev + `<p>${linkHtml}</p>`);
   }
 

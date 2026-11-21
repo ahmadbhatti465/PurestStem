@@ -1,26 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { refreshStorefront } from "@/lib/storefront-cache";
-import { sanitizeHtml } from "@/lib/html-sanitizer";
-import { slugify } from "@/lib/slugify";
+import { buildProductData } from "@/lib/product-input";
 import { recordProductSlugRedirect } from "@/lib/redirects";
+import {
+  requireApiSection,
+  logAdminAction,
+  isUniqueViolation,
+  isNotFound,
+  readJson,
+} from "@/lib/admin-auth";
 
-async function checkAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session || !["admin", "product_manager"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
-  return null;
-}
+type Params = { params: Promise<{ id: string }> };
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const denied = await checkAdmin();
-  if (denied) return denied;
+export async function GET(_req: NextRequest, { params }: Params) {
+  const auth = await requireApiSection("products");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await params;
@@ -37,257 +32,120 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const denied = await checkAdmin();
-  if (denied) return denied;
+export async function PUT(req: NextRequest, { params }: Params) {
+  const auth = await requireApiSection("products");
+  if (!auth.ok) return auth.response;
+
+  const body = await readJson(req);
+  if (!body) return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
 
   try {
     const { id } = await params;
-    const body = await req.json();
-
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const name = (body.name || "").trim();
-    if (!name) {
-      return NextResponse.json({ error: "Product Name is required." }, { status: 400 });
+    // Optimistic concurrency: refuse to overwrite someone else's newer save.
+    if (
+      typeof body.expectedUpdatedAt === "string" &&
+      new Date(body.expectedUpdatedAt).getTime() !== existing.updatedAt.getTime()
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "This product was changed by someone else since you opened it. Reload the page to see their changes before saving.",
+          conflict: true,
+        },
+        { status: 409 }
+      );
     }
 
-    const slug = slugify(body.slug || name);
-    if (!slug) {
-      return NextResponse.json({ error: "URL Slug is required." }, { status: 400 });
+    const parsed = buildProductData(body, existing);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { data } = parsed;
+
+    const [slugTaken, skuTaken, category] = await Promise.all([
+      data.slug !== existing.slug
+        ? prisma.product.findUnique({ where: { slug: data.slug }, select: { id: true, name: true } })
+        : null,
+      data.sku && data.sku !== existing.sku
+        ? prisma.product.findUnique({ where: { sku: data.sku }, select: { id: true, name: true } })
+        : null,
+      prisma.category.findUnique({ where: { id: data.categoryId }, select: { id: true } }),
+    ]);
+    if (slugTaken && slugTaken.id !== id) {
+      return NextResponse.json(
+        { error: `A product with slug "${data.slug}" already exists ("${slugTaken.name}").` },
+        { status: 409 }
+      );
+    }
+    if (skuTaken && skuTaken.id !== id) {
+      return NextResponse.json(
+        { error: `A product with SKU "${data.sku}" already exists ("${skuTaken.name}").` },
+        { status: 409 }
+      );
+    }
+    if (!category) {
+      return NextResponse.json({ error: "The selected category no longer exists." }, { status: 400 });
     }
 
-    const price = parseFloat(body.price);
-    if (isNaN(price) || price < 0) {
-      return NextResponse.json({ error: "Valid non-negative price is required." }, { status: 400 });
+    const product = await prisma.product.update({ where: { id }, data });
+
+    // Only record the redirect once the new slug is actually saved.
+    if (product.slug !== existing.slug) {
+      await recordProductSlugRedirect(existing.slug, product.slug);
     }
-
-    let salePrice: number | null = null;
-    if (body.salePrice !== undefined && body.salePrice !== null && body.salePrice !== "") {
-      salePrice = parseFloat(body.salePrice);
-      if (isNaN(salePrice) || salePrice < 0) {
-        return NextResponse.json({ error: "Sale price must be a valid non-negative number." }, { status: 400 });
-      }
-      if (salePrice >= price) {
-        return NextResponse.json(
-          { error: `Sale price (Rs. ${salePrice}) must be less than regular price (Rs. ${price}).` },
-          { status: 400 }
-        );
-      }
-    }
-
-    const stock = parseInt(body.stock ?? "0", 10);
-    if (isNaN(stock) || stock < 0) {
-      return NextResponse.json({ error: "Valid stock quantity is required." }, { status: 400 });
-    }
-
-    // Check slug uniqueness
-    if (slug !== existing.slug) {
-      const duplicateSlug = await prisma.product.findUnique({
-        where: { slug },
-        select: { id: true, name: true },
-      });
-      if (duplicateSlug && duplicateSlug.id !== id) {
-        return NextResponse.json(
-          { error: `A product with slug "${slug}" already exists ("${duplicateSlug.name}").` },
-          { status: 409 }
-        );
-      }
-
-      // Record 301 slug redirect
-      await recordProductSlugRedirect(existing.slug, slug);
-    }
-
-    // Check SKU uniqueness
-    const sku = body.sku ? body.sku.trim() : null;
-    if (sku && sku !== existing.sku) {
-      const duplicateSku = await prisma.product.findUnique({
-        where: { sku },
-        select: { id: true, name: true },
-      });
-      if (duplicateSku && duplicateSku.id !== id) {
-        return NextResponse.json(
-          { error: `A product with SKU "${sku}" already exists ("${duplicateSku.name}").` },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Process images
-    let imageMetadataStr: string | null = null;
-    let primaryImageUrl: string | null = body.image || null;
-    let imageUrlsList: string[] = [];
-
-    if (body.imageMetadata) {
-      const str = typeof body.imageMetadata === "string" ? body.imageMetadata : JSON.stringify(body.imageMetadata);
-      imageMetadataStr = str;
-      try {
-        const parsed = JSON.parse(str);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          imageUrlsList = parsed.map((item) => (typeof item === "string" ? item : item.url)).filter(Boolean);
-          if (!primaryImageUrl && imageUrlsList.length > 0) {
-            primaryImageUrl = imageUrlsList[0];
-          }
-        }
-      } catch {
-        // ignore
-      }
-    } else if (body.images) {
-      const imagesStr = typeof body.images === "string" ? body.images : JSON.stringify(body.images);
-      try {
-        const parsed = JSON.parse(imagesStr);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          imageUrlsList = parsed;
-          if (!primaryImageUrl) primaryImageUrl = parsed[0];
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    const imagesJsonStr = imageUrlsList.length > 0 ? JSON.stringify(imageUrlsList) : null;
-
-    const structuredIngredientsStr = body.structuredIngredients
-      ? typeof body.structuredIngredients === "string"
-        ? body.structuredIngredients
-        : JSON.stringify(body.structuredIngredients)
-      : null;
-
-    const structuredHowToUseStr = body.structuredHowToUse
-      ? typeof body.structuredHowToUse === "string"
-        ? body.structuredHowToUse
-        : JSON.stringify(body.structuredHowToUse)
-      : null;
-
-    const benefitsStr = body.benefits
-      ? typeof body.benefits === "string"
-        ? body.benefits
-      : JSON.stringify(body.benefits)
-      : null;
-
-    const featuresStr = body.features
-      ? typeof body.features === "string"
-        ? body.features
-      : JSON.stringify(body.features)
-      : null;
-
-    const faqsStr = body.faqs
-      ? typeof body.faqs === "string"
-        ? body.faqs
-      : JSON.stringify(body.faqs)
-      : null;
-
-    const relatedProductIdsStr = body.relatedProductIds
-      ? typeof body.relatedProductIds === "string"
-        ? body.relatedProductIds
-      : JSON.stringify(body.relatedProductIds)
-      : null;
-
-    const relatedBlogIdsStr = body.relatedBlogIds
-      ? typeof body.relatedBlogIds === "string"
-        ? body.relatedBlogIds
-      : JSON.stringify(body.relatedBlogIds)
-      : null;
-
-    const secondaryKeywordsStr = body.secondaryKeywords
-      ? Array.isArray(body.secondaryKeywords)
-        ? body.secondaryKeywords.join(", ")
-        : String(body.secondaryKeywords)
-      : null;
-
-    const status = body.status || existing.status || "published";
-    const publishedAt =
-      status === "published" && !existing.publishedAt ? new Date() : existing.publishedAt;
-    const scheduledAt =
-      status === "scheduled" && body.scheduledAt ? new Date(body.scheduledAt) : null;
-
-    const product = await prisma.product.update({
-      where: { id },
-      data: {
-        name,
-        slug,
-        description: body.description ? sanitizeHtml(body.description) : null,
-        shortDescription: body.shortDescription ? body.shortDescription.trim() : null,
-        brand: body.brand ? body.brand.trim() : "PurestStem",
-        productType: body.productType ? body.productType.trim() : null,
-        condition: body.condition ? body.condition.trim() : "New",
-        gtin: body.gtin ? body.gtin.trim() : null,
-        mpn: body.mpn ? body.mpn.trim() : null,
-        unit: body.unit ? body.unit.trim() : "piece",
-        price,
-        salePrice,
-        stock,
-        sku,
-        weight: body.weight ? body.weight.trim() : null,
-        weightValue: body.weightValue ? parseFloat(body.weightValue) : null,
-        weightUnit: body.weightUnit ? body.weightUnit.trim() : "ml",
-        ingredients: body.ingredients ? body.ingredients.trim() : null,
-        structuredIngredients: structuredIngredientsStr,
-        howToUse: body.howToUse ? body.howToUse.trim() : null,
-        structuredHowToUse: structuredHowToUseStr,
-        benefits: benefitsStr,
-        features: featuresStr,
-        image: primaryImageUrl,
-        images: imagesJsonStr,
-        imageMetadata: imageMetadataStr,
-        featured: body.featured === "true" || body.featured === true,
-        isActive: body.isActive === "false" || body.isActive === false ? false : status !== "draft",
-        status,
-        publishedAt,
-        scheduledAt,
-        seoTitle: body.seoTitle ? body.seoTitle.trim() : null,
-        seoDescription: body.seoDescription ? body.seoDescription.trim() : null,
-        focusKeyword: body.focusKeyword ? body.focusKeyword.trim() : null,
-        secondaryKeywords: secondaryKeywordsStr,
-        canonicalUrl: body.canonicalUrl ? body.canonicalUrl.trim() : null,
-        robotsIndex: body.robotsIndex !== false && body.robotsIndex !== "false",
-        robotsFollow: body.robotsFollow !== false && body.robotsFollow !== "false",
-        ogTitle: body.ogTitle ? body.ogTitle.trim() : null,
-        ogDescription: body.ogDescription ? body.ogDescription.trim() : null,
-        ogImage: body.ogImage || null,
-        twitterTitle: body.twitterTitle ? body.twitterTitle.trim() : null,
-        twitterDescription: body.twitterDescription ? body.twitterDescription.trim() : null,
-        twitterImage: body.twitterImage || null,
-        faqs: faqsStr,
-        relatedProductIds: relatedProductIdsStr,
-        relatedBlogIds: relatedBlogIdsStr,
-        categoryId: body.categoryId || existing.categoryId,
-      },
-    });
 
     refreshStorefront();
+    await logAdminAction(auth.session, "update", "product", id, {
+      name: product.name,
+      ...(existing.price !== product.price ? { priceFrom: existing.price, priceTo: product.price } : {}),
+      ...(existing.stock !== product.stock ? { stockFrom: existing.stock, stockTo: product.stock } : {}),
+      ...(existing.status !== product.status ? { statusFrom: existing.status, statusTo: product.status } : {}),
+      ...(existing.slug !== product.slug ? { slugFrom: existing.slug, slugTo: product.slug } : {}),
+    });
     return NextResponse.json(product);
   } catch (error) {
+    if (isUniqueViolation(error)) {
+      return NextResponse.json({ error: "Slug or SKU is already in use." }, { status: 409 });
+    }
     console.error("Update product failed:", error);
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const denied = await checkAdmin();
-  if (denied) return denied;
+/**
+ * Order lines keep a snapshot of the product's name/SKU/weight, so deleting a
+ * product no longer erases it from order history or invoices.
+ */
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  const auth = await requireApiSection("products");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await params;
-    await prisma.product.delete({ where: { id } });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: { name: true, slug: true, sku: true, weight: true },
+    });
+    if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+
+    await prisma.$transaction([
+      // Backfill snapshots for any order lines created before snapshots existed.
+      prisma.orderItem.updateMany({
+        where: { productId: id, productName: null },
+        data: { productName: product.name, productSku: product.sku, productWeight: product.weight },
+      }),
+      prisma.product.delete({ where: { id } }),
+    ]);
+
     refreshStorefront();
+    await logAdminAction(auth.session, "delete", "product", id, { name: product.name, slug: product.slug });
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error instanceof Error && error.message.includes("Foreign key constraint")) {
-      return NextResponse.json(
-        { error: "Cannot delete product because it is linked to existing customer orders." },
-        { status: 409 }
-      );
-    }
+    if (isNotFound(error)) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    console.error("Delete product failed:", error);
     return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
   }
 }

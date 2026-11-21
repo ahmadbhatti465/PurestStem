@@ -15,7 +15,7 @@ import {
 export default function MonthlyRevenueChart({
   data,
 }: {
-  data: { month: string; revenue: number; profit: number }[];
+  data: { month: string; revenue: number; orders: number }[];
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -24,7 +24,7 @@ export default function MonthlyRevenueChart({
     return () => clearTimeout(t);
   }, []);
 
-  if (data.length === 0) {
+  if (data.every((d) => d.revenue === 0)) {
     return (
       <div className="h-72 flex items-center justify-center text-gray-400">
         No monthly data available
@@ -49,13 +49,12 @@ export default function MonthlyRevenueChart({
         <Tooltip
           formatter={(value) => [
             `Rs ${Number(value || 0).toLocaleString()}`,
-            "",
+            "Revenue",
           ]}
           contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
         />
         <Legend />
-        <Bar dataKey="revenue" fill="#2d6a4f" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="profit" fill="#52b788" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="revenue" name="Revenue" fill="#2d6a4f" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
